@@ -1,0 +1,41 @@
+name: CasinoPlugin
+version: 1.5.2
+main: liric.casino.CasinoPlugin
+api-version: '1.20'
+author: Liric Casino Team
+depend: [Vault]
+softdepend: [PlaceholderAPI]
+
+commands:
+  ruletamix:
+    description: Abre o gestiona la ruleta definitiva (Apostar a Colores o Números).
+    usage: /ruletamix <jugar|setup|delete|forcestart>
+    aliases: [ruleta] # TRUCO: Los jugadores pueden usar simplemente /ruleta
+
+  casino:
+    description: Comando principal del Casino (Estadísticas y recarga).
+    usage: /casino <stats|top|reload>
+    aliases: [ c ]
+
+  blackjack:
+    description: Juega al 21 Blackjack.
+    usage: /blackjack <jugar|setup|delete>
+    aliases: [ bj, 21 ]
+
+  poker:
+    description: Únete a la mesa de Poker.
+    usage: /poker <join|setup|delete>
+
+  tragamonedas:
+    description: Abre la máquina tragamonedas 777.
+    usage: /tragamonedas
+    aliases: [ slots, 777 ]
+
+  boleto:
+    description: Compra boletos mágicos de Rasca y Gana.
+    usage: /boleto comprar <cantidad>
+
+permissions:
+  casino.admin:
+    description: Permite poner, borrar o forzar el inicio de la ruleta.
+    default: op

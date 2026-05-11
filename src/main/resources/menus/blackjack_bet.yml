@@ -1,0 +1,60 @@
+# ═══════════════════════════════════════════════════════
+#   menus/blackjack_bet.yml — Menú de apuesta de Blackjack
+# ═══════════════════════════════════════════════════════
+
+title-solo: "<black><bold>Apuesta ➔ Solitario"
+title-multi: "<black><bold>Apuesta ➔ Multijugador"
+rows: 3
+
+filler:
+  material: GRAY_STAINED_GLASS_PANE
+
+buttons:
+  minus-big:
+    slot: 10
+    material: RED_DYE
+    label: "-10k"
+    amount: -10000.0
+    color: "<#FF3333>"
+  minus-medium:
+    slot: 11
+    material: RED_DYE
+    label: "-1k"
+    amount: -1000.0
+    color: "<#FF3333>"
+  minus-small:
+    slot: 12
+    material: RED_DYE
+    label: "-100"
+    amount: -100.0
+    color: "<#FF3333>"
+
+  plus-small:
+    slot: 14
+    material: LIME_DYE
+    label: "+100"
+    amount: 100.0
+    color: "<#00FF7F>"
+  plus-medium:
+    slot: 15
+    material: LIME_DYE
+    label: "+1k"
+    amount: 1000.0
+    color: "<#00FF7F>"
+  plus-big:
+    slot: 16
+    material: LIME_DYE
+    label: "+10k"
+    amount: 10000.0
+    color: "<#00FF7F>"
+
+  confirm:
+    slot: 13
+    material: EMERALD_BLOCK
+    name: "<#00FF7F><bold>✔ EMPEZAR A JUGAR ✔</bold>"
+    lore-bet: "<gray>Apuesta inicial: <#FFD700>${amount}"
+
+  max-bet:
+    slot: 22
+    material: GOLD_BLOCK
+    name: "<#FFD700><bold>✦ MAX BET ({max}) ✦</bold>"

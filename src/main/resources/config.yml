@@ -1,0 +1,174 @@
+# ═══════════════════════════════════════════════════════
+#   CasinoLiric — Configuración Principal
+#   Soporta: &a (Legacy), &#RRGGBB (Hex), <red> (MiniMessage)
+# ═══════════════════════════════════════════════════════
+
+# ─── Base de Datos ───────────────────────────────────────
+database:
+  type: "sqlite" # sqlite o mariadb
+  host: "localhost"
+  port: 3306
+  database: "casino"
+  username: "root"
+  password: ""
+  pool-size: 5
+
+# ─── Boosters de economía ────────────────────────────────
+boosters:
+  vip:
+    booster: 2.0
+    permiso: "vip.boost"
+  mvp:
+    booster: 3.0
+    permiso: "mvp.boost"
+
+# ─── Ruleta Mixta ────────────────────────────────────────
+roulette:
+  min-players-to-start: 1
+  countdown-seconds: 180
+  max-bet: 200000.0
+  number-payout: 36.0
+  color-multipliers:
+    RED: 2.0
+    BLACK: 2.0
+    GREEN: 14.0
+
+# ─── Blackjack ───────────────────────────────────────────
+blackjack:
+  bet:
+    min: 100.0
+    max: 100000.0
+  raise-amount: 5000.0
+
+# ─── Tragamonedas (Slots 777) ────────────────────────────
+slots:
+  bet:
+    min: 100.0
+    max: 100000.0
+  luck-boosters:
+    casino.suerte.hero: 1.5
+    casino.suerte.elite: 2.0
+    casino.suerte.leyenda: 3.5
+    casino.suerte.dios: 4.0
+  prizes:
+    - material: ENCHANTED_GOLDEN_APPLE
+      display-name: "<#FF00FF><bold>¡JACKPOT 777!</bold>"
+      multiplier: 100.0
+      weight: 1
+    - material: NETHERITE_BLOCK
+      display-name: "<#302B27><bold>¡NETHERITE!</bold>"
+      multiplier: 25.0
+      weight: 5
+    - material: DIAMOND
+      display-name: "<#00FFFF><bold>¡DIAMANTE!</bold>"
+      multiplier: 10.0
+      weight: 15
+    - material: EMERALD
+      display-name: "<#00FF7F><bold>¡ESMERALDA!</bold>"
+      multiplier: 5.0
+      weight: 30
+    - material: GOLD_INGOT
+      display-name: "<#FFD700><bold>¡ORO!</bold>"
+      multiplier: 3.0
+      weight: 50
+    - material: IRON_INGOT
+      display-name: "<#E0E0E0><bold>¡HIERRO!</bold>"
+      multiplier: 1.5
+      weight: 70
+    - material: GOLDEN_APPLE
+      display-name: "<#FFD700>Manzana Dorada"
+      multiplier: 1.0
+      weight: 80
+    - material: APPLE
+      display-name: "<#FF5555>Manzana"
+      multiplier: 0.5
+      weight: 100
+    - material: DIRT
+      display-name: "<#8B4513>Tierra"
+      multiplier: 0.0
+      weight: 120
+    - material: ROTTEN_FLESH
+      display-name: "<#556B2F>Carne Podrida"
+      multiplier: 0.0
+      weight: 120
+    - material: STICK
+      display-name: "<#D2B48C>Palo"
+      multiplier: 0.0
+      weight: 120
+    - material: DEAD_BUSH
+      display-name: "<#8B4513>Arbusto Muerto"
+      multiplier: 0.0
+      weight: 120
+
+# ─── Rasca y Gana ────────────────────────────────────────
+scratch:
+  tiers:
+    basico:
+      display-name: "&6Básico &7(3x3)"
+      price: 1000.0
+      rows: 3
+      match-required: 3
+      payout-multiplier: 1.0
+    avanzado:
+      display-name: "<#00FFFF>Avanzado &7(5x5)"
+      price: 5000.0
+      rows: 5
+      match-required: 4
+      payout-multiplier: 5.0
+    maestro:
+      display-name: "<#FF00FF>Maestro &7(7x5)"
+      price: 10000.0
+      rows: 5
+      match-required: 5
+      payout-multiplier: 10.0
+    gigante:
+      display-name: "&#FFD700Gigante &7(9x6)"
+      price: 25000.0
+      rows: 6
+      match-required: 6
+      payout-multiplier: 25.0
+  prizes:
+    - material: NETHERITE_BLOCK
+      display-name: "<#302B27><bold>¡NETHERITE!</bold>"
+      base-payout: 250000.0
+      weight: 1
+    - material: DIAMOND_BLOCK
+      display-name: "<#00FFFF><bold>¡DIAMANTES!</bold>"
+      base-payout: 50000.0
+      weight: 3
+    - material: EMERALD_BLOCK
+      display-name: "<#00FF7F><bold>¡ESMERALDAS!</bold>"
+      base-payout: 15000.0
+      weight: 8
+    - material: AMETHYST_BLOCK
+      display-name: "<#9966CC><bold>¡AMATISTA!</bold>"
+      base-payout: 5000.0
+      weight: 15
+    - material: GOLD_BLOCK
+      display-name: "<#FFD700><bold>¡ORO!</bold>"
+      base-payout: 2500.0
+      weight: 25
+    - material: IRON_BLOCK
+      display-name: "<#E0E0E0><bold>¡HIERRO!</bold>"
+      base-payout: 1000.0
+      weight: 40
+    - material: ENDER_PEARL
+      display-name: "<#008B8B><bold>ENDER PEARL</bold>"
+      base-payout: 500.0
+      weight: 60
+    - material: BLAZE_POWDER
+      display-name: "<#FFA500><bold>POLVO BLAZE</bold>"
+      base-payout: 300.0
+      weight: 80
+    - material: APPLE
+      display-name: "<red><bold>MANZANA</bold>"
+      base-payout: 200.0
+      weight: 100
+    - material: STICK
+      display-name: "<#8B4513><bold>PALO DE MADERA</bold>"
+      base-payout: 0.0
+      weight: 150
+    - material: COAL_BLOCK
+      display-name: "<dark_gray><bold>CARBÓN</bold>"
+      base-payout: 0.0
+      weight: 150

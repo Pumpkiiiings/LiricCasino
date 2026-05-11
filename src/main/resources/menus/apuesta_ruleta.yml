@@ -1,0 +1,77 @@
+# ═══════════════════════════════════════════════════════
+#   menus/apuesta_ruleta.yml — Menú de cantidad de apuesta (Ruleta)
+# ═══════════════════════════════════════════════════════
+
+title: "<black><bold>Apuesta ➔ {target}"
+rows: 3
+
+buttons:
+  # Botones de resta (slots 10, 11, 12)
+  minus-big:
+    slot: 10
+    material: RED_DYE
+    label: "-10k"
+    amount: -10000.0
+    color: "<#FF3333>"
+  minus-medium:
+    slot: 11
+    material: RED_DYE
+    label: "-1000"
+    amount: -1000.0
+    color: "<#FF3333>"
+  minus-small:
+    slot: 12
+    material: RED_DYE
+    label: "-100"
+    amount: -100.0
+    color: "<#FF3333>"
+
+  # Botones de suma (slots 14, 15, 16)
+  plus-small:
+    slot: 14
+    material: LIME_DYE
+    label: "+100"
+    amount: 100.0
+    color: "<#00FF7F>"
+  plus-medium:
+    slot: 15
+    material: LIME_DYE
+    label: "+1000"
+    amount: 1000.0
+    color: "<#00FF7F>"
+  plus-big:
+    slot: 16
+    material: LIME_DYE
+    label: "+10k"
+    amount: 10000.0
+    color: "<#00FF7F>"
+
+  # MAX BET (slot 22)
+  max-bet:
+    slot: 22
+    material: GOLD_BLOCK
+    name: "<#FFD700><bold>✦ ¡MAX BET! ✦"
+    lore:
+      - "<gray>Apostar el máximo: <#00FF7F>${max}"
+
+  # VOLVER (slot 18)
+  back:
+    slot: 18
+    material: ARROW
+    name: "<#FF3333><bold>Volver"
+
+  # CONFIRMAR (slot 13 — se actualiza dinámicamente)
+  confirm:
+    confirm-name: "<#00FF7F><bold>✔ CONFIRMAR APUESTA"
+    lore-target: "<gray>Objetivo: <white>{target}"
+    lore-total: "<gray>Total en mesa: <#00FF7F>${amount}"
+    lore-click: ""
+    lore-action: "<#FFD700>¡Click para apostar!"
+
+error:
+  limit-msg: "<#FF3333><bold>¡LÍMITE ({max})!"
+  limit-lore: "<gray>No puedes apostar más de {max}."
+  no-funds-msg: "<#FF3333><bold>¡SIN FONDOS!"
+  no-funds-lore: "<gray>No tienes suficiente dinero."
+  min-msg: "<#FF3333><bold>¡MÍNIMO ALCANZADO!"
+  min-lore: "<gray>La apuesta no puede ser menor a 0."

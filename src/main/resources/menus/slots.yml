@@ -1,0 +1,61 @@
+# ═══════════════════════════════════════════════════════
+#   menus/slots.yml — Menú de la Máquina Tragamonedas 777
+# ═══════════════════════════════════════════════════════
+
+title: "<#FFB400><bold>🎰 MÁQUINA 777 🎰</bold></#FFB400>"
+rows: 3
+
+filler:
+  material: GRAY_STAINED_GLASS_PANE
+
+reel:
+  slots: [12, 13, 14]
+  empty-material: BLACK_CONCRETE
+  empty-name: "<#E0E0E0>?"
+
+spinning-indicator:
+  material: BARRIER
+  name: "<#FF5555>Girando..."
+
+buttons:
+  minus-big:
+    slot: 20
+    material: RED_DYE
+    label: "-10k"
+    amount: -10000.0
+    color: "<#FF5555>"
+  minus-small:
+    slot: 21
+    material: RED_DYE
+    label: "-1k"
+    amount: -1000.0
+    color: "<#FF5555>"
+
+  plus-small:
+    slot: 23
+    material: LIME_DYE
+    label: "+1k"
+    amount: 1000.0
+    color: "<#00FF7F>"
+  plus-big:
+    slot: 24
+    material: LIME_DYE
+    label: "+10k"
+    amount: 10000.0
+    color: "<#00FF7F>"
+
+  spin:
+    slot: 22
+    material: TRIPWIRE_HOOK
+    name: "<#FFD700><bold>🎰 ¡TIRAR PALANCA! 🎰</bold>"
+    lore-bet: "<gray>Apuesta actual: <#00FF7F>${amount}"
+    lore-empty: ""
+    lore-tip: "<#FFB400>¡Consigue 3 iguales para ganar!"
+
+  restart:
+    slot: 26
+    material: AMETHYST_SHARD
+    name: "<#9966CC><bold>¿Quieres intentarlo otra vez?</bold>"
+    lore:
+      - "<gray>Haz click para resetear"
+      - "<gray>los rodillos."

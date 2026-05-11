@@ -1,0 +1,33 @@
+# ═══════════════════════════════════════════════════════
+#   menus/blackjack_choice.yml — Menú de elección de modo Blackjack
+# ═══════════════════════════════════════════════════════
+
+title: "<black><bold>¿Listo para jugar?"
+rows: 3
+
+filler:
+  material: BLACK_STAINED_GLASS_PANE
+
+items:
+  vs-house:
+    slot: 11
+    material: RED_DYE
+    name: "<#FF5555><bold>SOLITARIO VS LA CASA</bold>"
+    lore:
+      - "<gray>Juega tú solo contra el Dealer de forma rápida."
+
+  tutorial:
+    slot: 13
+    material: WRITTEN_BOOK
+    name: "<#FFB400><bold>📖 CÓMO JUGAR (Guía)</bold>"
+    lore:
+      - "<gray>Aprende las reglas y pagos del Blackjack."
+
+  vs-players:
+    slot: 15
+    material: DIAMOND
+    name: "<#00FFFF><bold>MESA MULTIJUGADOR (Real)</bold>"
+    lore:
+      - "<gray>Únete a la mesa con otros jugadores."
+      - "<gray>Todos juegan sus propias manos"
+      - "<gray>contra el mismo Dealer por turnos."

@@ -1,0 +1,55 @@
+# ═══════════════════════════════════════════════════════
+#   menus/blackjack_tutorial.yml — Guía de Blackjack
+# ═══════════════════════════════════════════════════════
+
+title: "<black><bold>📖 Cómo Jugar Blackjack"
+rows: 3
+
+filler:
+  material: BLACK_STAINED_GLASS_PANE
+
+back-button:
+  slot: 22
+  material: ARROW
+  name: "<red><bold>⬅ VOLVER</bold>"
+
+pages:
+  objetivo:
+    slot: 10
+    material: BOOK
+    name: "<#FFD700><bold>1. EL OBJETIVO</bold>"
+    lore:
+      - "<gray>Tu meta es ganarle al <#FF5555>Dealer</#FF5555>."
+      - "<gray>Para hacerlo, la suma de tus cartas"
+      - "<gray>debe estar más cerca de <#00FF7F>21</#00FF7F> que las"
+      - "<gray>del Dealer, ¡pero sin pasarte (Volaste)!"
+
+  valor-cartas:
+    slot: 12
+    material: PAPER
+    name: "<#00FF7F><bold>2. VALOR DE LAS CARTAS</bold>"
+    lore:
+      - "<white>• Cartas 2-10: <gray>Valen su número."
+      - "<white>• J, Q, K: <gray>Valen 10 puntos."
+      - "<white>• As (A): <gray>Vale 1 o 11 puntos"
+      - "<gray>  (El juego elige el que más te convenga)."
+
+  acciones:
+    slot: 14
+    material: COMPASS
+    name: "<#00FFFF><bold>3. TUS ACCIONES</bold>"
+    lore:
+      - "<#00FF7F>✚ Pedir (Hit): <gray>Pides otra carta."
+      - "<#FF5555>✋ Plantarse (Stand): <gray>Te quedas con lo que tienes."
+      - "<#FFD700>💰 Doblar (Double): <gray>Duplicas tu apuesta,"
+      - "<gray>recibes solo UNA carta más y te plantas automáticamente."
+
+  pagos:
+    slot: 16
+    material: GOLD_INGOT
+    name: "<#FFD700><bold>4. LOS PAGOS</bold>"
+    lore:
+      - "<white>• Victoria Normal: <gray>Paga 1 a 1 (Ganas el doble)."
+      - "<white>• Blackjack (21 exacto en 2 cartas): <gray>Paga 3 a 2 (Ganas x2.5)."
+      - "<white>• Empate (Push): <gray>Recuperas tu dinero."
+      - "<white>• Pierdes o te pasas: <gray>Pierdes tu apuesta."

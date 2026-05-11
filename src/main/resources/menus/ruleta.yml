@@ -1,0 +1,52 @@
+# ═══════════════════════════════════════════════════════
+#   menus/ruleta.yml — Menú principal de la Ruleta Mixta
+# ═══════════════════════════════════════════════════════
+
+title: "<#FF00FF><bold>🌀</bold></#FF00FF> <black><bold>Ruleta Mixta</bold></black> <#FF00FF><bold>🌀</bold></#FF00FF>"
+rows: 6
+
+# Slot donde va el número 0
+zero-slot: 4
+# Los números 1-36 se ubican desde este slot en adelante (slot = base + numero)
+number-start-slot: 8
+
+# Slots de los botones de apuesta por color (fila inferior)
+color-slots:
+  red: 48
+  green: 49
+  black: 50
+
+items:
+  zero:
+    material: LIME_DYE
+    name: "<#00FF7F><bold>NÚMERO 0 <#A8FFC1>(Paga x36)"
+    lore:
+      - "<#FFD700>¡Click para apostar!"
+
+  red-number:
+    name-template: "<#FF2A2A><bold>NÚMERO {num} <gray>(Paga x36)"
+    lore:
+      - "<#FFD700>¡Click para apostar!"
+
+  black-number:
+    name-template: "<#666666><bold>NÚMERO {num} <gray>(Paga x36)"
+    lore:
+      - "<#FFD700>¡Click para apostar!"
+
+  color-red:
+    material: RED_WOOL
+    name: "<#FF2A2A><bold>APUESTA COLOR ROJO <#FF8888>(Paga x2)"
+    lore:
+      - "<#FFD700>¡Click para apostar a Color!"
+
+  color-green:
+    material: LIME_WOOL
+    name: "<#00FF7F><bold>APUESTA COLOR VERDE <#A8FFC1>(Paga x14)"
+    lore:
+      - "<#FFD700>¡Click para apostar a Color!"
+
+  color-black:
+    material: BLACK_WOOL
+    name: "<#666666><bold>APUESTA COLOR NEGRO <#AAAAAA>(Paga x2)"
+    lore:
+      - "<#FFD700>¡Click para apostar a Color!"

@@ -1,0 +1,87 @@
+# ═══════════════════════════════════════════════════════
+#   CasinoLiric — messages.yml
+#   Todos los mensajes del plugin.
+#   Soporta: &a (Legacy), &#RRGGBB (Hex), <red> (MiniMessage)
+#   Placeholder disponible en todos: {prefix}
+# ═══════════════════════════════════════════════════════
+
+prefix: "<#FF0000><bold>CASINO</bold></#FF0000> <gray>»</gray>"
+
+# ─── General ────────────────────────────────────────────
+general:
+  no-permission: "{prefix} <#FF5555>No tienes permisos de administrador."
+  only-players: "{prefix} <#FF5555>Solo los jugadores pueden usar este comando."
+  invalid-action: "{prefix} <#FF5555>Acción inválida. Revisa el uso del comando."
+  no-funds: "{prefix} <#FF5555>No tienes suficiente dinero."
+
+# ─── Stats y Top ─────────────────────────────────────────
+stats:
+  usage: "{prefix} <#FF5555>Uso: /casino <stats|top|reload> [modo]"
+
+# ─── Ruleta Mixta ────────────────────────────────────────
+roulette:
+  already-spinning: "{prefix} <#FF3333>La ruleta ya está girando. ¡Espera un momento!"
+  already-bet: "{prefix} <#FF5555>Ya has apostado en esta ronda. Solo 1 apuesta permitida."
+  bet-range: "{prefix} <#FF5555>La apuesta debe ser entre $1 y ${max}."
+  bet-placed: "{prefix} <#00FF7F>¡Apostaste <#FFB400>${amount}</#FFB400> {target}!"
+  no-funds: "{prefix} <#FF5555>No tienes suficiente dinero."
+  spin-announce: "{prefix} <#E0E0E0>¡Alguien acaba de apostar en la <#FF00FF><bold>Ruleta Mixta</bold></#FF00FF>! La ruleta girará en <#00FF7F>3 minutos</#00FF7F>. Usa <#FFB400>/ruleta</#FFB400> para unirte."
+  countdown-2min: "{prefix} <#E0E0E0>¡La Ruleta Mixta girará en <#00FF7F>2 minutos</#00FF7F>! Hay {players} jugador(es) apostando. Usa <#FFB400>/ruleta</#FFB400>."
+  countdown-1min: "{prefix} <#E0E0E0>¡Último minuto! La Ruleta Mixta girará en <#00FF7F>1 minuto</#00FF7F>. Usa <#FFB400>/ruleta</#FFB400> rápido."
+  countdown-30s: "{prefix} <#E0E0E0>¡La Ruleta Mixta girará en <#FF5555>30 segundos</#FF5555>! ¡Hagan sus apuestas!"
+  countdown-10s: "{prefix} <#FF5555><bold>¡ATENCIÓN! La Ruleta Mixta gira en 10 segundos.</bold></#FF5555>"
+  spinning: "{prefix} <#FFB400><bold>¡No va más! La Ruleta Mixta está girando...</bold></#FFB400>"
+  result: "{prefix} <#E0E0E0>¡Ha caído el número <#FFB400><bold>{number}</bold></#FFB400> ({color}<#E0E0E0>) en la Ruleta Mixta!"
+  win: "{prefix} <#00FF7F><bold>¡GANASTE!</bold> <#E0E0E0>Te llevas <#FFB400>${amount}</#FFB400>.{booster}"
+  win-booster: " <aqua>(Booster: {booster}x)</aqua>"
+  lose: "{prefix} <#FF5555>Perdiste tu apuesta de <#FFB400>${amount}</#FFB400>."
+  deleted: "{prefix} <#00FF7F>¡Ruleta eliminada y borrada del archivo data.yml!"
+  not-found: "{prefix} <#FF5555>No hay ninguna ruleta cerca."
+  purged: "{prefix} <#00FF7F>¡PURGA NUCLEAR! Se eliminaron {count} entidades y se limpió el data.yml en este mundo."
+
+# ─── Blackjack ───────────────────────────────────────────
+blackjack:
+  no-funds: "{prefix} <#FF5555>No tienes suficientes fondos para empezar."
+  table-created: "{prefix} <#00FF7F>Mesa de Blackjack creada."
+  table-deleted: "{prefix} <#00FF7F>Mesa eliminada."
+  table-not-found: "{prefix} <#FF5555>No hay mesas cerca."
+  usage: "{prefix} <#FF5555>Uso: /bj <play|leave|setup|delete>"
+
+# ─── Tragamonedas (Slots) ───────────────────────────────
+slots:
+  no-funds: "{prefix} <#FF5555>No tienes fondos para esta apuesta."
+  no-funds-general: "{prefix} <#FF5555>No tienes fondos suficientes."
+  jackpot: "{prefix} <#FF00FF><bold>¡JACKPOT!</bold> <#FFD700>{player} acaba de sacar el 777 y ganó <#00FF7F>${amount}!"
+  win: "{prefix} <#00FF7F><bold>¡GANASTE!</bold> <#E0E0E0>Multiplicador x{mult}. Te llevas <#FFB400>${amount}</#FFB400>!"
+  trash: "{prefix} <#FF5555>Juntaste 3 basuras... No ganas nada."
+  no-luck: "{prefix} <gray>No hubo suerte esta vez..."
+  machine-created: "{prefix} <#00FF7F>Máquina 777 creada con éxito."
+  machine-deleted: "{prefix} <#00FF7F>¡Máquina eliminada y borrada del archivo de datos!"
+  machine-not-found: "{prefix} <#FF5555>No hay ninguna máquina cerca. Acércate a menos de 5 bloques."
+  look-block: "{prefix} <#FF5555>Debes mirar directamente a un bloque (máx. 5 bloques de distancia)."
+  purged: "{prefix} <#00FF7F>¡PURGA COMPLETADA! Se eliminaron {count} hologramas de slots en este mundo."
+  usage: "{prefix} <#FF5555>Uso: /tragamonedas <setup|delete|purge>"
+
+# ─── Rasca y Gana ────────────────────────────────────────
+scratch:
+  win: "{prefix} <#00FF7F><bold>¡FELICIDADES!</bold> <#E0E0E0>Juntaste {count} {prize} <#E0E0E0>y ganaste <#FFB400>${amount}</#FFB400>."
+  win-trash: "{prefix} <#FF5555>Juntaste {count} {prize}. ¡Mala suerte, no hay premio!"
+  no-prize: "{prefix} <#FF5555>Cartón sin premio. ¡Suerte a la próxima!"
+  bought: "{prefix} <#00FF7F>Compraste <#FFB400>{amount} boletos {tier}</#FFB400> por <#FFB400>${cost}</#FFB400>."
+  no-funds: "{prefix} <#FF5555>No tienes <#FFB400>${cost}</#FFB400> para esto."
+  got-free: "{prefix} <#00FF7F>Has recibido <#FFB400>{amount} boletos {tier}</#FFB400> gratis."
+  gave-sender: "{prefix} <#00FF7F>Diste <#FFB400>{amount} boletos {tier}</#FFB400> a <#FFB400>{player}</#FFB400>."
+  gave-target: "{prefix} <#00FF7F>¡Recibiste <#FFB400>{amount} boletos {tier}</#FFB400> como regalo!"
+  invalid-tier: "{prefix} <#FF5555>Tipo inválido. Usa basico, avanzado, maestro o gigante."
+  invalid-amount: "{prefix} <#FF5555>Cantidad inválida."
+  player-offline: "{prefix} <#FF5555>El jugador no está conectado o no existe."
+  usage: "{prefix} <#FF5555>Uso: /boleto <comprar|get|give> ..."
+
+# ─── Poker ───────────────────────────────────────────────
+poker:
+  only-players: "Solo jugadores pueden usar este comando."
+  table-created: "{prefix} <#00FF7F>Mesa de Poker creada con éxito."
+  table-deleted: "{prefix} <#00FF7F>Mesa de Poker eliminada."
+  table-not-found: "{prefix} <#FF5555>No hay ninguna mesa cerca."
+  no-permission: "{prefix} <#FF5555>No tienes permisos."
+  usage: "{prefix} <#FF5555>Uso: /poker <join|leave|setup|delete>"

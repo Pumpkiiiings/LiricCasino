@@ -137,10 +137,9 @@ class LotteryManager(private val plugin: CasinoPlugin) {
 
         if (exactWinners.isEmpty()) {
             // Nadie ganó: el pozo crece, anuncio
-            plugin.server.broadcast(plugin.format(
-                plugin.messages.getRaw("lottery.no-winner")
-                    .replace("{number}", winningNumber.toString())
-                    .replace("{jackpot}", String.format("%.0f", jackpot))
+            plugin.server.broadcast(plugin.messages.get("lottery.no-winner",
+                "number" to winningNumber.toString(),
+                "jackpot" to String.format("%.0f", jackpot)
             ))
         } else {
             // Dividir el pozo entre ganadores
@@ -152,11 +151,10 @@ class LotteryManager(private val plugin: CasinoPlugin) {
                 if (player != null && player.isOnline) {
                     plugin.economyManager.depositPlayer(player, netShare)
                     player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
-                    player.sendMessage(plugin.format(
-                        plugin.messages.getRaw("lottery.winner-self")
-                            .replace("{number}", winningNumber.toString())
-                            .replace("{amount}", String.format("%.0f", netShare))
-                            .replace("{tax}", TaxUtil.taxMessage(plugin, tax * exactWinners.size))
+                    player.sendMessage(plugin.messages.get("lottery.winner-self",
+                        "number" to winningNumber.toString(),
+                        "amount" to String.format("%.0f", netShare),
+                        "tax" to TaxUtil.taxMessage(plugin, tax * exactWinners.size)
                     ))
                 } else {
                     plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(ticket.ownerUuid), netShare)
@@ -166,11 +164,10 @@ class LotteryManager(private val plugin: CasinoPlugin) {
 
             // Anuncio global
             val winnersStr = exactWinners.joinToString(", ") { it.ownerName }
-            plugin.server.broadcast(plugin.format(
-                plugin.messages.getRaw("lottery.winner-broadcast")
-                    .replace("{number}", winningNumber.toString())
-                    .replace("{winners}", winnersStr)
-                    .replace("{amount}", String.format("%.0f", netShare))
+            plugin.server.broadcast(plugin.messages.get("lottery.winner-broadcast",
+                "number" to winningNumber.toString(),
+                "winners" to winnersStr,
+                "amount" to String.format("%.0f", netShare)
             ))
 
             // Webhook Discord
@@ -190,11 +187,10 @@ class LotteryManager(private val plugin: CasinoPlugin) {
     }
 
     private fun broadcast(msgKey: String) {
-        plugin.server.broadcast(plugin.format(
-            plugin.messages.getRaw(msgKey)
-                .replace("{jackpot}", String.format("%.0f", jackpot))
-                .replace("{tickets}", tickets.size.toString())
-                .replace("{time}", formatTime(secondsUntilDraw))
+        plugin.server.broadcast(plugin.messages.get(msgKey,
+            "jackpot" to String.format("%.0f", jackpot),
+            "tickets" to tickets.size.toString(),
+            "time" to formatTime(secondsUntilDraw)
         ))
     }
 

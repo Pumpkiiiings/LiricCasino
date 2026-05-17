@@ -126,11 +126,10 @@ class CoinFlipManager(private val plugin: CasinoPlugin) {
         // Broadcast
         val winnerName = winner?.name ?: Bukkit.getOfflinePlayer(winnerId).name ?: "?"
         val loserName  = loser?.name  ?: Bukkit.getOfflinePlayer(loserId).name  ?: "?"
-        plugin.server.broadcast(plugin.format(
-            plugin.messages.getRaw("coinflip.broadcast-result")
-                .replace("{winner}", winnerName)
-                .replace("{loser}",  loserName)
-                .replace("{amount}", CoinFlipMenu.formatAmount(netWin))
+        plugin.server.broadcast(plugin.messages.get("coinflip.broadcast-result",
+            "winner" to winnerName,
+            "loser"  to loserName,
+            "amount" to CoinFlipMenu.formatAmount(netWin)
         ))
 
         session.state = CoinFlipState.FINISHED

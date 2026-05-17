@@ -20,6 +20,7 @@ class TTTCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComplet
                 val raw = args.getOrNull(1)
                 val amount = raw?.replace("k", "000")?.replace("m", "000000")?.toDoubleOrNull()
                     ?: run { sender.sendMessage(msg("ttt.usage")); return true }
+                if (amount <= 0 || amount.isNaN()) { sender.sendMessage(msg("ttt.usage")); return true }
                 plugin.tttManager.createGame(sender, amount)
             }
             "unirse", "join" -> {

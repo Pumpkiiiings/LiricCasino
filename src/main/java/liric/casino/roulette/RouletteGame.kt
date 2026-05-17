@@ -68,7 +68,7 @@ class RouletteGame(private val plugin: CasinoPlugin) {
             return
         }
         val max = maxBet()
-        if (amount <= 0 || amount > max) {
+        if (amount <= 0 || amount.isNaN() || amount > max) {
             player.sendMessage(msg("roulette.bet-range", "max" to max.toLong().toString()))
             return
         }

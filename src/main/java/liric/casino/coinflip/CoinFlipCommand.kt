@@ -24,6 +24,7 @@ class CoinFlipCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabCo
                 val raw = args.getOrNull(1) ?: run { sendHelp(sender); return true }
                 val amount = CoinFlipMenu.parseAmount(raw)
                     ?: run { sender.sendMessage(msg("coinflip.invalid-number")); return true }
+                if (amount <= 0 || amount.isNaN()) { sender.sendMessage(msg("coinflip.invalid-number")); return true }
                 mgr.createGame(sender, amount)
             }
 

@@ -148,7 +148,24 @@ class CoinFlipManager(private val plugin: CasinoPlugin) {
         session.joinerId?.let { playerSession.remove(it) }
     }
 
+    fun handleDisconnect(playerId: UUID) {
+        val sessionId = playerSession[playerId] ?: return
+        val session = sessions[sessionId] ?: return
+
+        if (session.state == CoinFlipState.WAITING) {
+            if (session.creatorId == playerId) {
+                plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(playerId), session.betAmount)
+                removeSession(session)
+            }
+        }
+        // If ANIMATING, the BukkitRunnable will resolve it safely and deposit to offline player
+    }
+
     fun cleanupAll() {
+        sessions.values.forEach { session ->
+            plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(session.creatorId), session.betAmount)
+            session.joinerId?.let { plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(it), session.betAmount) }
+        }
         sessions.clear()
         playerSession.clear()
         pendingChat.clear()

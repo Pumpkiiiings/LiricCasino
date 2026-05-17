@@ -1,56 +1,46 @@
 # 🐛 Reporte de Vulnerabilidades y Soluciones (CasinoLiric)
 
-Durante la auditoría del código se detectaron y parchearon los siguientes problemas críticos de seguridad y rendimiento.
+Durante las auditorías de código se detectaron y parchearon los siguientes problemas críticos de seguridad y rendimiento.
 
 ---
 
-## 1. Duplicación Masiva de Entidades (LAG EXTREMO)
+## 🛑 AUDITORÍA v2.0.0 (Nuevos Sistemas PvP y Lotería)
+
+### 5. Fuga de Economía en Reinicios (Wipe en `cleanupAll`)
+**Estado:** `[PENDIENTE]` | **Severidad:** `CRÍTICA`
+- **El Problema:** Al crear partidas de CoinFlip, RPS o Tic Tac Toe, Vault retira el dinero inmediatamente y la partida se almacena en memoria (`WAITING`). Si el servidor se apaga o reinicia (ej. `/stop` o `/casino reload`), el método `cleanupAll()` limpia los diccionarios (`sessions.clear()`) pero no devuelve el dinero.
+- **Consecuencia:** **Pérdida masiva de fondos**. Todo el dinero de las partidas en espera se pierde para siempre.
+- **La Solución (Planeada):** Iterar sobre las sesiones activas dentro de `cleanupAll()` y ejecutar `economyManager.depositPlayer()` a todos los participantes antes de limpiar la memoria RAM.
+
+### 6. Bloqueo de Capital por Desconexión (Limbo)
+**Estado:** `[PENDIENTE]` | **Severidad:** `ALTA`
+- **El Problema:** En RPS y TTT, si el oponente abandona el servidor durante su turno o fase de selección, el juego se queda esperando indefinidamente.
+- **Consecuencia:** El dinero de ambos jugadores queda congelado para siempre. Además, genera una pequeña fuga de memoria.
+- **La Solución (Planeada):** Crear un `PlayerQuitListener`. Si un jugador huye de una partida activa, la partida finaliza dándole victoria automática al oponente que no se desconectó. Si la partida estaba en espera, se cancela y se devuelve el dinero.
+
+---
+
+## ✅ AUDITORÍA v1.5.0 a v1.7.0 (Sistemas Anteriores)
+
+### 1. Duplicación Masiva de Entidades (LAG EXTREMO)
 **Estado:** `[SOLUCIONADO]` | **Severidad:** `CRÍTICA`
+- **El Problema:** El monitor de la `RouletteMix` reparecía 75 entidades por cada ciclo si había lag.
+- **La Solución:** `respawningKeys` concurrente y extensión de intervalo de 5s a 30s.
 
-### El Problema
-El monitor de entidades de la `RouletteMix` corría cada 5 segundos (100 ticks). Cuando se reiniciaba el servidor, las entidades base se borraban (o perdían su link), pero el Holograma de Estado (`statusText`) moría. Esto activaba la función `spawnRoulette()`.
-Si el servidor sufría un pico de lag, el monitor podía ejecutarse dos veces seguidas mientras la ruleta apenas estaba repareciendo, causando que se instanciaran **75 entidades duplicadas (Displays) por cada ciclo**.
-
-### La Solución
-1. **Guardia de concurrencia (`respawningKeys`)**: Se agregó un HashSet que registra qué ruletas están en proceso de regenerarse, impidiendo ejecuciones superpuestas.
-2. **Intervalo extendido**: El chequeo pasó de 5 segundos a 30 segundos (600 ticks).
-3. **Verificación de Chunks**: Ahora el plugin ignora el chequeo si el chunk donde está la ruleta no se encuentra cargado, evitando carga innecesaria en memoria.
-
----
-
-## 2. Double-Submit en Apuestas (Race Condition)
+### 2. Double-Submit en Apuestas (Race Condition)
 **Estado:** `[SOLUCIONADO]` | **Severidad:** `ALTA`
+- **El Problema:** Spam de clicks rápidos en GUIs causaba doble cobro o juegos paralelos (Slots, Blackjack).
+- **La Solución:** Candados atómicos (`AtomicBoolean`) antes de las transacciones de Vault.
 
-### El Problema
-En `BetAmountMixMenu`, `BlackjackBetMenu` y `SlotMachineMenu`, los jugadores confirmaban sus apuestas haciendo click en un botón. Debido a la naturaleza asíncrona de los menús (Triumph-GUI cierra los menús en el siguiente tick), un jugador podía spamear click derecho/izquierdo rápidamente (o usar un auto-clicker) y enviar la señal de "Confirmar" múltiples veces en el mismo milisegundo. Esto generaba cobros dobles si tenían saldo o incluso forzaba el inicio de jugadas duplicadas.
-
-### La Solución
-Se implementó `AtomicBoolean` de `java.util.concurrent.atomic`.
-Antes de realizar cualquier cobro a la economía, se evalúa `if (!processing.compareAndSet(false, true)) return`. Esto bloquea el hilo de manera atómica, garantizando matemáticamente que solo el primer click se ejecute.
-
----
-
-## 3. Dupe (Vulnerabilidad) de Double Down en Blackjack
+### 3. Dupe (Vulnerabilidad) de Double Down en Blackjack
 **Estado:** `[SOLUCIONADO]` | **Severidad:** `ALTA`
+- **El Problema:** Spam de click retiraba el triple de fondos en el Double Down.
+- **La Solución:** Bloqueo optimista y rollback de estado.
 
-### El Problema
-En el menú en juego de Blackjack, la acción de "Doblar (Double Down)" permitía al jugador retirar el equivalente a su apuesta (`withdrawPlayer`). El bloqueo que impedía usar el botón nuevamente (`isFirstAction = false`) se asignaba **después** de comprobar la economía.
-Un jugador con lag y autoclicker podía darle click 3 veces antes de que el servidor respondiera, retirando el triple de la apuesta y ganando exponencialmente si derrotaba a la casa.
-
-### La Solución
-Se movió el flag `isFirstAction = false` al principio de la ejecución del botón (bloqueo optimista). Si la economía rechaza la transacción (falta de fondos), se hace rollback del flag con `isFirstAction = true`.
-
----
-
-## 4. Pago Doble en Rasca y Gana (Click Spam)
+### 4. Pago Doble en Rasca y Gana (Click Spam)
 **Estado:** `[SOLUCIONADO]` | **Severidad:** `MEDIA`
-
-### El Problema
-El sistema de revelado de slots en `ScratchMenu` usaba un simple `mutableSetOf<Int>()` para registrar qué casillas ya habían sido rascadas. Las colecciones estándar no son "Thread-Safe". Un click múltiple sobre la misma casilla podía evadir la comprobación de `scratchedSlots.contains(slot)` y sumar 2 veces a la cuenta del premio (`revealedCounts`). Con 2 clicks rápidos en el premio gordo, completaba el requerimiento de "match = 3" instantáneamente.
-
-### La Solución
-1. Las variables se cambiaron a versiones atómicas: `ConcurrentHashMap.newKeySet()` y `@Volatile var locked = false`.
-2. La validación ahora delega en el Set Concurrente: `if (!scratchedSlots.add(slot)) return`, lo que es completamente seguro contra condiciones de carrera.
+- **El Problema:** Sets no concurrentes permitían marcar la misma casilla múltiples veces.
+- **La Solución:** Uso de `ConcurrentHashMap.newKeySet()` en la clase `ScratchSession`.
 
 ---
 

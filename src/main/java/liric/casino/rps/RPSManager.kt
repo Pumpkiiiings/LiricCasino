@@ -177,5 +177,39 @@ class RPSManager(private val plugin: CasinoPlugin) {
         session.joinerId?.let { playerSession.remove(it) }
     }
 
-    fun cleanupAll() { sessions.clear(); playerSession.clear() }
+    fun handleDisconnect(playerId: UUID) {
+        val sessionId = playerSession[playerId] ?: return
+        val session = sessions[sessionId] ?: return
+
+        if (session.state == RPSState.WAITING) {
+            if (session.creatorId == playerId) {
+                plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(playerId), session.betAmount)
+                removeSession(session)
+            }
+        } else if (session.state == RPSState.CHOOSING) {
+            val isCreator = playerId == session.creatorId
+            val winnerId = if (isCreator) session.joinerId!! else session.creatorId
+            val loserId = playerId
+            val totalPot = session.betAmount * 2
+            val (netWin, _) = TaxUtil.applyTax(plugin, totalPot, "rps")
+
+            plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(winnerId), netWin)
+            
+            val winner = Bukkit.getPlayer(winnerId)
+            winner?.sendMessage(plugin.format("<red>Tu oponente se desconectó. <green>¡Has ganado la apuesta automáticamente!"))
+            winner?.playSound(winner.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
+            
+            removeSession(session)
+            winner?.closeInventory()
+        }
+    }
+
+    fun cleanupAll() {
+        sessions.values.forEach { session ->
+            plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(session.creatorId), session.betAmount)
+            session.joinerId?.let { plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(it), session.betAmount) }
+        }
+        sessions.clear()
+        playerSession.clear()
+    }
 }

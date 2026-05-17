@@ -209,6 +209,7 @@ class CasinoPlugin : JavaPlugin() {
         server.pluginManager.registerEvents(SlotInteractListener(this), this)
         server.pluginManager.registerEvents(StatsListener(this), this)
         server.pluginManager.registerEvents(liric.casino.coinflip.CoinFlipChatListener(this), this)
+        server.pluginManager.registerEvents(liric.casino.listeners.PlayerQuitListener(this), this)
 
         // 8. Mensaje de inicio
         sendStartupMessage()

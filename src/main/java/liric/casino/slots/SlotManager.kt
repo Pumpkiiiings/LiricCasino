@@ -76,8 +76,6 @@ class SlotManager(private val plugin: CasinoPlugin) {
         textDisplay.isShadowed = true
 
         activeSlots[blockLoc] = SlotMachineInstance(blockLoc, textDisplay)
-
-        if (isNew) plugin.server.sendMessage(plugin.messages.get("slots.machine-created"))
     }
 
     private fun startHologramMonitor() {

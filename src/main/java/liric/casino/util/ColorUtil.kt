@@ -42,8 +42,8 @@ object ColorUtil {
         // 2. &x  y  §x  →  <tag_mm>
         s = translateLegacy(s)
 
-        // 3. Deserializar con MiniMessage
-        return mm.deserialize(s)
+        // 3. Deserializar con MiniMessage (añadiendo <!italic> para evitar cursiva por defecto en items)
+        return mm.deserialize("<!italic>$s")
     }
 
     /**

@@ -37,9 +37,7 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
     }
 
     fun open() {
-        val fillerMat = cfg.getMaterial("filler.material", Material.GRAY_STAINED_GLASS_PANE)
-        val filler = ItemBuilder.from(fillerMat).name(plugin.format(" ")).asGuiItem()
-        gui.filler.fill(filler)
+        cfg.applyDecorations(gui)
         resetMachineVisuals()
         gui.open(player)
     }
@@ -114,8 +112,7 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
         // isSpinning ya está en true por compareAndSet
         updateBottomRow()
 
-        val fillerMat = cfg.getMaterial("filler.material", Material.GRAY_STAINED_GLASS_PANE)
-        gui.setItem(26, ItemBuilder.from(fillerMat).name(plugin.format(" ")).asGuiItem())
+        gui.setItem(26, dev.triumphteam.gui.builder.item.ItemBuilder.from(Material.BLACK_STAINED_GLASS_PANE).name(plugin.format(" ")).asGuiItem())
         gui.update()
 
         val reelSlots = cfg.getStringList("reel.slots").map { it.toInt() }
@@ -164,9 +161,11 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
                 if (isJackpot) {
                     plugin.server.broadcast(msg("slots.jackpot", "player" to player.name, "amount" to winAmount.toString()))
                     player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
+                    plugin.webhook.sendJackpot("Tragamonedas 777", player.name, winAmount)
                 } else {
                     player.sendMessage(msg("slots.win", "mult" to r1.multiplier.toString(), "amount" to winAmount.toString()))
                     player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
+                    plugin.webhook.sendBigWin("Tragamonedas 777", player.name, winAmount)
                 }
             } else {
                 player.sendMessage(msg("slots.trash"))
@@ -188,8 +187,7 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
             .flags(*ItemFlag.values()).asGuiItem {
                 player.playSound(player.location, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1f, 1f)
                 resetMachineVisuals()
-                val fillerMat = cfg.getMaterial("filler.material", Material.GRAY_STAINED_GLASS_PANE)
-                gui.setItem(26, ItemBuilder.from(fillerMat).name(plugin.format(" ")).asGuiItem())
+                gui.setItem(26, dev.triumphteam.gui.builder.item.ItemBuilder.from(Material.BLACK_STAINED_GLASS_PANE).name(plugin.format(" ")).asGuiItem())
                 gui.update()
             }
         gui.setItem(restartSlot, shard)

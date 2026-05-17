@@ -15,11 +15,10 @@ class StatsManager(private val plugin: CasinoPlugin) {
     fun startAutoSave() {
         object : BukkitRunnable() {
             override fun run() { saveAllAsync() }
-        }.runTaskTimerAsynchronously(plugin, 6000L, 6000L) // cada 5 min
+        }.runTaskTimerAsynchronously(plugin, 6000L, 6000L)
     }
 
     fun shutdown() {
-        // Guardar sincrónicamente al apagar
         cache.values.filter { it.dirty }.forEach { saveToDB(it) }
     }
 
@@ -40,7 +39,6 @@ class StatsManager(private val plugin: CasinoPlugin) {
 
     fun getCached(uuid: UUID): PlayerStats? = cache[uuid]
 
-    /** Devuelve stats del caché o crea uno en blanco (carga async). */
     fun getOrCreate(uuid: UUID, name: String): PlayerStats =
         cache.getOrPut(uuid) {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
@@ -50,7 +48,7 @@ class StatsManager(private val plugin: CasinoPlugin) {
             PlayerStats(uuid, name)
         }
 
-    // ─── Registros (llamados desde los módulos del casino) ───────────────────
+    // ─── Registros ───────────────────────────────────────────────────────────
 
     fun recordRouletteBet(uuid: UUID, wagered: Double) = update(uuid) {
         rouletteBets++; rouletteWagered += wagered
@@ -81,16 +79,40 @@ class StatsManager(private val plugin: CasinoPlugin) {
         if (didWin) scratchWins++
     }
 
+    fun recordLotteryBuy(uuid: UUID, spent: Double) = update(uuid) {
+        lotteryTickets++; lotterySpent += spent
+    }
+
+    fun recordLotteryWin(uuid: UUID, won: Double) = update(uuid) {
+        lotteryWon += won; lotteryWins++
+    }
+
+    fun recordCoinFlip(uuid: UUID, wagered: Double, won: Double, didWin: Boolean) = update(uuid) {
+        coinFlipFlips++; coinFlipWagered += wagered; coinFlipWon += won
+        if (didWin) coinFlipWins++ else coinFlipLosses++
+    }
+
+    fun recordRacingWin(uuid: UUID, won: Double) = update(uuid) {
+        racingWon += won; racingWins++
+    }
+
+    fun recordRacingLoss(uuid: UUID, wagered: Double) = update(uuid) {
+        racingWagered += wagered; racingLosses++
+    }
+
+
     // ─── Top leaderboard ─────────────────────────────────────────────────────
     enum class TopMode(val sqlColumn: String, val label: String) {
-        GLOBAL("(roulette_won + slots_won + bj_won + scratch_won)", "Global"),
+        GLOBAL("(roulette_won + slots_won + bj_won + scratch_won + lottery_won + coinflip_won)", "Global"),
         RULETA("roulette_won", "Ruleta"),
         SLOTS("slots_won", "Tragamonedas"),
         BLACKJACK("bj_won", "Blackjack"),
-        SCRATCH("scratch_won", "Rasca y Gana")
+        SCRATCH("scratch_won", "Rasca y Gana"),
+        LOTTERY("lottery_won", "Lotería"),
+        COINFLIP("coinflip_won", "CoinFlip"),
+        RACING("racing_won", "Carreras")
     }
 
-    /** Devuelve el top 10 de forma asíncrona y llama al callback en el hilo principal. */
     fun getTopAsync(mode: TopMode, limit: Int = 10, callback: (List<TopEntry>) -> Unit) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
             val results = mutableListOf<TopEntry>()
@@ -132,6 +154,9 @@ class StatsManager(private val plugin: CasinoPlugin) {
             "slots_spins", "slots_wagered", "slots_won", "slots_jackpots",
             "bj_games", "bj_wagered", "bj_won", "bj_wins", "bj_losses", "bj_blackjacks",
             "scratch_used", "scratch_spent", "scratch_won", "scratch_wins",
+            "lottery_tickets", "lottery_spent", "lottery_won", "lottery_wins",
+            "coinflip_flips", "coinflip_wagered", "coinflip_won", "coinflip_wins", "coinflip_losses",
+            "racing_wagered", "racing_won", "racing_wins", "racing_losses",
             "last_seen"
         )
         val sql = plugin.db.buildUpsertSql(columns)
@@ -141,6 +166,9 @@ class StatsManager(private val plugin: CasinoPlugin) {
             stats.slotsSpins, stats.slotsWagered, stats.slotsWon, stats.slotsJackpots,
             stats.bjGames, stats.bjWagered, stats.bjWon, stats.bjWins, stats.bjLosses, stats.bjBlackjacks,
             stats.scratchUsed, stats.scratchSpent, stats.scratchWon, stats.scratchWins,
+            stats.lotteryTickets, stats.lotterySpent, stats.lotteryWon, stats.lotteryWins,
+            stats.coinFlipFlips, stats.coinFlipWagered, stats.coinFlipWon, stats.coinFlipWins, stats.coinFlipLosses,
+            stats.racingWagered, stats.racingWon, stats.racingWins, stats.racingLosses,
             System.currentTimeMillis()
         )
         runCatching { plugin.db.upsert(sql, params); stats.dirty = false }
@@ -162,28 +190,45 @@ class StatsManager(private val plugin: CasinoPlugin) {
     }
 
     private fun fromRS(uuid: UUID, rs: ResultSet) = PlayerStats(
-        uuid           = uuid,
-        playerName     = rs.getString("player_name"),
-        rouletteBets   = rs.getInt("roulette_bets"),
+        uuid            = uuid,
+        playerName      = rs.getString("player_name"),
+        rouletteBets    = rs.getInt("roulette_bets"),
         rouletteWagered = rs.getDouble("roulette_wagered"),
-        rouletteWon    = rs.getDouble("roulette_won"),
-        rouletteWins   = rs.getInt("roulette_wins"),
-        rouletteLosses = rs.getInt("roulette_losses"),
-        slotsSpins     = rs.getInt("slots_spins"),
-        slotsWagered   = rs.getDouble("slots_wagered"),
-        slotsWon       = rs.getDouble("slots_won"),
-        slotsJackpots  = rs.getInt("slots_jackpots"),
-        bjGames        = rs.getInt("bj_games"),
-        bjWagered      = rs.getDouble("bj_wagered"),
-        bjWon          = rs.getDouble("bj_won"),
-        bjWins         = rs.getInt("bj_wins"),
-        bjLosses       = rs.getInt("bj_losses"),
-        bjBlackjacks   = rs.getInt("bj_blackjacks"),
-        scratchUsed    = rs.getInt("scratch_used"),
-        scratchSpent   = rs.getDouble("scratch_spent"),
-        scratchWon     = rs.getDouble("scratch_won"),
-        scratchWins    = rs.getInt("scratch_wins"),
-        lastSeen       = rs.getLong("last_seen"),
-        dirty          = false
+        rouletteWon     = rs.getDouble("roulette_won"),
+        rouletteWins    = rs.getInt("roulette_wins"),
+        rouletteLosses  = rs.getInt("roulette_losses"),
+        slotsSpins      = rs.getInt("slots_spins"),
+        slotsWagered    = rs.getDouble("slots_wagered"),
+        slotsWon        = rs.getDouble("slots_won"),
+        slotsJackpots   = rs.getInt("slots_jackpots"),
+        bjGames         = rs.getInt("bj_games"),
+        bjWagered       = rs.getDouble("bj_wagered"),
+        bjWon           = rs.getDouble("bj_won"),
+        bjWins          = rs.getInt("bj_wins"),
+        bjLosses        = rs.getInt("bj_losses"),
+        bjBlackjacks    = rs.getInt("bj_blackjacks"),
+        scratchUsed     = rs.getInt("scratch_used"),
+        scratchSpent    = rs.getDouble("scratch_spent"),
+        scratchWon      = rs.getDouble("scratch_won"),
+        scratchWins     = rs.getInt("scratch_wins"),
+        lotteryTickets  = safeInt(rs, "lottery_tickets"),
+        lotterySpent    = safeDouble(rs, "lottery_spent"),
+        lotteryWon      = safeDouble(rs, "lottery_won"),
+        lotteryWins     = safeInt(rs, "lottery_wins"),
+        coinFlipFlips   = safeInt(rs, "coinflip_flips"),
+        coinFlipWagered = safeDouble(rs, "coinflip_wagered"),
+        coinFlipWon     = safeDouble(rs, "coinflip_won"),
+        coinFlipWins    = safeInt(rs, "coinflip_wins"),
+        coinFlipLosses  = safeInt(rs, "coinflip_losses"),
+        racingWagered   = safeDouble(rs, "racing_wagered"),
+        racingWon       = safeDouble(rs, "racing_won"),
+        racingWins      = safeInt(rs, "racing_wins"),
+        racingLosses    = safeInt(rs, "racing_losses"),
+        lastSeen        = rs.getLong("last_seen"),
+        dirty           = false
     )
+
+    // Safe getters para columnas que pueden no existir aún en DB antigua
+    private fun safeInt(rs: ResultSet, col: String): Int = runCatching { rs.getInt(col) }.getOrDefault(0)
+    private fun safeDouble(rs: ResultSet, col: String): Double = runCatching { rs.getDouble(col) }.getOrDefault(0.0)
 }

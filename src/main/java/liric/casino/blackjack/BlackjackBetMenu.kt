@@ -30,9 +30,7 @@ class BlackjackBetMenu(
         .create()
 
     fun open() {
-        val fillerMat = cfg.getMaterial("filler.material", Material.GRAY_STAINED_GLASS_PANE)
-        val filler = ItemBuilder.from(fillerMat).name(plugin.format(" ")).asGuiItem()
-        gui.filler.fill(filler)
+        cfg.applyDecorations(gui)
         updateMenu()
         gui.open(player)
     }

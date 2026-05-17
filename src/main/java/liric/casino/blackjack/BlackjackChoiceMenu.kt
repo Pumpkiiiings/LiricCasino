@@ -19,9 +19,7 @@ class BlackjackChoiceMenu(private val plugin: CasinoPlugin, private val player: 
         .create()
 
     fun open() {
-        val fillerMat = cfg.getMaterial("filler.material", Material.BLACK_STAINED_GLASS_PANE)
-        val filler = ItemBuilder.from(fillerMat).name(plugin.format(" ")).asGuiItem()
-        gui.filler.fill(filler)
+        cfg.applyDecorations(gui)
 
         // VS HOUSE
         val vsHouseSlot = cfg.getInt("items.vs-house.slot", 11)

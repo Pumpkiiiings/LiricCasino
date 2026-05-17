@@ -25,6 +25,7 @@ class SlotCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComple
                     val targetBlock = sender.getTargetBlockExact(5)
                     if (targetBlock != null && !targetBlock.type.isAir) {
                         plugin.slotManager.spawnMachine(targetBlock.location)
+                        sender.sendMessage(msg("slots.machine-created"))
                     } else {
                         sender.sendMessage(msg("slots.look-block"))
                     }

@@ -1,4 +1,4 @@
-package liric.casino.roulettemix
+package liric.casino.roulette
 
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.guis.Gui
@@ -7,7 +7,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 
-class RouletteMixMenu(private val plugin: CasinoPlugin, private val game: RouletteMixGame) {
+class RouletteMenu(private val plugin: CasinoPlugin, private val game: RouletteGame) {
 
     private fun cfg() = plugin.menuConfig("ruleta.yml")
     private fun msg(key: String, vararg ph: Pair<String, String>) = plugin.messages.get(key, *ph)
@@ -26,6 +26,8 @@ class RouletteMixMenu(private val plugin: CasinoPlugin, private val game: Roulet
             .disableAllInteractions().disableItemTake().disableItemSwap().disableItemDrop().disableItemPlace()
             .create()
 
+        cfg.applyDecorations(gui)
+
         // ── Número 0 ──────────────────────────────────────────────────────
         val zeroSlot = cfg.getInt("zero-slot", 4)
         val zeroMat  = cfg.getMaterial("items.zero.material", Material.LIME_DYE)
@@ -34,7 +36,7 @@ class RouletteMixMenu(private val plugin: CasinoPlugin, private val game: Roulet
 
         val zeroBet = ItemBuilder.from(zeroMat).amount(1)
             .name(zeroName).lore(zeroLore).flags(*ItemFlag.values())
-            .asGuiItem { BetAmountMixMenu(plugin, game, MixBetType.Number(0), player).open() }
+            .asGuiItem { BetAmountMenu(plugin, game, BetType.Number(0), player).open() }
         gui.setItem(zeroSlot, zeroBet)
 
         // ── Números 1-36 ──────────────────────────────────────────────────
@@ -51,7 +53,7 @@ class RouletteMixMenu(private val plugin: CasinoPlugin, private val game: Roulet
 
             val item = ItemBuilder.from(material).amount(i)
                 .name(name).lore(numLore).flags(*ItemFlag.values())
-                .asGuiItem { BetAmountMixMenu(plugin, game, MixBetType.Number(i), player).open() }
+                .asGuiItem { BetAmountMenu(plugin, game, BetType.Number(i), player).open() }
             gui.setItem(numberBase + i, item)
         }
 
@@ -71,7 +73,7 @@ class RouletteMixMenu(private val plugin: CasinoPlugin, private val game: Roulet
 
             val guiItem = ItemBuilder.from(mat).name(name).lore(lore)
                 .flags(*ItemFlag.values())
-                .asGuiItem { BetAmountMixMenu(plugin, game, MixBetType.Color(btn.betColor), player).open() }
+                .asGuiItem { BetAmountMenu(plugin, game, BetType.Color(btn.betColor), player).open() }
             gui.setItem(slot, guiItem)
         }
 

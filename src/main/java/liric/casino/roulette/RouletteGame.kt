@@ -1,6 +1,7 @@
-package liric.casino.roulettemix
+package liric.casino.roulette
 
 import liric.casino.CasinoPlugin
+import liric.casino.util.TaxUtil
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.command.CommandSender
@@ -15,19 +16,19 @@ enum class BetColor(val displayName: String, val chatColor: String) {
     GREEN("<#00FF7F><bold>VERDE</bold></#00FF7F>", "<#00FF7F>")
 }
 
-sealed class MixBetType {
-    data class Number(val num: Int) : MixBetType()
-    data class Color(val color: BetColor) : MixBetType()
+sealed class BetType {
+    data class Number(val num: Int) : BetType()
+    data class Color(val color: BetColor) : BetType()
 }
 
 enum class GameState { WAITING, COUNTDOWN, SPINNING }
 
-class RouletteMixGame(private val plugin: CasinoPlugin) {
+class RouletteGame(private val plugin: CasinoPlugin) {
 
     var state = GameState.WAITING
         private set
 
-    private val bets = mutableMapOf<UUID, Pair<MixBetType, Double>>()
+    private val bets = mutableMapOf<UUID, Pair<BetType, Double>>()
     private var countdownTask: BukkitRunnable? = null
 
     // ─── Config helpers ──────────────────────────────────────────────────
@@ -43,10 +44,10 @@ class RouletteMixGame(private val plugin: CasinoPlugin) {
 
     // ─── Hologramas ──────────────────────────────────────────────────────
     fun updateStatusHologram() {
-        val text = "<#FF00FF><bold>🌀 RULETA MIXTA 🌀</bold></#FF00FF><br>" +
+        val text = "<#FF00FF><bold>🌀 RULETA 🌀</bold></#FF00FF><br>" +
                 "<#E0E0E0>Apuesta máxima: <#00FF7F>$${maxBet().toLong()}</#00FF7F></#E0E0E0><br>" +
                 "<#FFB400>Jugadores actuales: ${bets.size}</#FFB400>"
-        plugin.rouletteMixManager.updateHolograms(text)
+        plugin.rouletteManager.updateHolograms(text)
     }
 
     // ─── Utilidad ─────────────────────────────────────────────────────────
@@ -57,7 +58,7 @@ class RouletteMixGame(private val plugin: CasinoPlugin) {
     }
 
     // ─── Apuesta ─────────────────────────────────────────────────────────
-    fun addBet(player: Player, betType: MixBetType, amount: Double) {
+    fun addBet(player: Player, betType: BetType, amount: Double) {
         if (state == GameState.SPINNING) {
             player.sendMessage(msg("roulette.already-spinning"))
             return
@@ -76,8 +77,8 @@ class RouletteMixGame(private val plugin: CasinoPlugin) {
             plugin.statsManager.recordRouletteBet(player.uniqueId, amount)
 
             val targetName = when (betType) {
-                is MixBetType.Number -> "al número ${getNumberColor(betType.num).chatColor}<bold>${betType.num}</bold>"
-                is MixBetType.Color  -> "al color ${betType.color.chatColor}${betType.color.displayName}"
+                is BetType.Number -> "al número ${getNumberColor(betType.num).chatColor}<bold>${betType.num}</bold>"
+                is BetType.Color  -> "al color ${betType.color.chatColor}${betType.color.displayName}"
             }
             player.sendMessage(msg("roulette.bet-placed", "amount" to amount.toString(), "target" to targetName))
             player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
@@ -111,10 +112,10 @@ class RouletteMixGame(private val plugin: CasinoPlugin) {
                     10  -> plugin.server.broadcast(msg("roulette.countdown-10s"))
                 }
 
-                val holo = "<#FF00FF><bold>🌀 RULETA MIXTA 🌀</bold></#FF00FF><br>" +
+                val holo = "<#FF00FF><bold>🌀 RULETA 🌀</bold></#FF00FF><br>" +
                         "<#E0E0E0>Apuesta máxima: <#00FF7F>$${maxBet().toLong()}</#00FF7F></#E0E0E0><br>" +
                         "<#FF5555>¡Girando en $seconds segundos!</#FF5555>"
-                plugin.rouletteMixManager.updateHolograms(holo.replace("\n", "<br>"))
+                plugin.rouletteManager.updateHolograms(holo.replace("\n", "<br>"))
                 seconds--
             }
         }
@@ -132,15 +133,15 @@ class RouletteMixGame(private val plugin: CasinoPlugin) {
         state = GameState.SPINNING
         plugin.server.broadcast(msg("roulette.spinning"))
 
-        val spinHolo = "<#FF00FF><bold>🌀 RULETA MIXTA 🌀</bold></#FF00FF><br>" +
+        val spinHolo = "<#FF00FF><bold>🌀 RULETA 🌀</bold></#FF00FF><br>" +
                 "<#E0E0E0>¡No va más!</#E0E0E0><br>" +
                 "<#FFB400><bold>¡Girando!</bold></#FFB400>"
-        plugin.rouletteMixManager.setSpinningHologram(spinHolo)
+        plugin.rouletteManager.setSpinningHologram(spinHolo)
 
         val resultNumber = Random.nextInt(0, 37)
         val winningColor = getNumberColor(resultNumber)
 
-        plugin.rouletteMixManager.spinAllDisplays(140, resultNumber, winningColor) {
+        plugin.rouletteManager.spinAllDisplays(140, resultNumber, winningColor) {
             finishGame(winningColor, resultNumber)
         }
     }
@@ -159,31 +160,34 @@ class RouletteMixGame(private val plugin: CasinoPlugin) {
             var multiplier = 0.0
 
             when (betType) {
-                is MixBetType.Number -> if (betType.num == resultNumber) { won = true; multiplier = 36.0 }
-                is MixBetType.Color  -> if (betType.color == winningColor) { won = true; multiplier = colorMultiplier(betType.color) }
+                is BetType.Number -> if (betType.num == resultNumber) { won = true; multiplier = 36.0 }
+                is BetType.Color  -> if (betType.color == winningColor) { won = true; multiplier = colorMultiplier(betType.color) }
             }
 
             if (won) {
-                var finalWin = amount * multiplier
+                var rawWin = amount * multiplier
+                val (netWin, tax) = TaxUtil.applyTax(plugin, rawWin, "roulette")
+
                 if (player != null && player.isOnline) {
                     val booster = plugin.economyManager.getPlayerBooster(player)
-                    finalWin *= booster
+                    val finalWin = netWin * booster
                     plugin.economyManager.depositPlayer(player, finalWin)
 
-                    val bMsg = if (booster > 1.0) plugin.messages.get("roulette.win-booster", "booster" to booster.toString()).let {
-                        // convertir a raw string para concatenar en el mensaje win
+                    val bMsg = if (booster > 1.0)
                         plugin.messages.getRaw("roulette.win-booster").replace("{booster}", booster.toString())
-                    } else ""
+                    else ""
 
+                    val taxMsg = if (tax > 0) " <gray>(Tax: <red>-$${String.format("%.0f", tax * booster)}</red>)</gray>" else ""
                     player.sendMessage(msg("roulette.win",
-                        "amount"  to finalWin.toString(),
-                        "booster" to bMsg
+                        "amount"  to String.format("%.0f", finalWin),
+                        "booster" to bMsg + taxMsg
                     ))
                     player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
+                    plugin.webhook.sendBigWin("Ruleta", player.name, finalWin)
                 } else {
-                    plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(uuid), finalWin)
+                    plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(uuid), netWin)
                 }
-                plugin.statsManager.recordRouletteWin(uuid, finalWin)
+                plugin.statsManager.recordRouletteWin(uuid, netWin)
             } else {
                 player?.sendMessage(msg("roulette.lose", "amount" to amount.toString()))
                 plugin.statsManager.recordRouletteLoss(uuid)
@@ -194,7 +198,7 @@ class RouletteMixGame(private val plugin: CasinoPlugin) {
         state = GameState.WAITING
 
         object : BukkitRunnable() {
-            override fun run() { if (state == GameState.WAITING) plugin.rouletteMixManager.resetDisplays() }
+            override fun run() { if (state == GameState.WAITING) plugin.rouletteManager.resetDisplays() }
         }.runTaskLater(plugin, 100L)
     }
 }

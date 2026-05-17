@@ -28,12 +28,28 @@ data class PlayerStats(
     var scratchSpent: Double = 0.0,
     var scratchWon: Double = 0.0,
     var scratchWins: Int = 0,
+    // ── Lotería ──────────────────────────────────────────
+    var lotteryTickets: Int = 0,
+    var lotterySpent: Double = 0.0,
+    var lotteryWon: Double = 0.0,
+    var lotteryWins: Int = 0,
+    // ── CoinFlip ─────────────────────────────────────────
+    var coinFlipFlips: Int = 0,
+    var coinFlipWagered: Double = 0.0,
+    var coinFlipWon: Double = 0.0,
+    var coinFlipWins: Int = 0,
+    var coinFlipLosses: Int = 0,
+    // ── Carreras ─────────────────────────────────────────
+    var racingWagered: Double = 0.0,
+    var racingWon: Double = 0.0,
+    var racingWins: Int = 0,
+    var racingLosses: Int = 0,
     // ── Meta ─────────────────────────────────────────────
     var lastSeen: Long = System.currentTimeMillis(),
-    @Volatile var dirty: Boolean = false  // true = necesita guardarse en DB
+    @Volatile var dirty: Boolean = false
 ) {
-    val totalWagered get() = rouletteWagered + slotsWagered + bjWagered + scratchSpent
-    val totalWon     get() = rouletteWon + slotsWon + bjWon + scratchWon
+    val totalWagered get() = rouletteWagered + slotsWagered + bjWagered + scratchSpent + lotterySpent + coinFlipWagered + racingWagered
+    val totalWon     get() = rouletteWon + slotsWon + bjWon + scratchWon + lotteryWon + coinFlipWon + racingWon
     val profit       get() = totalWon - totalWagered
 }
 

@@ -13,6 +13,24 @@ database:
   password: ""
   pool-size: 5
 
+# ─── Sistema de Impuestos ────────────────────────────────
+# El impuesto se aplica sobre las GANANCIAS brutas.
+# Ejemplo: ganas $10,000 con rate: 0.05 → recibes $9,500
+taxes:
+  enabled: false
+  # Tasa por defecto si no está configurada la del juego específico
+  default-rate: 0.05
+  # Tasas por juego (comentar o eliminar para usar default-rate)
+  roulette: 0.05
+  slots: 0.05
+  blackjack: 0.05
+  scratch: 0.05
+  lottery: 0.10
+  coinflip: 0.05
+  rps: 0.05
+  ttt: 0.05
+  racing: 0.05
+
 # ─── Boosters de economía ────────────────────────────────
 boosters:
   vip:
@@ -22,16 +40,56 @@ boosters:
     booster: 3.0
     permiso: "mvp.boost"
 
-# ─── Ruleta Mixta ────────────────────────────────────────
+# ─── Ruleta ──────────────────────────────────────────────
 roulette:
   min-players-to-start: 1
   countdown-seconds: 180
   max-bet: 200000.0
   number-payout: 36.0
+  # Escala de los bloques de la ruleta (0.1 - 2.0). Default: 0.45
+  block-scale: 0.45
+  # Radio en bloques del círculo de la ruleta. Default: 5.5
+  radius: 5.5
   color-multipliers:
     RED: 2.0
     BLACK: 2.0
     GREEN: 14.0
+
+# ─── Webhooks Discord ─────────────────────────────────────
+webhooks:
+  enabled: false   # Cambiar a true para activar
+
+  # ── Jackpot (Slots 777 x100, etc.) ───────────────────────
+  jackpot:
+    url: "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
+    # Color del embed en decimal (0xFF00FF = magenta)
+    color: 16711935
+    title: "🎰 ¡¡JACKPOT 777!!"
+    description: "**{player}** sacó el **777** en los Tragamonedas y se llevó **{amount}**! 🤑"
+    footer: "Liric Casino • Tragamonedas"
+    # Mención de rol (dejar vacío para no mencionar): "@everyone" o "<@&ROL_ID>"
+    mention-role: ""
+
+  # ── Gran Victoria (cualquier juego, supera min-amount) ────
+  big-win:
+    url: "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
+    color: 16766720
+    title: "💰 ¡Gran Victoria!"
+    description: "**{player}** ganó **{amount}** jugando **{game}**! 🎉"
+    footer: "Liric Casino"
+    mention-role: ""
+    # Solo se dispara si la ganancia supera esta cantidad
+    min-amount: 50000.0
+
+  # ── Ganador de Lotería ────────────────────────────────────
+  lottery:
+    url: "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
+    color: 16766720
+    title: "🎟 ¡Ganador de la Lotería!"
+    description: "**{player}** acertó el número **{number}** y ganó **{amount}**! 🎟✨"
+    footer: "Liric Casino • Lotería"
+    mention-role: ""
+
 
 # ─── Blackjack ───────────────────────────────────────────
 blackjack:
@@ -172,3 +230,35 @@ scratch:
       display-name: "<dark_gray><bold>CARBÓN</bold>"
       base-payout: 0.0
       weight: 150
+
+# ─── Lotería ─────────────────────────────────────────────
+lottery:
+  ticket-price: 5000.0
+  max-tickets-per-player: 5
+  draw-interval-minutes: 60
+  number-range: 1000
+  jackpot-start: 50000.0
+  jackpot-contribution: 0.5  # 50% del precio del boleto va al pozo
+
+coinflip:
+  bet:
+    min: 100.0
+    max: 500000.0
+  animation-ticks: 60  # Duración de la animación (~3 segundos a 20 tps)
+
+# ─── Piedra Papel Tijera ─────────────────────────────────
+rps:
+  bet:
+    min: 100.0
+    max: 500000.0
+
+# ─── Tic Tac Toe ─────────────────────────────────────────
+ttt:
+  bet:
+    min: 100.0
+    max: 500000.0
+
+# ─── Carreras de Caballos ────────────────────────────────
+racing:
+  # Opcional, configuración futura
+

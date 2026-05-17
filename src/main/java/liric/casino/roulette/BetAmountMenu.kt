@@ -1,4 +1,4 @@
-package liric.casino.roulettemix
+package liric.casino.roulette
 
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.guis.Gui
@@ -11,16 +11,15 @@ import org.bukkit.scheduler.BukkitRunnable
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.min
 
-class BetAmountMixMenu(
+class BetAmountMenu(
     private val plugin: CasinoPlugin,
-    private val game: RouletteMixGame,
-    private val target: MixBetType,
+    private val game: RouletteGame,
+    private val target: BetType,
     private val player: Player
 ) {
     private var currentBet = 0.0
     private val processing = AtomicBoolean(false)
 
-    // Límite leído desde config
     private val absoluteMaxLimit = plugin.config.getDouble("roulette.max-bet", 200000.0)
     private val playerBalance = plugin.economyManager.vault?.getBalance(player) ?: 0.0
     private val maxAllowed = min(playerBalance, absoluteMaxLimit)
@@ -29,13 +28,13 @@ class BetAmountMixMenu(
     private fun msg(key: String, vararg ph: Pair<String, String>) = plugin.messages.get(key, *ph)
 
     private val displayTargetName = when (target) {
-        is MixBetType.Number -> "Número ${target.num}"
-        is MixBetType.Color  -> target.color.displayName
+        is BetType.Number -> "Número ${target.num}"
+        is BetType.Color  -> target.color.displayName
     }
 
     private val colorTheme = when (target) {
-        is MixBetType.Number -> game.getNumberColor(target.num)
-        is MixBetType.Color  -> target.color
+        is BetType.Number -> game.getNumberColor(target.num)
+        is BetType.Color  -> target.color
     }
 
     private val gui = Gui.gui()
@@ -47,7 +46,7 @@ class BetAmountMixMenu(
     fun open() { setupMenu(); gui.open(player) }
 
     private fun setupMenu() {
-        // Botones de resta/suma desde YAML
+        cfg.applyDecorations(gui)
         listOf("minus-big", "minus-medium", "minus-small", "plus-small", "plus-medium", "plus-big").forEach { key ->
             val slot   = cfg.getInt("buttons.$key.slot")
             val mat    = cfg.getMaterial("buttons.$key.material", Material.STONE)
@@ -57,15 +56,9 @@ class BetAmountMixMenu(
             gui.setItem(slot, createModifyButton(slot, mat, label, amount, color))
         }
 
-        // MAX BET
         val maxSlot = cfg.getInt("buttons.max-bet.slot", 22)
         val maxMat  = cfg.getMaterial("buttons.max-bet.material", Material.GOLD_BLOCK)
         val maxName = cfg.getComponent("buttons.max-bet.name")
-        val maxLore = cfg.getComponentList("buttons.max-bet.lore").map { lore ->
-            // reemplaza ${max} en lore
-            val raw = cfg.getString("buttons.max-bet.lore").replace("\${max}", maxAllowed.toString())
-            plugin.format(raw)
-        }
 
         var allInItem: dev.triumphteam.gui.guis.GuiItem? = null
         allInItem = ItemBuilder.from(maxMat).name(maxName)
@@ -82,13 +75,12 @@ class BetAmountMixMenu(
             }
         gui.setItem(maxSlot, allInItem)
 
-        // VOLVER
         val backSlot = cfg.getInt("buttons.back.slot", 18)
         val backMat  = cfg.getMaterial("buttons.back.material", Material.ARROW)
         val backName = cfg.getComponent("buttons.back.name")
         gui.setItem(backSlot, ItemBuilder.from(backMat).name(backName).flags(*ItemFlag.values()).asGuiItem {
             player.playSound(player.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-            RouletteMixMenu(plugin, game).openBetMenu(player)
+            RouletteMenu(plugin, game).openBetMenu(player)
         })
 
         updateConfirmButton()
@@ -151,7 +143,7 @@ class BetAmountMixMenu(
                 }
             }
 
-        if (target is MixBetType.Number) {
+        if (target is BetType.Number) {
             confirmButton.itemStack.amount = if (target.num == 0) 1 else target.num
         }
         gui.updateItem(13, confirmButton)

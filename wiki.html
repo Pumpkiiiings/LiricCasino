@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CasinoLiric | Documentación Oficial</title>
+    <!-- Fonts: Outfit for Headings, Inter for body -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Colores de Marca y Fondo Triple A */
+            --bg-base: #050505;
+            --bg-surface: rgba(20, 20, 24, 0.7);
+            --bg-surface-hover: rgba(30, 30, 36, 0.9);
+            --border-glow: rgba(245, 158, 11, 0.3);
+            
+            --primary: #f59e0b; /* Amber / Oro */
+            --primary-glow: #f59e0b80;
+            --secondary: #ef4444; /* Rojo Casino */
+            --accent: #8b5cf6; /* Morado Premium */
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dark: #1e293b;
+
+            --nav-width: 300px;
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(245, 158, 11, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(239, 68, 68, 0.05), transparent 25%);
+            background-attachment: fixed;
+        }
+
+        /* Tipografía */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Barra Lateral (Sidebar) */
+        aside {
+            width: var(--nav-width);
+            background: rgba(10, 10, 12, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .brand i {
+            font-size: 2rem;
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .brand h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        /* Ocultar barra de scroll en nav */
+        nav ul::-webkit-scrollbar { width: 0; }
+
+        nav ul li a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.85rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+        }
+
+        nav ul li a i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover, nav ul li a.active {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--border-glow);
+            transform: translateX(5px);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.05);
+        }
+
+        nav ul li a:hover i, nav ul li a.active i {
+            color: var(--primary);
+        }
+
+        .nav-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            padding-left: 1rem;
+            font-weight: 700;
+        }
+
+        /* Contenido Principal */
+        main {
+            flex: 1;
+            margin-left: var(--nav-width);
+            padding: 4rem 6rem;
+            max-width: 1400px;
+        }
+
+        .hero {
+            position: relative;
+            padding: 4rem 0 6rem 0;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 4rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #c4b5fd;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .hero h2 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            line-height: 1.8;
+        }
+
+        /* Secciones Genéricas */
+        section {
+            margin-bottom: 6rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+        }
+
+        .section-header h3 {
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-header h3 i {
+            color: var(--primary);
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Grid de Cartas (Archivos, Juegos, etc) */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.25rem;
+            padding: 2.5rem;
+            position: relative;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(245, 158, 11, 0.06), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(245, 158, 11, 0.1);
+            background: var(--bg-surface-hover);
+        }
+
+        .card:hover::after { opacity: 1; }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-family: 'Outfit', sans-serif;
+            color: #fff;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Bloques de Código */
+        .code-block {
+            background: #09090b;
+            border: 1px solid var(--glass-border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-block::before {
+            content: 'YAML';
+            position: absolute;
+            top: 0; right: 0;
+            background: var(--glass-border);
+            padding: 0.2rem 0.8rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-bottom-left-radius: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .code-block.cmd::before { content: 'COMANDO'; }
+
+        code {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            display: block;
+            white-space: pre-wrap;
+        }
+
+        .highlight-key { color: #f472b6; } /* Pink */
+        .highlight-string { color: #34d399; } /* Emerald */
+        .highlight-comment { color: #64748b; font-style: italic; }
+
+        /* Setup Guides (Pasos) */
+        .setup-steps {
+            list-style: none;
+            counter-reset: steps;
+            margin-top: 2rem;
+            border-left: 2px solid rgba(255,255,255,0.1);
+            margin-left: 1rem;
+            padding-left: 2rem;
+        }
+
+        .setup-steps li {
+            position: relative;
+            margin-bottom: 2.5rem;
+        }
+
+        .setup-steps li::before {
+            counter-increment: steps;
+            content: counter(steps);
+            position: absolute;
+            left: -3.3rem;
+            top: 0;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-base);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-family: 'Outfit';
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+            z-index: 2;
+        }
+
+        .setup-steps h4 {
+            font-size: 1.25rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            padding-top: 0.3rem;
+        }
+
+        /* Alertas / Info Boxes */
+        .alert {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            border-radius: 0 0.75rem 0.75rem 0;
+            margin: 2rem 0;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .alert i {
+            color: #3b82f6;
+            font-size: 1.5rem;
+            margin-top: 0.2rem;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: var(--primary);
+        }
+        .alert-warning i { color: var(--primary); }
+
+        /* Tablas */
+        .table-wrapper {
+            background: var(--bg-surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1.2rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        th {
+            background: rgba(0,0,0,0.4);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        td code {
+            display: inline;
+            background: rgba(0,0,0,0.5);
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.25rem;
+            color: var(--primary);
+            font-size: 0.85rem;
+            border: 1px solid var(--glass-border);
+        }
+    </style>
+</head>
+<body>
+    <aside>
+        <div class="brand">
+            <i class="fa-solid fa-dice-d20"></i>
+            <h1>CasinoLiric</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#inicio" class="active"><i class="fa-solid fa-house"></i> Inicio</a></li>
+                
+                <div class="nav-category">Configuración</div>
+                <li><a href="#archivos"><i class="fa-regular fa-folder-open"></i> Archivos del Plugin</a></li>
+                
+                <div class="nav-category">Setup de Juegos</div>
+                <li><a href="#setup-ruleta"><i class="fa-solid fa-dharmachakra"></i> Ruleta</a></li>
+                <li><a href="#setup-blackjack"><i class="fa-solid fa-suit-spade"></i> 21 Blackjack</a></li>
+                <li><a href="#setup-poker"><i class="fa-solid fa-coins"></i> Poker</a></li>
+                
+                <div class="nav-category">Juegos Virtuales</div>
+                <li><a href="#juego-coinflip"><i class="fa-solid fa-circle-half-stroke"></i> CoinFlip</a></li>
+                <li><a href="#juego-loteria"><i class="fa-solid fa-ticket"></i> Lotería & Rasca</a></li>
+                <li><a href="#juego-slots"><i class="fa-solid fa-slot-machine"></i> Slots (777)</a></li>
+
+                <div class="nav-category">Administración</div>
+                <li><a href="#permisos"><i class="fa-solid fa-shield-halved"></i> Permisos y Comandos</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main>
+        <header id="inicio" class="hero">
+            <span class="hero-badge">Versión 1.6.0 Triple A</span>
+            <h2>La experiencia de casino<br>más avanzada.</h2>
+            <p>CasinoLiric transforma tu servidor añadiendo sistemas de apuestas profesionales, animaciones inmersivas, interfaces en Triumph-GUI y una economía robusta. Sigue esta guía para dominar su configuración y setup.</p>
+        </header>
+
+        <!-- SECCIÓN ARCHIVOS -->
+        <section id="archivos">
+            <div class="section-header">
+                <h3><i class="fa-regular fa-folder-open"></i> Estructura de Archivos</h3>
+                <p>El plugin está diseñado para ser 100% personalizable a través de sus archivos YAML.</p>
+            </div>
+            
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-gear"></i></div>
+                    <div class="card-title">config.yml</div>
+                    <p>Contiene la configuración de economía, impuestos (House Edge), conectividad de base de datos (MySQL/SQLite) y opciones generales de los juegos.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-language"></i></div>
+                    <div class="card-title">messages.yml</div>
+                    <p>Soporte completo de MiniMessage y códigos de color legacy para traducir o estilizar cualquier mensaje que el plugin envíe a los jugadores.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="card-title">Carpeta /menus/</div>
+                    <p>Contiene archivos como <code>coinflip.yml</code> y <code>scratch.yml</code> para editar ranuras, botones, cabezas de jugadores, materiales y decoraciones de los menús.</p>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <i class="fa-solid fa-lightbulb"></i>
+                <div>
+                    <strong>Estilos de Menús (NUEVO):</strong> Todos los menús ahora tienen desactivada la propiedad "italics" por defecto en los items, asegurando un diseño moderno y estandarizado de fuente recta en todo el servidor.
+                </div>
+            </div>
+        </section>
+
+        <!-- SETUP RULETA -->
+        <section id="setup-ruleta">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-dharmachakra"></i> Setup: Ruleta</h3>
+                <p>Guía paso a paso para crear una mesa física de Ruleta interactiva en tu mundo.</p>
+            </div>
+
+            <ol class="setup-steps">
+                <li>
+                    <h4>Construye el entorno</h4>
+                    <p>Decora la zona en tu servidor. Necesitarás al menos un bloque central o un atril que los jugadores mirarán o interactuarán para abrir la ruleta.</p>
+                </li>
+                <li>
+                    <h4>Ejecuta el comando Setup</h4>
+                    <div class="code-block cmd">
+                        <code>/ruleta setup</code>
+                    </div>
+                    <p>Esto activará el "Modo Configuración" para ti. Tu chat te pedirá que interactúes con el siguiente paso.</p>
+                </li>
+                <li>
+                    <h4>Selecciona la ubicación (Bloque)</h4>
+                    <p>Haz <strong>Shift + Clic Derecho</strong> sobre el bloque que deseas convertir en la mesa de Ruleta. Las coordenadas se guardarán automáticamente en <code>data.yml</code>.</p>
+                </li>
+                <li>
+                    <h4>¡Listo para Jugar!</h4>
+                    <p>Ahora cualquier jugador que haga clic en ese bloque o escriba <code>/ruleta jugar</code> estando cerca, abrirá la espectacular interfaz animada de la ruleta.</p>
+                </li>
+            </ol>
+        </section>
+
+        <!-- SETUP BLACKJACK -->
+        <section id="setup-blackjack">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-suit-spade"></i> Setup: 21 Blackjack</h3>
+                <p>Crea mesas contra el crupier para tus jugadores.</p>
+            </div>
+
+            <ol class="setup-steps">
+                <li>
+                    <h4>Comando Setup</h4>
+                    <div class="code-block cmd">
+                        <code>/blackjack setup</code>
+                    </div>
+                </li>
+                <li>
+                    <h4>Asigna la mesa</h4>
+                    <p>Golpea el bloque que servirá como mesa de Blackjack. Recomendamos usar escaleras para simular mesas o bloques verdes como arcilla/lana.</p>
+                </li>
+                <li>
+                    <h4>Hologramas y NPCs (Opcional)</h4>
+                    <p>Si usas plugins de NPCs o Hologramas, colócalos justo encima de ese bloque para mejorar la estética visual. El jugador hará clic en el bloque o en el NPC para jugar.</p>
+                </li>
+            </ol>
+        </section>
+        
+        <!-- SETUP POKER -->
+        <section id="setup-poker">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-coins"></i> Setup: Mesa de Poker</h3>
+                <p>El juego más social del casino. Requiere sillas o un área para múltiples jugadores.</p>
+            </div>
+
+            <ol class="setup-steps">
+                <li>
+                    <h4>Comando Setup</h4>
+                    <div class="code-block cmd">
+                        <code>/poker setup</code>
+                    </div>
+                </li>
+                <li>
+                    <h4>Selecciona la Mesa Central</h4>
+                    <p>Golpea el bloque central donde se desplegarán las cartas comunitarias virtuales (si aplica) o que abrirá el menú central del juego.</p>
+                </li>
+            </ol>
+        </section>
+
+        <!-- JUEGOS VIRTUALES: COINFLIP -->
+        <section id="juego-coinflip">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-circle-half-stroke"></i> Juegos Virtuales: CoinFlip</h3>
+                <p>CoinFlip no requiere un bloque físico. Es un menú global accesible por comando.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">¿Cómo funciona?</div>
+                <p>Los jugadores pueden apostar una cantidad de dinero eligiendo un color (cara o cruz). El anuncio de su apuesta aparece en el menú global de CoinFlip. Otro jugador puede abrir el menú y desafiarlo.</p>
+                <div class="code-block cmd">
+                    <code><span class="highlight-comment"># Abrir el menú para ver apuestas activas</span>
+/cf menu
+
+<span class="highlight-comment"># Crear una apuesta de 1000$</span>
+/cf create 1000
+
+<span class="highlight-comment"># Unirse a una apuesta específica</span>
+/cf join <Jugador></code>
+                </div>
+            </div>
+            
+            <div class="alert">
+                <i class="fa-solid fa-palette"></i>
+                <div>
+                    <strong>Personalización de Interfaz:</strong> La interfaz de batalla muestra las cabezas 3D de los combatientes. El diseño de este menú se puede cambiar al 100% en <code>menus/coinflip.yml</code>.
+                </div>
+            </div>
+        </section>
+        
+        <!-- JUEGOS VIRTUALES: LOTERIA Y SLOTS -->
+        <section id="juego-loteria">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-ticket"></i> Lotería, Rasca y Slots</h3>
+                <p>Sistemas de juego rápido y pasivo.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">🎟️ Sistema de Lotería</div>
+                    <p>Los jugadores compran tickets usando <code>/loteria comprar &lt;cantidad&gt;</code>. El dinero se acumula en un bote general (Jackpot). Puedes configurar en <code>config.yml</code> cada cuántas horas se realiza el sorteo automático, o forzarlo con <code>/loteria forcestart</code>.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">✨ Boletos Rasca y Gana</div>
+                    <p>Un ítem físico en el juego. Usando <code>/boleto comprar &lt;cantidad&gt;</code> el jugador recibe el ítem. Al hacer clic derecho, se abre un menú animado estilo "Rasca", configurado en <code>menus/scratch.yml</code>, donde se revelan los premios.</p>
+                </div>
+                <div class="card" style="grid-column: span 2;">
+                    <div class="card-title">🍒 Tragamonedas 777</div>
+                    <p>Accesible vía <code>/tragamonedas</code>. Abre una interfaz que simula rodillos girando con sonidos escalonados. Las líneas ganadoras y premios se definen enteramente en las configuraciones internas.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- COMANDOS Y PERMISOS -->
+        <section id="permisos">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-shield-halved"></i> Permisos y Comandos</h3>
+                <p>Referencia técnica para la administración del servidor.</p>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Comando Base</th>
+                            <th>Subcomandos</th>
+                            <th>Permiso Requerido</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>/casino</code></td>
+                            <td><code>reload</code>, <code>stats</code>, <code>top</code></td>
+                            <td><code>casino.admin</code> (Para reload)</td>
+                            <td>Comando principal. Administra estadísticas y recarga la configuración.</td>
+                        </tr>
+                        <tr>
+                            <td><code>/ruleta</code></td>
+                            <td><code>setup</code>, <code>delete</code>, <code>forcestart</code></td>
+                            <td><code>casino.admin</code></td>
+                            <td>Herramientas de configuración y control de la ruleta.</td>
+                        </tr>
+                        <tr>
+                            <td><code>/blackjack</code></td>
+                            <td><code>setup</code>, <code>delete</code></td>
+                            <td><code>casino.admin</code></td>
+                            <td>Gestión de mesas físicas de 21 Blackjack.</td>
+                        </tr>
+                        <tr>
+                            <td><code>/poker</code></td>
+                            <td><code>setup</code>, <code>delete</code></td>
+                            <td><code>casino.admin</code></td>
+                            <td>Gestión de mesas de Poker Texas Hold'em.</td>
+                        </tr>
+                        <tr>
+                            <td><code>/loteria</code></td>
+                            <td><code>forcestart</code>, <code>give &lt;jugador&gt; [cant]</code></td>
+                            <td><code>casino.admin</code></td>
+                            <td>Control total sobre los sorteos de lotería y entrega manual de boletos a jugadores.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts para Interactividad -->
+    <script>
+        // Efecto glow en tarjetas siguiendo el cursor
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // Intersection Observer para animaciones de scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+        document.querySelectorAll('section').forEach(sec => observer.observe(sec));
+
+        // Resaltar sección activa en Sidebar
+        const sections = document.querySelectorAll('section, header');
+        const navLinks = document.querySelectorAll('nav ul li a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

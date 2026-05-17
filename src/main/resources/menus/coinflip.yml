@@ -1,0 +1,69 @@
+# Menú de CoinFlip
+title: "<dark_gray><bold>CoinFlip</bold></dark_gray> <dark_gray>▸</dark_gray> <white>Juegos"
+rows: 6
+
+# Botón Crear
+create-btn:
+  slot: 4
+  material: NETHER_STAR
+  name: "<#00FF7F><bold>✚ Crear Juego</bold>"
+  lore:
+    - "<gray>Haz click para apostar en CoinFlip."
+    - ""
+    - "<#FFD700>❱ Escribe el monto en el chat."
+    - "<gray>Soporta: <white>1k <gray>· <white>5m <gray>· <white>2b <gray>· <white>1t"
+
+# Botón Actualizar
+refresh-btn:
+  slot: 49
+  material: COMPASS
+  name: "<white><bold>↺ Actualizar</bold>"
+  lore:
+    - "<gray>Click para refrescar la lista."
+
+# Cuando no hay juegos
+no-games:
+  slot: 22
+  material: BELL
+  name: "<#FF5555>| Juegos <dark_gray>→ <red><bold>No Disponibles</bold>"
+  lore:
+    - "<gray>Item | Descripción"
+    - ""
+    - "<#5555FF>ⓘ <gray>Información:"
+    - "<gray>Por el momento no hay predicciones"
+    - "<gray>disponibles, vuelve pronto o crea una"
+    - ""
+    - "<red>✦ <white>Comando: <#FF5555>/cf create <monto>"
+
+# Lista de slots donde aparecen los juegos
+games-slots: [10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43]
+
+# Formato del item de juego
+game-item:
+  name: "<light_purple>Juego <dark_gray>→ <white>%creator%"
+  lore:
+    - "<gray>Botón | Predicción"
+    - ""
+    - "<gray> Descripción:"
+    - "<gray>· Cantidad: <#FFD700>%amount%"
+    - ""
+    - "%click_action%"
+  click-join: "<#00FF7F>✔ ¡Click para unirse!"
+  click-cancel: "<red>✗ ¡Click para cancelar!"
+
+# ─────────────────────────────────────────────────────────────
+#  DECORACIONES
+# ─────────────────────────────────────────────────────────────
+decorations:
+  # Franja superior negra
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [0, 1, 2, 3, 5, 6, 7, 8] # Slot 4 es el botón crear
+  # Laterales grises
+  - material: GRAY_STAINED_GLASS_PANE
+    name: " "
+    slots: [9, 17, 18, 26, 27, 35, 36, 44]
+  # Franja inferior negra
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [45, 46, 47, 48, 50, 51, 52, 53] # Slot 49 es actualizar

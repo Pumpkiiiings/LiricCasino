@@ -5,6 +5,11 @@
 title: "<#FF00FF><bold>🌀</bold></#FF00FF> <black><bold>Ruleta Mixta</bold></black> <#FF00FF><bold>🌀</bold></#FF00FF>"
 rows: 6
 
+decorations:
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [0, 1, 2, 3, 5, 6, 7, 8, 45, 46, 47, 51, 52, 53]
+
 # Slot donde va el número 0
 zero-slot: 4
 # Los números 1-36 se ubican desde este slot en adelante (slot = base + numero)

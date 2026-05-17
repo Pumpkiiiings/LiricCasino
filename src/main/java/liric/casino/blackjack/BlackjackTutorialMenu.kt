@@ -19,9 +19,7 @@ class BlackjackTutorialMenu(private val plugin: CasinoPlugin, private val player
         .create()
 
     fun open() {
-        val fillerMat = cfg.getMaterial("filler.material", Material.BLACK_STAINED_GLASS_PANE)
-        val filler = ItemBuilder.from(fillerMat).name(plugin.format(" ")).asGuiItem()
-        gui.filler.fill(filler)
+        cfg.applyDecorations(gui)
 
         // Páginas dinámicas desde YAML
         val pageKeys = cfg.getKeys("pages")

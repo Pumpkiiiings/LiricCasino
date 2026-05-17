@@ -18,26 +18,29 @@ general:
 stats:
   usage: "{prefix} <#FF5555>Uso: /casino <stats|top|reload> [modo]"
 
-# ─── Ruleta Mixta ────────────────────────────────────────
+# ─── Ruleta ──────────────────────────────────────────────
 roulette:
   already-spinning: "{prefix} <#FF3333>La ruleta ya está girando. ¡Espera un momento!"
   already-bet: "{prefix} <#FF5555>Ya has apostado en esta ronda. Solo 1 apuesta permitida."
   bet-range: "{prefix} <#FF5555>La apuesta debe ser entre $1 y ${max}."
   bet-placed: "{prefix} <#00FF7F>¡Apostaste <#FFB400>${amount}</#FFB400> {target}!"
   no-funds: "{prefix} <#FF5555>No tienes suficiente dinero."
-  spin-announce: "{prefix} <#E0E0E0>¡Alguien acaba de apostar en la <#FF00FF><bold>Ruleta Mixta</bold></#FF00FF>! La ruleta girará en <#00FF7F>3 minutos</#00FF7F>. Usa <#FFB400>/ruleta</#FFB400> para unirte."
-  countdown-2min: "{prefix} <#E0E0E0>¡La Ruleta Mixta girará en <#00FF7F>2 minutos</#00FF7F>! Hay {players} jugador(es) apostando. Usa <#FFB400>/ruleta</#FFB400>."
-  countdown-1min: "{prefix} <#E0E0E0>¡Último minuto! La Ruleta Mixta girará en <#00FF7F>1 minuto</#00FF7F>. Usa <#FFB400>/ruleta</#FFB400> rápido."
-  countdown-30s: "{prefix} <#E0E0E0>¡La Ruleta Mixta girará en <#FF5555>30 segundos</#FF5555>! ¡Hagan sus apuestas!"
-  countdown-10s: "{prefix} <#FF5555><bold>¡ATENCIÓN! La Ruleta Mixta gira en 10 segundos.</bold></#FF5555>"
-  spinning: "{prefix} <#FFB400><bold>¡No va más! La Ruleta Mixta está girando...</bold></#FFB400>"
-  result: "{prefix} <#E0E0E0>¡Ha caído el número <#FFB400><bold>{number}</bold></#FFB400> ({color}<#E0E0E0>) en la Ruleta Mixta!"
+  spin-announce: "{prefix} <#E0E0E0>¡Alguien acaba de apostar en la <#FF00FF><bold>Ruleta</bold></#FF00FF>! Girará en <#00FF7F>3 minutos</#00FF7F>. Usa <#FFB400>/ruleta</#FFB400> para unirte."
+  countdown-2min: "{prefix} <#E0E0E0>¡La Ruleta girará en <#00FF7F>2 minutos</#00FF7F>! Hay {players} jugador(es) apostando."
+  countdown-1min: "{prefix} <#E0E0E0>¡Último minuto! La Ruleta girará en <#00FF7F>1 minuto</#00FF7F>."
+  countdown-30s: "{prefix} <#E0E0E0>¡La Ruleta girará en <#FF5555>30 segundos</#FF5555>! ¡Hagan sus apuestas!"
+  countdown-10s: "{prefix} <#FF5555><bold>¡ATENCIÓN! La Ruleta gira en 10 segundos.</bold></#FF5555>"
+  spinning: "{prefix} <#FFB400><bold>¡No va más! La Ruleta está girando...</bold></#FFB400>"
+  result: "{prefix} <#E0E0E0>¡Ha caído el número <#FFB400><bold>{number}</bold></#FFB400> ({color}<#E0E0E0>) en la Ruleta!"
   win: "{prefix} <#00FF7F><bold>¡GANASTE!</bold> <#E0E0E0>Te llevas <#FFB400>${amount}</#FFB400>.{booster}"
   win-booster: " <aqua>(Booster: {booster}x)</aqua>"
   lose: "{prefix} <#FF5555>Perdiste tu apuesta de <#FFB400>${amount}</#FFB400>."
   deleted: "{prefix} <#00FF7F>¡Ruleta eliminada y borrada del archivo data.yml!"
   not-found: "{prefix} <#FF5555>No hay ninguna ruleta cerca."
   purged: "{prefix} <#00FF7F>¡PURGA NUCLEAR! Se eliminaron {count} entidades y se limpió el data.yml en este mundo."
+  created: "{prefix} <#00FF7F>¡Ruleta creada con éxito!"
+  escala-usage: "{prefix} <#FF5555>Uso: /casino ruleta escala <escala 0.1-2.0> [radio 2-15]"
+  escala-set: "{prefix} <#00FF7F>Escala actualizada a <#FFB400>{scale}</#FFB400> con radio <#FFB400>{radius}</#FFB400>. Ruletas recreadas."
 
 # ─── Blackjack ───────────────────────────────────────────
 blackjack:
@@ -79,9 +82,99 @@ scratch:
 
 # ─── Poker ───────────────────────────────────────────────
 poker:
-  only-players: "Solo jugadores pueden usar este comando."
+  only-players: "{prefix} <#FF5555>Solo los jugadores pueden usar este comando."
   table-created: "{prefix} <#00FF7F>Mesa de Poker creada con éxito."
   table-deleted: "{prefix} <#00FF7F>Mesa de Poker eliminada."
   table-not-found: "{prefix} <#FF5555>No hay ninguna mesa cerca."
   no-permission: "{prefix} <#FF5555>No tienes permisos."
   usage: "{prefix} <#FF5555>Uso: /poker <join|leave|setup|delete>"
+
+# ─── Lotería ─────────────────────────────────────────────
+lottery:
+  bought: "{prefix} <#00FF7F>Compraste <#FFD700>{amount} boleto(s)</#FFD700> por <#FFD700>${cost}</#FFD700>. Números: <white>{numbers}</white>. Pozo: <#00FF7F>${jackpot}"
+  no-funds: "{prefix} <#FF5555>No tienes <#FFD700>${cost}</#FFD700> para comprar el boleto."
+  max-tickets: "{prefix} <#FF5555>Ya tienes el máximo de {max} boletos permitidos."
+  received: "{prefix} <#00FF7F>¡Recibiste <#FFD700>{amount} boleto(s)</#FFD700> de lotería!"
+  give-sender: "{prefix} <#00FF7F>Diste <#FFD700>{amount} boleto(s)</#FFD700> a <white>{player}</white>."
+  usage: "{prefix} <#FF5555>Uso: /loteria <info|comprar [cantidad]|forcestart|give <jugador> [cantidad]>"
+  # Anuncios de tiempo
+  announce-1h: "{prefix} <#FFD700>🎟 ¡La Lotería sorteará en <white>1 hora</#FFD700>! Pozo: <#00FF7F>${jackpot}</#00FF7F>. Compra con /loteria comprar."
+  announce-30m: "{prefix} <#FFD700>🎟 ¡La Lotería sorteará en <white>30 minutos</#FFD700>! Pozo: <#00FF7F>${jackpot}</#00FF7F>."
+  announce-10m: "{prefix} <#FFD700>🎟 ¡La Lotería sorteará en <white>10 minutos</#FFD700>! Pozo: <#00FF7F>${jackpot}</#00FF7F>. Boletos: {tickets}."
+  announce-1m: "{prefix} <#FF5555><bold>🎟 ¡ÚLTIMO MINUTO! La Lotería sortea en 1 minuto. Pozo: ${jackpot}.</bold></#FF5555>"
+  announce-30s: "{prefix} <#FF5555>🎟 ¡La Lotería sortea en 30 segundos!"
+  announce-10s: "{prefix} <#FF5555><bold>🎟 ¡10 SEGUNDOS PARA EL SORTEO DE LOTERÍA!</bold></#FF5555>"
+  # Resultado
+  no-winner: "{prefix} <#FFD700>🎟 El número ganador fue <white>{number}</#FFD700>. ¡Nadie acertó! El pozo de <#00FF7F>${jackpot}</#00FF7F> se acumula para el siguiente sorteo."
+  winner-self: "{prefix} <#FFD700><bold>🎟 ¡GANASTE LA LOTERÍA!</bold></#FFD700> El número fue <white>{number}</white>. Recibes <#00FF7F>${amount}{tax}</#00FF7F>. ¡Felicidades!"
+  winner-broadcast: "{prefix} <gradient:#FFD700:#FF6B6B><bold>🎟 ¡SORTEO DE LOTERÍA!</bold></gradient> El número fue <white>{number}</white>. <#FFD700>{winners}</#FFD700> gan(ó/aron) <#00FF7F>${amount}</#00FF7F>!"
+
+# ─── CoinFlip ────────────────────────────────────────────
+coinflip:
+  created: "{prefix} <#FFD700>🪙 ¡Creaste un CoinFlip por <white>${amount}</white>! ID: <gray>{id}. <#00FF7F>Esperando oponente..."
+  already-in-game: "{prefix} <#FF5555>Ya estás en un juego de CoinFlip. Usa /coinflip cancelar primero."
+  invalid-amount: "{prefix} <#FF5555>La apuesta debe ser entre <white>${min}</white> y <white>${max}</white>."
+  invalid-number: "{prefix} <#FF5555>Ingresa un número válido."
+  no-funds: "{prefix} <#FF5555>No tienes suficiente dinero para esta apuesta."
+  game-not-found: "{prefix} <#FF5555>No se encontró ningún juego abierto de <white>{player}</white>."
+  no-game: "{prefix} <#FF5555>No tienes un juego abierto."
+  cannot-cancel: "{prefix} <#FF5555>No puedes cancelar un juego que ya está en curso."
+  cancelled: "{prefix} <#FFB400>🪙 Juego cancelado. Se te devolvieron <#FFD700>${amount}</#FFD700>."
+  usage: "{prefix} <#FF5555>Uso: /coinflip <crear <monto>|unirse <jugador>|cancelar|lista>"
+  # Broadcast de nuevo juego
+  new-game-broadcast: "{prefix} <#FFD700>🪙 <white>{player}</#FFD700> creó un CoinFlip de <#00FF7F>${amount}</#00FF7F>. Únete con <#FFB400>/coinflip unirse {player}</#FFB400>."
+  # Resultado
+  win: "{prefix} <#00FF7F><bold>🪙 ¡GANASTE el CoinFlip!</bold> Te llevas <#FFD700>${amount}</#FFD700>{tax}."
+  lose: "{prefix} <#FF5555>🪙 Perdiste el CoinFlip. Perdiste <#FFD700>${amount}</#FFD700>."
+  broadcast-result: "{prefix} <gradient:#FFD700:#00FF7F>🪙 CoinFlip</gradient>: <white>{winner}</white> <#00FF7F>ganó <#FFD700>${amount}</#FFD700> contra <white>{loser}</white>!"
+
+# ─── Piedra Papel Tijera ─────────────────────────────────
+rps:
+  already-in-game: "{prefix} <#FF5555>Ya estás en un juego."
+  invalid-amount: "{prefix} <#FF5555>La apuesta debe estar entre <#FFD700>${min}</#FFD700> y <#FFD700>${max}</#FFD700>."
+  no-funds: "{prefix} <#FF5555>No tienes fondos suficientes."
+  created: "{prefix} <#FFD700>⚔ Duelo RPS creado por <#00FF7F>${amount}</#00FF7F>. Esperando oponente..."
+  broadcast-new: "{prefix} <#FF5555>⚔ <white>{player}</white> creó un duelo de Piedra Papel Tijera por <#FFD700>${amount}</#FFD700>. Únete con <#FFB400>/rps unirse {player}</#FFB400>."
+  game-not-found: "{prefix} <#FF5555>No se encontró un duelo abierto de {player}."
+  joined: "{prefix} <#FFD700>⚔ Te uniste al duelo de {player} por <#00FF7F>${amount}</#00FF7F>."
+  opponent-joined: "{prefix} <#FFD700>⚔ <white>{player}</white> se unió a tu duelo."
+  choice-locked: "{prefix} <#00FF7F>Fijaste tu elección: {choice}."
+  tie: "{prefix} <#FFB400>⚔ ¡EMPATE! Ambos eligieron {c1}. Apuestas devueltas."
+  win: "{prefix} <#00FF7F><bold>⚔ ¡GANASTE!</bold> Tu {myChoice} venció a {opChoice}. Ganaste <#FFD700>${amount}</#FFD700>{tax}."
+  lose: "{prefix} <#FF5555>⚔ Perdiste. Tu {myChoice} perdió contra {opChoice}. Perdiste <#FFD700>${amount}</#FFD700>."
+  broadcast-result: "{prefix} <gradient:#FF5555:#FFD700>⚔ RPS</gradient>: <white>{winner}</white> ({wChoice}) <#00FF7F>venció a <white>{loser}</white> ({lChoice}) y ganó <#FFD700>${amount}</#FFD700>!"
+  no-game: "{prefix} <#FF5555>No tienes un duelo abierto."
+  cannot-cancel: "{prefix} <#FF5555>El juego ya empezó."
+  cancelled: "{prefix} <#FFB400>⚔ Duelo cancelado. Se devolvió tu apuesta de <#FFD700>${amount}</#FFD700>."
+  usage: "{prefix} <#FF5555>Uso: /rps <crear <monto>|unirse <jugador>|cancelar>"
+
+# ─── Tic Tac Toe ─────────────────────────────────────────
+ttt:
+  already-in-game: "{prefix} <#FF5555>Ya estás en una partida."
+  invalid-amount: "{prefix} <#FF5555>La apuesta debe estar entre <#FFD700>${min}</#FFD700> y <#FFD700>${max}</#FFD700>."
+  no-funds: "{prefix} <#FF5555>No tienes fondos suficientes."
+  created: "{prefix} <#00FFFF>⬛ Partida de Tic Tac Toe creada por <#00FF7F>${amount}</#00FF7F>."
+  broadcast-new: "{prefix} <#00FFFF>⬛ <white>{player}</white> creó una partida de Tic Tac Toe por <#FFD700>${amount}</#FFD700>. Únete con <#FFB400>/ttt unirse {player}</#FFB400>."
+  game-not-found: "{prefix} <#FF5555>No se encontró la partida."
+  joined: "{prefix} <#00FFFF>⬛ Te uniste a la partida de {player}."
+  opponent-joined: "{prefix} <#00FFFF>⬛ <white>{player}</white> se unió a tu partida."
+  tie: "{prefix} <#FFB400>⬛ ¡EMPATE! El tablero se llenó. Apuestas devueltas."
+  win: "{prefix} <#00FF7F><bold>⬛ ¡GANASTE!</bold> Has ganado <#FFD700>${amount}</#FFD700>{tax}."
+  lose: "{prefix} <#FF5555>⬛ Perdiste. Has perdido <#FFD700>${amount}</#FFD700>."
+  broadcast-result: "{prefix} <gradient:#00FFFF:#00FF7F>⬛ TicTacToe</gradient>: <white>{winner}</white> <#00FF7F>le ganó a <white>{loser}</white> y se llevó <#FFD700>${amount}</#FFD700>!"
+  no-game: "{prefix} <#FF5555>No tienes partidas abiertas."
+  cannot-cancel: "{prefix} <#FF5555>La partida ya empezó."
+  cancelled: "{prefix} <#FFB400>⬛ Partida cancelada. Apuesta devuelta."
+  usage: "{prefix} <#FF5555>Uso: /ttt <crear <monto>|unirse <jugador>|cancelar>"
+
+# ─── Carreras de Caballos ────────────────────────────────
+racing:
+  already-started: "{prefix} <#FF5555>¡La carrera ya empezó!"
+  already-bet: "{prefix} <#FF5555>Ya hiciste una apuesta para esta carrera."
+  no-funds: "{prefix} <#FF5555>No tienes fondos suficientes."
+  bet-placed: "{prefix} <#00FF7F>🏇 Apostaste <#FFD700>${amount}</#FFD700> al caballo {horse}."
+  countdown: "{prefix} <#FFB400>La carrera empieza en <white>{time}</white> segundos..."
+  started: "{prefix} <#00FF7F><bold>¡Y ARRANCAN! 🏇💨</bold>"
+  winner: "{prefix} <#FFD700><bold>¡EL GANADOR ES {horse}!</bold>"
+  win: "{prefix} <#00FF7F><bold>¡GANASTE LA APUESTA!</bold> Cobras <#FFD700>${amount}</#FFD700>{tax}."
+  lose: "{prefix} <#FF5555>Tu caballo perdió. Perdiste <#FFD700>${amount}</#FFD700>."

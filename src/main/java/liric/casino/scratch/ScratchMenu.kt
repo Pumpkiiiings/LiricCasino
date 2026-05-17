@@ -39,6 +39,7 @@ class ScratchMenu(private val plugin: CasinoPlugin, private val player: Player, 
         for (i in 0 until (tier.rows * 9)) {
             if (i !in scratchableSlots) gui.setItem(i, filler)
         }
+        cfg.applyDecorations(gui)
 
         val scratchMat  = cfg.getMaterial("scratch-block.material", Material.BLACK_CONCRETE)
         val scratchName = cfg.getComponent("scratch-block.name")

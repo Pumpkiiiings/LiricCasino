@@ -1,5 +1,5 @@
-name: CasinoPlugin
-version: 1.5.2
+name: CasinoLiric
+version: 2.0.0
 main: liric.casino.CasinoPlugin
 api-version: '1.20'
 author: Liric Casino Team
@@ -7,35 +7,69 @@ depend: [Vault]
 softdepend: [PlaceholderAPI]
 
 commands:
-  ruletamix:
-    description: Abre o gestiona la ruleta definitiva (Apostar a Colores o Números).
-    usage: /ruletamix <jugar|setup|delete|forcestart>
-    aliases: [ruleta] # TRUCO: Los jugadores pueden usar simplemente /ruleta
-
   casino:
-    description: Comando principal del Casino (Estadísticas y recarga).
-    usage: /casino <stats|top|reload>
-    aliases: [ c ]
+    description: >
+      Comando principal del Casino.
+      Subcategorías: ruleta, blackjack, tragamonedas, poker, boleto, loteria, coinflip, rps, ttt, carreras, stats, top, reload
+    usage: |
+      /casino <juego> [acción]
+      /casino stats [juego]
+      /casino top [juego]
+      /casino reload
+    aliases: [c]
+
+  # ── Alias de acceso rápido por juego (apuntan al mismo handler) ───────────
+  ruleta:
+    description: Abre o gestiona la ruleta del Casino.
+    usage: /ruleta [jugar|setup|delete|forcestart|purge]
+    aliases: [roulette]
 
   blackjack:
     description: Juega al 21 Blackjack.
-    usage: /blackjack <jugar|setup|delete>
-    aliases: [ bj, 21 ]
+    usage: /blackjack [jugar|setup|delete]
+    aliases: [bj, 21]
 
   poker:
     description: Únete a la mesa de Poker.
-    usage: /poker <join|setup|delete>
+    usage: /poker [jugar|setup|delete]
 
   tragamonedas:
     description: Abre la máquina tragamonedas 777.
-    usage: /tragamonedas
-    aliases: [ slots, 777 ]
+    usage: /tragamonedas [setup|delete|purge]
+    aliases: [slots, 777]
 
   boleto:
-    description: Compra boletos mágicos de Rasca y Gana.
-    usage: /boleto comprar <cantidad>
+    description: Compra boletos de Rasca y Gana.
+    usage: /boleto <comprar|get|give> [tier] [cantidad]
+    aliases: [scratch]
+
+  loteria:
+    description: Compra boletos de lotería y espera el sorteo.
+    usage: /loteria [info|comprar [cantidad]|forcestart|give <jugador> [cantidad]]
+    aliases: [lottery]
+
+  coinflip:
+    description: CoinFlip PvP — crea o únete a una apuesta.
+    usage: /coinflip [menu|crear <monto>|unirse <jugador>|cancelar]
+    aliases: [moneda]
+
+  cf:
+    description: Alias corto de CoinFlip.
+    usage: /cf [menu|crear <monto>|unirse <jugador>|cancelar]
+
+  rps:
+    description: Piedra Papel Tijera PvP.
+    usage: /rps [crear <monto>|unirse <jugador>|cancelar|ayuda]
+
+  ttt:
+    description: Tic Tac Toe PvP.
+    usage: /ttt [crear <monto>|unirse <jugador>|cancelar|ayuda]
+
+  carreras:
+    description: Apuestas de carreras de caballos.
+    usage: /carreras [jugar|ayuda]
 
 permissions:
   casino.admin:
-    description: Permite poner, borrar o forzar el inicio de la ruleta.
+    description: Permite administrar el casino (setup, delete, forcestart, give, reload, etc.).
     default: op

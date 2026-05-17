@@ -26,7 +26,6 @@ class DatabaseManager(private val plugin: CasinoPlugin) {
             cfg.driverClassName = "org.sqlite.JDBC"
             cfg.maximumPoolSize = 1
             cfg.connectionTestQuery = "SELECT 1"
-            // SQLite: activar WAL para mayor rendimiento
             cfg.connectionInitSql = "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;"
         } else {
             val host = plugin.config.getString("database.host", "localhost")
@@ -43,6 +42,7 @@ class DatabaseManager(private val plugin: CasinoPlugin) {
 
         dataSource = HikariDataSource(cfg)
         createTables()
+        migrateColumns()
     }
 
     fun disconnect() {
@@ -78,10 +78,55 @@ class DatabaseManager(private val plugin: CasinoPlugin) {
                         scratch_spent     DOUBLE       DEFAULT 0,
                         scratch_won       DOUBLE       DEFAULT 0,
                         scratch_wins      INT          DEFAULT 0,
+                        lottery_tickets   INT          DEFAULT 0,
+                        lottery_spent     DOUBLE       DEFAULT 0,
+                        lottery_won       DOUBLE       DEFAULT 0,
+                        lottery_wins      INT          DEFAULT 0,
+                        coinflip_flips    INT          DEFAULT 0,
+                        coinflip_wagered  DOUBLE       DEFAULT 0,
+                        coinflip_won      DOUBLE       DEFAULT 0,
+                        coinflip_wins     INT          DEFAULT 0,
+                        coinflip_losses   INT          DEFAULT 0,
                         last_seen         BIGINT       DEFAULT 0,
                         PRIMARY KEY (uuid)
                     )
                 """.trimIndent())
+            }
+        }
+    }
+
+    /**
+     * Agrega columnas nuevas a tablas existentes (migración segura).
+     * No falla si la columna ya existe.
+     */
+    private fun migrateColumns() {
+        val newColumns = mapOf(
+            "lottery_tickets"  to "INT DEFAULT 0",
+            "lottery_spent"    to "DOUBLE DEFAULT 0",
+            "lottery_won"      to "DOUBLE DEFAULT 0",
+            "lottery_wins"     to "INT DEFAULT 0",
+            "coinflip_flips"   to "INT DEFAULT 0",
+            "coinflip_wagered" to "DOUBLE DEFAULT 0",
+            "coinflip_won"     to "DOUBLE DEFAULT 0",
+            "coinflip_wins"    to "INT DEFAULT 0",
+            "coinflip_losses"  to "INT DEFAULT 0",
+            "racing_wagered"   to "DOUBLE DEFAULT 0",
+            "racing_won"       to "DOUBLE DEFAULT 0",
+            "racing_wins"      to "INT DEFAULT 0",
+            "racing_losses"    to "INT DEFAULT 0"
+        )
+
+        getConnection().use { conn ->
+            newColumns.forEach { (col, definition) ->
+                runCatching {
+                    conn.createStatement().use { stmt ->
+                        if (isSQLite) {
+                            stmt.execute("ALTER TABLE casino_stats ADD COLUMN $col $definition")
+                        } else {
+                            stmt.execute("ALTER TABLE casino_stats ADD COLUMN IF NOT EXISTS $col $definition")
+                        }
+                    }
+                } // Silencioso si ya existe (SQLite lanza excepción, se ignora)
             }
         }
     }

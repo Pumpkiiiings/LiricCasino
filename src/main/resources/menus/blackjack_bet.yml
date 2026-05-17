@@ -6,8 +6,19 @@ title-solo: "<black><bold>Apuesta ➔ Solitario"
 title-multi: "<black><bold>Apuesta ➔ Multijugador"
 rows: 3
 
-filler:
-  material: GRAY_STAINED_GLASS_PANE
+decorations:
+  # Franja superior
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+  # Laterales
+  - material: GRAY_STAINED_GLASS_PANE
+    name: " "
+    slots: [9, 17]
+  # Franja inferior
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [18, 19, 20, 21, 23, 24, 25, 26]
 
 buttons:
   minus-big:

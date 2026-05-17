@@ -1,4 +1,4 @@
-package liric.casino.roulettemix
+package liric.casino.roulette
 
 import liric.casino.CasinoPlugin
 import org.bukkit.Bukkit
@@ -26,7 +26,7 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
-data class RouletteMixInstance(
+data class RouletteInstance(
     val id: UUID = UUID.randomUUID(),
     val center: Location,
     val statusText: TextDisplay,
@@ -36,13 +36,12 @@ data class RouletteMixInstance(
     val blocks: Map<Int, BlockDisplay> = mutableMapOf()
 )
 
-class RouletteMixManager(private val plugin: CasinoPlugin) {
+class RouletteManager(private val plugin: CasinoPlugin) {
 
-    private val activeRoulettes = mutableListOf<RouletteMixInstance>()
-    val rouletteMixKey = NamespacedKey(plugin, "casino_roulettemix_id")
+    private val activeRoulettes = mutableListOf<RouletteInstance>()
+    val rouletteKey = NamespacedKey(plugin, "casino_roulette_id")
     private val sequence = IntArray(37) { it }
 
-    // Guard: evita re-spawns simultáneos de la misma ruleta (FIX duplicación)
     private val respawningKeys = mutableSetOf<String>()
 
     private val dataFile = File(plugin.dataFolder, "data.yml")
@@ -72,28 +71,22 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
     private fun purgeArea(center: Location) {
         val world = center.world ?: return
         world.getNearbyEntities(center, 15.0, 15.0, 15.0).forEach { entity ->
-            if (entity.persistentDataContainer.has(rouletteMixKey, PersistentDataType.STRING)) {
+            if (entity.persistentDataContainer.has(rouletteKey, PersistentDataType.STRING)) {
                 entity.remove()
             }
         }
     }
 
-    // NUEVO: PURGA NUCLEAR (Borra todo del mundo y del archivo)
     fun purgeAllData(world: org.bukkit.World): Int {
         var removedEntities = 0
-
-        // 1. Borrar entidades del mundo
         world.entities.forEach { entity ->
-            if (entity.persistentDataContainer.has(rouletteMixKey, PersistentDataType.STRING)) {
+            if (entity.persistentDataContainer.has(rouletteKey, PersistentDataType.STRING)) {
                 entity.remove()
                 removedEntities++
             }
         }
-
-        // 2. Limpiar memoria RAM
         activeRoulettes.removeIf { it.center.world?.name == world.name }
 
-        // 3. Limpiar Archivo data.yml (Arranca la raíz del problema)
         val list = dataConfig.getStringList("roulettes").toMutableList()
         val sizeBefore = list.size
         list.removeIf { it.startsWith("${world.name},") }
@@ -106,7 +99,7 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
         return removedEntities
     }
 
-    fun spawnRoulette(location: Location, isNew: Boolean = true) {
+    fun spawnRoulette(location: Location, isNew: Boolean = true, customScale: Float? = null, customRadius: Float? = null) {
         val center = if (isNew) {
             location.clone().apply {
                 x = blockX + 0.5
@@ -121,7 +114,8 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
 
         if (isNew) saveToData(center)
 
-        val radius = 5.5f
+        val radius = customRadius ?: plugin.config.getDouble("roulette.radius", 5.5).toFloat()
+        val scale  = customScale  ?: plugin.config.getDouble("roulette.block-scale", 0.45).toFloat()
         val instanceId = UUID.randomUUID()
         val instanceUUIDs = mutableListOf<UUID>()
         val blocksMap = mutableMapOf<Int, BlockDisplay>()
@@ -132,12 +126,11 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
 
             val slotLoc = center.clone().add(radius * cos(angle), 0.0, radius * sin(angle))
             val blockDisplay = center.world.spawnEntity(slotLoc, EntityType.BLOCK_DISPLAY) as BlockDisplay
-            blockDisplay.persistentDataContainer.set(rouletteMixKey, PersistentDataType.STRING, instanceId.toString())
+            blockDisplay.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
             instanceUUIDs.add(blockDisplay.uniqueId)
             blockDisplay.block = getOriginalMaterial(number).createBlockData()
             blocksMap[number] = blockDisplay
 
-            val scale = 0.45f
             val half = scale / 2.0f
             val theta = -angle.toFloat()
             blockDisplay.transformation = Transformation(
@@ -147,7 +140,7 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
 
             val textLoc = slotLoc.clone().add(0.0, 0.6, 0.0)
             val textDisplay = center.world.spawnEntity(textLoc, EntityType.TEXT_DISPLAY) as TextDisplay
-            textDisplay.persistentDataContainer.set(rouletteMixKey, PersistentDataType.STRING, instanceId.toString())
+            textDisplay.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
             instanceUUIDs.add(textDisplay.uniqueId)
             textDisplay.text(plugin.format("<white><bold>$number</bold></white>"))
             textDisplay.billboard = Display.Billboard.CENTER
@@ -157,24 +150,32 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
 
         val statusLoc = center.clone().add(0.0, 2.0, 0.0)
         val statusText = center.world.spawnEntity(statusLoc, EntityType.TEXT_DISPLAY) as TextDisplay
-        statusText.persistentDataContainer.set(rouletteMixKey, PersistentDataType.STRING, instanceId.toString())
+        statusText.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
         instanceUUIDs.add(statusText.uniqueId)
         statusText.billboard = Display.Billboard.CENTER
         statusText.backgroundColor = Color.fromARGB(0, 0, 0, 0)
         statusText.isShadowed = true
 
         val interaction = center.world.spawnEntity(center, EntityType.INTERACTION) as Interaction
-        interaction.persistentDataContainer.set(rouletteMixKey, PersistentDataType.STRING, instanceId.toString())
+        interaction.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
         interaction.interactionWidth = (radius * 2) - 1.0f
         interaction.interactionHeight = 3.0f
         instanceUUIDs.add(interaction.uniqueId)
 
-        val instance = RouletteMixInstance(instanceId, center, statusText, radius, false, instanceUUIDs, blocksMap)
+        val instance = RouletteInstance(instanceId, center, statusText, radius, false, instanceUUIDs, blocksMap)
         activeRoulettes.add(instance)
 
-        plugin.rouletteMixGame.updateStatusHologram()
+        plugin.rouletteGame.updateStatusHologram()
         if (isNew) plugin.server.sendMessage(plugin.messages.get("roulette.created"))
         respawningKeys.remove(locKey(location))
+    }
+
+    /** Recrea todas las ruletas activas con la escala/radio dados (para el comando /casino ruleta escala). */
+    fun rescaleAll(scale: Float, radius: Float) {
+        val locations = activeRoulettes.map { it.center.clone() }
+        activeRoulettes.toList().forEach { purgeArea(it.center) }
+        activeRoulettes.clear()
+        locations.forEach { loc -> spawnRoulette(loc, isNew = false, customScale = scale, customRadius = radius) }
     }
 
     private fun startPlayerRepeller() {
@@ -207,11 +208,10 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
                     }
                 }
             }
-        }.runTaskTimer(plugin, 0L, 10L)  // FIX: era 5L — reducido a 10L para menos lag
+        }.runTaskTimer(plugin, 0L, 10L)
     }
 
     private fun startEntityMonitor() {
-        // FIX: 600 ticks (30s) en lugar de 100 ticks (5s) — reduce lag masivamente
         object : BukkitRunnable() {
             override fun run() {
                 val toRespawn = mutableListOf<Location>()
@@ -220,7 +220,6 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
                 while (iterator.hasNext()) {
                     val inst = iterator.next()
                     val world = inst.center.world ?: continue
-                    // Solo verificar si el chunk está cargado (evita cargar chunks innecesariamente)
                     if (!world.isChunkLoaded(inst.center.blockX shr 4, inst.center.blockZ shr 4)) continue
                     if (inst.statusText.isDead) {
                         val key = locKey(inst.center)
@@ -232,13 +231,12 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
                     }
                 }
 
-                // FIX: purgar duplicados antes de re-spawnar
                 toRespawn.forEach { loc ->
                     purgeArea(loc)
                     spawnRoulette(loc, isNew = false)
                 }
             }
-        }.runTaskTimer(plugin, 600L, 600L)  // FIX: era 100L — duplicaba entidades
+        }.runTaskTimer(plugin, 600L, 600L)
     }
 
     private fun locKey(loc: Location) = "${loc.world?.name},${loc.blockX},${loc.blockY},${loc.blockZ}"
@@ -253,7 +251,6 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
         }
     }
 
-    // FIX DEFINITIVO: Borrado inteligente que ignora fallos de decimales (Compara distancia)
     private fun removeFromData(loc: Location) {
         val list = dataConfig.getStringList("roulettes").toMutableList()
         val iterator = list.iterator()
@@ -262,7 +259,6 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
         while (iterator.hasNext()) {
             val str = iterator.next()
             val parsedLoc = stringToLoc(str)
-            // Si el mundo es el mismo y está a menos de 1 bloque de diferencia, lo borra seguro.
             if (parsedLoc != null && parsedLoc.world?.name == loc.world?.name && parsedLoc.distanceSquared(loc) < 1.0) {
                 iterator.remove()
                 modified = true
@@ -313,7 +309,7 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
             override fun run() {
                 if (ticks >= durationTicks) {
                     val finishHologram = """
-                        <#FF00FF><bold>🌀 RULETA MIXTA 🌀</bold></#FF00FF>
+                        <#FF00FF><bold>🌀 RULETA 🌀</bold></#FF00FF>
                         <#E0E0E0>¡Ha caído el:</#E0E0E0>
                         ${winningColor.chatColor}<bold>$winningNumber (${winningColor.displayName})</bold>
                     """.trimIndent().replace("\n", "<br>")
@@ -362,11 +358,7 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
     fun deleteNearestRoulette(location: Location): Boolean {
         val nearest = activeRoulettes.minByOrNull { it.center.distanceSquared(location) } ?: return false
         if (nearest.center.distanceSquared(location) < 100.0) {
-
-            // BORRADO DEL DATA.YML PRIMERO (Ahora sí funciona al 100%)
             removeFromData(nearest.center)
-
-            // LUEGO DESTRUIR FÍSICAMENTE TODO EL RADIO
             purgeArea(nearest.center)
             activeRoulettes.remove(nearest)
             return true
@@ -377,7 +369,7 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
     fun cleanupAll() {
         plugin.server.worlds.forEach { world ->
             world.entities.forEach { entity ->
-                if (entity.persistentDataContainer.has(rouletteMixKey, PersistentDataType.STRING)) {
+                if (entity.persistentDataContainer.has(rouletteKey, PersistentDataType.STRING)) {
                     entity.remove()
                 }
             }
@@ -394,6 +386,6 @@ class RouletteMixManager(private val plugin: CasinoPlugin) {
                 }
             }
         }
-        plugin.rouletteMixGame.updateStatusHologram()
+        plugin.rouletteGame.updateStatusHologram()
     }
 }

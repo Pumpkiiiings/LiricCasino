@@ -53,6 +53,15 @@ class MenuConfig(private val plugin: JavaPlugin, private val fileName: String) {
     fun getStringList(path: String): List<String> =
         cfg.getStringList(path)
 
+    fun getIntegerList(path: String): List<Int> =
+        cfg.getIntegerList(path)
+
+    fun getDoubleList(path: String): List<Double> =
+        cfg.getDoubleList(path)
+
+    fun getMapList(path: String): List<Map<*, *>> =
+        cfg.getMapList(path)
+
     // ─── Getters de Adventure ─────────────────────────────────────────────
 
     /** Parsea un string del YAML como Component (soporta &, &#, <mm>). */
@@ -62,6 +71,26 @@ class MenuConfig(private val plugin: JavaPlugin, private val fileName: String) {
     /** Parsea una lista de strings como lista de Components. */
     fun getComponentList(path: String): List<Component> =
         getStringList(path).map { ColorUtil.parse(it) }
+
+    // ─── ItemBuilder ──────────────────────────────────────────────────────
+
+    fun getItemBuilder(path: String): dev.triumphteam.gui.builder.item.ItemBuilder {
+        val matStr = getString("$path.material", "STONE")
+        val mat = runCatching { Material.valueOf(matStr.uppercase()) }.getOrDefault(Material.STONE)
+        val name = getString("$path.name", "")
+        val loreList = getStringList("$path.lore")
+        
+        val builder = dev.triumphteam.gui.builder.item.ItemBuilder.from(mat)
+            .flags(*org.bukkit.inventory.ItemFlag.values())
+        
+        if (name.isNotEmpty()) {
+            builder.name(ColorUtil.parse(name))
+        }
+        if (loreList.isNotEmpty()) {
+            builder.lore(loreList.map { ColorUtil.parse(it) })
+        }
+        return builder
+    }
 
     // ─── Material ─────────────────────────────────────────────────────────
 
@@ -77,4 +106,26 @@ class MenuConfig(private val plugin: JavaPlugin, private val fileName: String) {
         cfg.getConfigurationSection(path)?.getKeys(deep) ?: emptySet()
 
     fun has(path: String): Boolean = cfg.contains(path)
+
+    // ─── Decoraciones (Triumph-GUI) ──────────────────────────────────────
+
+    fun applyDecorations(gui: dev.triumphteam.gui.guis.BaseGui) {
+        val decorations = cfg.getMapList("decorations")
+        for (map in decorations) {
+            val materialStr = map["material"]?.toString() ?: continue
+            val material = runCatching { Material.valueOf(materialStr.uppercase()) }.getOrNull() ?: continue
+            val nameStr = map["name"]?.toString() ?: " "
+            val slotsRaw = map["slots"] as? List<*> ?: continue
+
+            val item = dev.triumphteam.gui.builder.item.ItemBuilder.from(material)
+                .name(ColorUtil.parse(nameStr))
+                .flags(*org.bukkit.inventory.ItemFlag.values())
+                .asGuiItem()
+
+            slotsRaw.forEach { slotRaw ->
+                val slot = slotRaw.toString().toIntOrNull()
+                if (slot != null) gui.setItem(slot, item)
+            }
+        }
+    }
 }

@@ -1,46 +1,46 @@
-# Menú de Elección Piedra Papel Tijera
-title: "<#FF5555>⚔ <gold><bold>Piedra Papel Tijera</bold> <#FF5555>⚔"
+# Rock Paper Scissors Choice Menu
+title: "<#FF5555>⚔ <gold><bold>Rock Paper Scissors</bold> <#FF5555>⚔"
 rows: 3
 
 # ── Info Item ──
 info-item:
   slot: 4
   material: PAPER
-  name: "<#FFD700><bold>Tu apuesta: <white>$%amount%"
+  name: "<#FFD700><bold>Your Bet: <white>$%amount%"
   lore:
-    - "<gray>Oponente: <white>%opponent%"
+    - "<gray>Opponent: <white>%opponent%"
     - " "
-    - "<gray>Elige tu jugada..."
+    - "<gray>Choose your play..."
 
-# ── Botones ──
+# ── Buttons ──
 piedra-btn:
   slot: 11
   material: COBBLESTONE
-  name: "<gray><bold>🪨 PIEDRA</bold>"
+  name: "<gray><bold>🪨 ROCK</bold>"
   lore:
-    - "<dark_gray>Gana contra Tijera"
+    - "<dark_gray>Beats Scissors"
 
 papel-btn:
   slot: 13
   material: PAPER
-  name: "<white><bold>📄 PAPEL</bold>"
+  name: "<white><bold>📄 PAPER</bold>"
   lore:
-    - "<dark_gray>Gana contra Piedra"
+    - "<dark_gray>Beats Rock"
 
 tijera-btn:
   slot: 15
   material: SHEARS
-  name: "<#FF5555><bold>✂ TIJERA</bold>"
+  name: "<#FF5555><bold>✂ SCISSORS</bold>"
   lore:
-    - "<dark_gray>Gana contra Papel"
+    - "<dark_gray>Beats Paper"
 
 cancel-btn:
   slot: 22
   material: BARRIER
-  name: "<red><bold>✖ Cancelar</bold>"
+  name: "<red><bold>✖ Cancel</bold>"
   lore: []
 
-# ── Decoraciones ──
+# ── Decorations ──
 decorations:
   - material: BLACK_STAINED_GLASS_PANE
     name: " "

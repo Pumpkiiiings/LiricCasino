@@ -9,56 +9,56 @@ softdepend: [PlaceholderAPI]
 commands:
   casino:
     description: >
-      Comando principal del Casino.
-      Subcategorías: ruleta, blackjack, tragamonedas, poker, boleto, loteria, coinflip, rps, ttt, carreras, stats, top, reload
+      Main command of the Casino.
+      Subcategories: ruleta, blackjack, tragamonedas, poker, boleto, loteria, coinflip, rps, ttt, carreras, stats, top, reload
     usage: |
-      /casino <juego> [acción]
-      /casino stats [juego]
-      /casino top [juego]
+      /casino <game> [action]
+      /casino stats [game]
+      /casino top [game]
       /casino reload
     aliases: [c]
 
   # ── Alias de acceso rápido por juego (apuntan al mismo handler) ───────────
   ruleta:
-    description: Abre o gestiona la ruleta del Casino.
+    description: Open or manage the Casino roulette.
     usage: /ruleta [jugar|setup|delete|forcestart|purge]
     aliases: [roulette]
 
   blackjack:
-    description: Juega al 21 Blackjack.
+    description: Play 21 Blackjack.
     usage: /blackjack [jugar|setup|delete]
     aliases: [bj, 21]
 
   poker:
-    description: Únete a la mesa de Poker.
+    description: Join the Poker table.
     usage: /poker [jugar|setup|delete]
 
   tragamonedas:
-    description: Abre la máquina tragamonedas 777.
+    description: Open the 777 slot machine.
     usage: /tragamonedas [setup|delete|purge]
     aliases: [slots, 777]
 
   boleto:
-    description: Compra boletos de Rasca y Gana.
+    description: Buy Scratch and Win tickets.
     usage: /boleto <comprar|get|give> [tier] [cantidad]
     aliases: [scratch]
 
   loteria:
-    description: Compra boletos de lotería y espera el sorteo.
+    description: Buy lottery tickets and wait for the draw.
     usage: /loteria [info|comprar [cantidad]|forcestart|give <jugador> [cantidad]]
     aliases: [lottery]
 
   coinflip:
-    description: CoinFlip PvP — crea o únete a una apuesta.
+    description: CoinFlip PvP — create or join a bet.
     usage: /coinflip [menu|crear <monto>|unirse <jugador>|cancelar]
     aliases: [moneda]
 
   cf:
-    description: Alias corto de CoinFlip.
+    description: Short alias for CoinFlip.
     usage: /cf [menu|crear <monto>|unirse <jugador>|cancelar]
 
   rps:
-    description: Piedra Papel Tijera PvP.
+    description: Rock Paper Scissors PvP.
     usage: /rps [crear <monto>|unirse <jugador>|cancelar|ayuda]
 
   ttt:
@@ -66,10 +66,10 @@ commands:
     usage: /ttt [crear <monto>|unirse <jugador>|cancelar|ayuda]
 
   carreras:
-    description: Apuestas de carreras de caballos.
+    description: Horse racing betting.
     usage: /carreras [jugar|ayuda]
 
 permissions:
   casino.admin:
-    description: Permite administrar el casino (setup, delete, forcestart, give, reload, etc.).
+    description: Allows administering the casino (setup, delete, forcestart, give, reload, etc.).
     default: op

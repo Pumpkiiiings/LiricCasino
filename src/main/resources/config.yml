@@ -1,11 +1,11 @@
 # ═══════════════════════════════════════════════════════
-#   CasinoLiric — Configuración Principal
-#   Soporta: &a (Legacy), &#RRGGBB (Hex), <red> (MiniMessage)
+#   CasinoLiric — Main Configuration
+#   Supports: &a (Legacy), &#RRGGBB (Hex), <red> (MiniMessage)
 # ═══════════════════════════════════════════════════════
 
-# ─── Base de Datos ───────────────────────────────────────
+# ─── Database ───────────────────────────────────────
 database:
-  type: "sqlite" # sqlite o mariadb
+  type: "sqlite" # sqlite or mariadb
   host: "localhost"
   port: 3306
   database: "casino"
@@ -13,14 +13,14 @@ database:
   password: ""
   pool-size: 5
 
-# ─── Sistema de Impuestos ────────────────────────────────
-# El impuesto se aplica sobre las GANANCIAS brutas.
-# Ejemplo: ganas $10,000 con rate: 0.05 → recibes $9,500
+# ─── Tax System ────────────────────────────────
+# Taxes apply to gross WINNINGS.
+# Example: you win $10,000 with rate: 0.05 → you receive $9,500
 taxes:
   enabled: false
-  # Tasa por defecto si no está configurada la del juego específico
+  # Default rate if specific game rate is not configured
   default-rate: 0.05
-  # Tasas por juego (comentar o eliminar para usar default-rate)
+  # Rates per game (comment or delete to use default-rate)
   roulette: 0.05
   slots: 0.05
   blackjack: 0.05
@@ -31,7 +31,7 @@ taxes:
   ttt: 0.05
   racing: 0.05
 
-# ─── Boosters de economía ────────────────────────────────
+# ─── Economy Boosters ────────────────────────────────
 boosters:
   vip:
     booster: 2.0
@@ -40,54 +40,54 @@ boosters:
     booster: 3.0
     permiso: "mvp.boost"
 
-# ─── Ruleta ──────────────────────────────────────────────
+# ─── Roulette ──────────────────────────────────────────────
 roulette:
   min-players-to-start: 1
   countdown-seconds: 180
   max-bet: 200000.0
   number-payout: 36.0
-  # Escala de los bloques de la ruleta (0.1 - 2.0). Default: 0.45
+  # Scale of the roulette blocks (0.1 - 2.0). Default: 0.45
   block-scale: 0.45
-  # Radio en bloques del círculo de la ruleta. Default: 5.5
+  # Radius in blocks of the roulette circle. Default: 5.5
   radius: 5.5
   color-multipliers:
     RED: 2.0
     BLACK: 2.0
     GREEN: 14.0
 
-# ─── Webhooks Discord ─────────────────────────────────────
+# ─── Discord Webhooks ─────────────────────────────────────
 webhooks:
-  enabled: false   # Cambiar a true para activar
+  enabled: false   # Change to true to enable
 
   # ── Jackpot (Slots 777 x100, etc.) ───────────────────────
   jackpot:
     url: "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
-    # Color del embed en decimal (0xFF00FF = magenta)
+    # Embed color in decimal (0xFF00FF = magenta)
     color: 16711935
-    title: "🎰 ¡¡JACKPOT 777!!"
-    description: "**{player}** sacó el **777** en los Tragamonedas y se llevó **{amount}**! 🤑"
-    footer: "Liric Casino • Tragamonedas"
-    # Mención de rol (dejar vacío para no mencionar): "@everyone" o "<@&ROL_ID>"
+    title: "🎰 !!JACKPOT 777!!"
+    description: "**{player}** hit the **777** on Slots and won **{amount}**! 🤑"
+    footer: "Liric Casino • Slots"
+    # Role mention (leave empty to not mention): "@everyone" or "<@&ROLE_ID>"
     mention-role: ""
 
-  # ── Gran Victoria (cualquier juego, supera min-amount) ────
+  # ── Big Win (any game, exceeds min-amount) ────
   big-win:
     url: "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
     color: 16766720
-    title: "💰 ¡Gran Victoria!"
-    description: "**{player}** ganó **{amount}** jugando **{game}**! 🎉"
+    title: "💰 Big Win!"
+    description: "**{player}** won **{amount}** playing **{game}**! 🎉"
     footer: "Liric Casino"
     mention-role: ""
-    # Solo se dispara si la ganancia supera esta cantidad
+    # Only triggers if winnings exceed this amount
     min-amount: 50000.0
 
-  # ── Ganador de Lotería ────────────────────────────────────
+  # ── Lottery Winner ────────────────────────────────────
   lottery:
     url: "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
     color: 16766720
-    title: "🎟 ¡Ganador de la Lotería!"
-    description: "**{player}** acertó el número **{number}** y ganó **{amount}**! 🎟✨"
-    footer: "Liric Casino • Lotería"
+    title: "🎟 Lottery Winner!"
+    description: "**{player}** guessed the number **{number}** and won **{amount}**! 🎟✨"
+    footer: "Liric Casino • Lottery"
     mention-role: ""
 
 
@@ -98,7 +98,7 @@ blackjack:
     max: 100000.0
   raise-amount: 5000.0
 
-# ─── Tragamonedas (Slots 777) ────────────────────────────
+# ─── Slots 777 ────────────────────────────
 slots:
   bet:
     min: 100.0
@@ -110,104 +110,104 @@ slots:
     casino.suerte.dios: 4.0
   prizes:
     - material: ENCHANTED_GOLDEN_APPLE
-      display-name: "<#FF00FF><bold>¡JACKPOT 777!</bold>"
+      display-name: "<#FF00FF><bold>JACKPOT 777!</bold>"
       multiplier: 100.0
       weight: 1
     - material: NETHERITE_BLOCK
-      display-name: "<#302B27><bold>¡NETHERITE!</bold>"
+      display-name: "<#302B27><bold>NETHERITE!</bold>"
       multiplier: 25.0
       weight: 5
     - material: DIAMOND
-      display-name: "<#00FFFF><bold>¡DIAMANTE!</bold>"
+      display-name: "<#00FFFF><bold>DIAMOND!</bold>"
       multiplier: 10.0
       weight: 15
     - material: EMERALD
-      display-name: "<#00FF7F><bold>¡ESMERALDA!</bold>"
+      display-name: "<#00FF7F><bold>EMERALD!</bold>"
       multiplier: 5.0
       weight: 30
     - material: GOLD_INGOT
-      display-name: "<#FFD700><bold>¡ORO!</bold>"
+      display-name: "<#FFD700><bold>GOLD!</bold>"
       multiplier: 3.0
       weight: 50
     - material: IRON_INGOT
-      display-name: "<#E0E0E0><bold>¡HIERRO!</bold>"
+      display-name: "<#E0E0E0><bold>IRON!</bold>"
       multiplier: 1.5
       weight: 70
     - material: GOLDEN_APPLE
-      display-name: "<#FFD700>Manzana Dorada"
+      display-name: "<#FFD700>Golden Apple"
       multiplier: 1.0
       weight: 80
     - material: APPLE
-      display-name: "<#FF5555>Manzana"
+      display-name: "<#FF5555>Apple"
       multiplier: 0.5
       weight: 100
     - material: DIRT
-      display-name: "<#8B4513>Tierra"
+      display-name: "<#8B4513>Dirt"
       multiplier: 0.0
       weight: 120
     - material: ROTTEN_FLESH
-      display-name: "<#556B2F>Carne Podrida"
+      display-name: "<#556B2F>Rotten Flesh"
       multiplier: 0.0
       weight: 120
     - material: STICK
-      display-name: "<#D2B48C>Palo"
+      display-name: "<#D2B48C>Stick"
       multiplier: 0.0
       weight: 120
     - material: DEAD_BUSH
-      display-name: "<#8B4513>Arbusto Muerto"
+      display-name: "<#8B4513>Dead Bush"
       multiplier: 0.0
       weight: 120
 
-# ─── Rasca y Gana ────────────────────────────────────────
+# ─── Scratch and Win ────────────────────────────────────────
 scratch:
   tiers:
     basico:
-      display-name: "&6Básico &7(3x3)"
+      display-name: "&6Basic &7(3x3)"
       price: 1000.0
       rows: 3
       match-required: 3
       payout-multiplier: 1.0
     avanzado:
-      display-name: "<#00FFFF>Avanzado &7(5x5)"
+      display-name: "<#00FFFF>Advanced &7(5x5)"
       price: 5000.0
       rows: 5
       match-required: 4
       payout-multiplier: 5.0
     maestro:
-      display-name: "<#FF00FF>Maestro &7(7x5)"
+      display-name: "<#FF00FF>Master &7(7x5)"
       price: 10000.0
       rows: 5
       match-required: 5
       payout-multiplier: 10.0
     gigante:
-      display-name: "&#FFD700Gigante &7(9x6)"
+      display-name: "&#FFD700Giant &7(9x6)"
       price: 25000.0
       rows: 6
       match-required: 6
       payout-multiplier: 25.0
   prizes:
     - material: NETHERITE_BLOCK
-      display-name: "<#302B27><bold>¡NETHERITE!</bold>"
+      display-name: "<#302B27><bold>NETHERITE!</bold>"
       base-payout: 250000.0
       weight: 1
     - material: DIAMOND_BLOCK
-      display-name: "<#00FFFF><bold>¡DIAMANTES!</bold>"
+      display-name: "<#00FFFF><bold>DIAMONDS!</bold>"
       base-payout: 50000.0
       weight: 3
     - material: EMERALD_BLOCK
-      display-name: "<#00FF7F><bold>¡ESMERALDAS!</bold>"
+      display-name: "<#00FF7F><bold>EMERALDS!</bold>"
       base-payout: 15000.0
       weight: 8
     - material: AMETHYST_BLOCK
-      display-name: "<#9966CC><bold>¡AMATISTA!</bold>"
+      display-name: "<#9966CC><bold>AMETHYST!</bold>"
       base-payout: 5000.0
       weight: 15
     - material: GOLD_BLOCK
-      display-name: "<#FFD700><bold>¡ORO!</bold>"
+      display-name: "<#FFD700><bold>GOLD!</bold>"
       base-payout: 2500.0
       weight: 25
     - material: IRON_BLOCK
-      display-name: "<#E0E0E0><bold>¡HIERRO!</bold>"
+      display-name: "<#E0E0E0><bold>IRON!</bold>"
       base-payout: 1000.0
       weight: 40
     - material: ENDER_PEARL
@@ -215,38 +215,38 @@ scratch:
       base-payout: 500.0
       weight: 60
     - material: BLAZE_POWDER
-      display-name: "<#FFA500><bold>POLVO BLAZE</bold>"
+      display-name: "<#FFA500><bold>BLAZE POWDER</bold>"
       base-payout: 300.0
       weight: 80
     - material: APPLE
-      display-name: "<red><bold>MANZANA</bold>"
+      display-name: "<red><bold>APPLE</bold>"
       base-payout: 200.0
       weight: 100
     - material: STICK
-      display-name: "<#8B4513><bold>PALO DE MADERA</bold>"
+      display-name: "<#8B4513><bold>WOODEN STICK</bold>"
       base-payout: 0.0
       weight: 150
     - material: COAL_BLOCK
-      display-name: "<dark_gray><bold>CARBÓN</bold>"
+      display-name: "<dark_gray><bold>COAL</bold>"
       base-payout: 0.0
       weight: 150
 
-# ─── Lotería ─────────────────────────────────────────────
+# ─── Lottery ─────────────────────────────────────────────
 lottery:
   ticket-price: 5000.0
   max-tickets-per-player: 5
   draw-interval-minutes: 60
   number-range: 1000
   jackpot-start: 50000.0
-  jackpot-contribution: 0.5  # 50% del precio del boleto va al pozo
+  jackpot-contribution: 0.5  # 50% of the ticket price goes to the jackpot
 
 coinflip:
   bet:
     min: 100.0
     max: 500000.0
-  animation-ticks: 60  # Duración de la animación (~3 segundos a 20 tps)
+  animation-ticks: 60  # Animation duration (~3 seconds at 20 tps)
 
-# ─── Piedra Papel Tijera ─────────────────────────────────
+# ─── Rock Paper Scissors ─────────────────────────────────
 rps:
   bet:
     min: 100.0
@@ -258,7 +258,7 @@ ttt:
     min: 100.0
     max: 500000.0
 
-# ─── Carreras de Caballos ────────────────────────────────
+# ─── Horse Racing ────────────────────────────────
 racing:
-  # Opcional, configuración futura
+  # Optional, future configuration
 

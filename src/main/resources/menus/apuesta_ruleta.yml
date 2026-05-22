@@ -1,8 +1,8 @@
 # ═══════════════════════════════════════════════════════
-#   menus/apuesta_ruleta.yml — Menú de cantidad de apuesta (Ruleta)
+#   menus/apuesta_ruleta.yml — Bet amount menu (Roulette)
 # ═══════════════════════════════════════════════════════
 
-title: "<black><bold>Apuesta ➔ {target}"
+title: "<black><bold>Bet ➔ {target}"
 rows: 3
 
 decorations:
@@ -14,7 +14,7 @@ decorations:
     slots: [9, 17]
 
 buttons:
-  # Botones de resta (slots 10, 11, 12)
+  # Minus buttons (slots 10, 11, 12)
   minus-big:
     slot: 10
     material: RED_DYE
@@ -34,7 +34,7 @@ buttons:
     amount: -100.0
     color: "<#FF3333>"
 
-  # Botones de suma (slots 14, 15, 16)
+  # Plus buttons (slots 14, 15, 16)
   plus-small:
     slot: 14
     material: LIME_DYE
@@ -58,28 +58,28 @@ buttons:
   max-bet:
     slot: 22
     material: GOLD_BLOCK
-    name: "<#FFD700><bold>✦ ¡MAX BET! ✦"
+    name: "<#FFD700><bold>✦ MAX BET! ✦"
     lore:
-      - "<gray>Apostar el máximo: <#00FF7F>${max}"
+      - "<gray>Bet the maximum: <#00FF7F>${max}"
 
-  # VOLVER (slot 18)
+  # BACK (slot 18)
   back:
     slot: 18
     material: ARROW
-    name: "<#FF3333><bold>Volver"
+    name: "<#FF3333><bold>Back"
 
-  # CONFIRMAR (slot 13 — se actualiza dinámicamente)
+  # CONFIRM (slot 13 — dynamically updated)
   confirm:
-    confirm-name: "<#00FF7F><bold>✔ CONFIRMAR APUESTA"
-    lore-target: "<gray>Objetivo: <white>{target}"
-    lore-total: "<gray>Total en mesa: <#00FF7F>${amount}"
+    confirm-name: "<#00FF7F><bold>✔ CONFIRM BET"
+    lore-target: "<gray>Target: <white>{target}"
+    lore-total: "<gray>Total on table: <#00FF7F>${amount}"
     lore-click: ""
-    lore-action: "<#FFD700>¡Click para apostar!"
+    lore-action: "<#FFD700>Click to place bet!"
 
 error:
-  limit-msg: "<#FF3333><bold>¡LÍMITE ({max})!"
-  limit-lore: "<gray>No puedes apostar más de {max}."
-  no-funds-msg: "<#FF3333><bold>¡SIN FONDOS!"
-  no-funds-lore: "<gray>No tienes suficiente dinero."
-  min-msg: "<#FF3333><bold>¡MÍNIMO ALCANZADO!"
-  min-lore: "<gray>La apuesta no puede ser menor a 0."
+  limit-msg: "<#FF3333><bold>LIMIT REACHED ({max})!"
+  limit-lore: "<gray>You cannot bet more than {max}."
+  no-funds-msg: "<#FF3333><bold>NO FUNDS!"
+  no-funds-lore: "<gray>You do not have enough money."
+  min-msg: "<#FF3333><bold>MINIMUM REACHED!"
+  min-lore: "<gray>The bet cannot be less than 0."

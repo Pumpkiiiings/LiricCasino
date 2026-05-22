@@ -46,9 +46,9 @@ class MessagesConfig(private val plugin: JavaPlugin) {
      */
     fun get(key: String, vararg placeholders: Pair<String, String>): Component {
         var text = getRaw(key)
-        text = text.replace("{prefix}", rawPrefix())
+        text = text.replace("{prefix}", rawPrefix(), ignoreCase = true)
         for ((k, v) in placeholders) {
-            text = text.replace("{$k}", v)
+            text = text.replace("{$k}", v, ignoreCase = true)
         }
         return ColorUtil.parse(text)
     }

@@ -1,31 +1,31 @@
-# Menú de Carreras de Caballos
-title: "<#FFD700>🏇 <gold><bold>CARRERAS — Elige tu caballo</bold>"
+# Horse Racing Menu
+title: "<#FFD700>🏇 <gold><bold>RACING — Choose your horse</bold>"
 rows: 5
 
-# ── Slots donde aparecen los caballos ──
+# ── Slots where horses appear ──
 horse-slots: [10, 12, 14, 16, 19, 21, 23, 25]
 
-# ── Item de Caballo NO Seleccionado ──
+# ── Horse Item (NOT Selected) ──
 horse-item:
   material: HAY_BLOCK
   name: "<white>%horse_emoji% %horse_name%"
   lore:
-    - "<gray>Multiplicador: <#00FF7F>x%horse_odds%"
-    - "<gray>Probabilidad: <white>%win_chance%%"
+    - "<gray>Multiplier: <#00FF7F>x%horse_odds%"
+    - "<gray>Probability: <white>%win_chance%%"
     - " "
-    - "<gray>Clic para seleccionar"
+    - "<gray>Click to select"
 
-# ── Item de Caballo SELECCIONADO ──
+# ── Horse Item (SELECTED) ──
 horse-item-selected:
   material: GOLD_BLOCK
   name: "<#FFD700><bold>%horse_emoji% %horse_name% ✔</bold>"
   lore:
-    - "<gray>Multiplicador: <#00FF7F>x%horse_odds%"
-    - "<gray>Probabilidad: <white>%win_chance%%"
+    - "<gray>Multiplier: <#00FF7F>x%horse_odds%"
+    - "<gray>Probability: <white>%win_chance%%"
     - " "
-    - "<#FFD700>▶ Seleccionado"
+    - "<#FFD700>▶ Selected"
 
-# ── Botones de Apuesta (slots fijos: 36, 37, 38, 39, 40) ──
+# ── Bet Buttons (fixed slots: 36, 37, 38, 39, 40) ──
 bet-amounts: [500, 1000, 5000, 10000, 50000]
 
 bet-item:
@@ -36,31 +36,31 @@ bet-item-selected:
   material: EMERALD_BLOCK
   name: "<#00FF7F><bold>$%amount% ✔</bold>"
 
-# ── Botón Apostar ──
+# ── Bet Button ──
 bet-action-btn:
   slot: 41
   material: TRIPWIRE_HOOK
-  name: "<#FFD700><bold>🏇 ¡APOSTAR!</bold>"
+  name: "<#FFD700><bold>🏇 BET NOW!</bold>"
   lore:
-    - "<gray>Caballo: <white>%horse_emoji% %horse_name%"
-    - "<gray>Apuesta: <#FFD700>$%amount%"
-    - "<gray>Si gana cobras: <#00FF7F>$%win_pot%"
+    - "<gray>Horse: <white>%horse_emoji% %horse_name%"
+    - "<gray>Bet: <#FFD700>$%amount%"
+    - "<gray>Payout if win: <#00FF7F>$%win_pot%"
 
-# ── Botón Apostar (Sin seleccionar caballo) ──
+# ── Bet Button (No selection) ──
 bet-no-selection:
   slot: 41
   material: BARRIER
-  name: "<red>Selecciona un caballo primero</red>"
+  name: "<red>Select a horse first</red>"
   lore: []
 
-# ── Cerrar ──
+# ── Close ──
 cancel-btn:
   slot: 44
   material: BARRIER
-  name: "<red>✖ Cerrar</red>"
+  name: "<red>✖ Close</red>"
   lore: []
 
-# ── Decoraciones ──
+# ── Decorations ──
 decorations:
   - material: BLACK_STAINED_GLASS_PANE
     name: " "

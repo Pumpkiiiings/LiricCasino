@@ -104,13 +104,13 @@ class StatsManager(private val plugin: CasinoPlugin) {
     // ─── Top leaderboard ─────────────────────────────────────────────────────
     enum class TopMode(val sqlColumn: String, val label: String) {
         GLOBAL("(roulette_won + slots_won + bj_won + scratch_won + lottery_won + coinflip_won)", "Global"),
-        RULETA("roulette_won", "Ruleta"),
-        SLOTS("slots_won", "Tragamonedas"),
+        RULETA("roulette_won", "Roulette"),
+        SLOTS("slots_won", "Slots"),
         BLACKJACK("bj_won", "Blackjack"),
-        SCRATCH("scratch_won", "Rasca y Gana"),
-        LOTTERY("lottery_won", "Lotería"),
+        SCRATCH("scratch_won", "Scratch Card"),
+        LOTTERY("lottery_won", "Lottery"),
         COINFLIP("coinflip_won", "CoinFlip"),
-        RACING("racing_won", "Carreras")
+        RACING("racing_won", "Horse Racing")
     }
 
     fun getTopAsync(mode: TopMode, limit: Int = 10, callback: (List<TopEntry>) -> Unit) {

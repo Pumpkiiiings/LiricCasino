@@ -1,5 +1,5 @@
-# Menú del Tablero de Tic Tac Toe
-# El título del menú es dinámico (TTTBoard.kt), pero si quieres un base:
+# Tic Tac Toe Board Menu
+# Menu title is dynamic (TTTBoard.kt), but here is a base:
 title: "<#FFD700><bold>Tic Tac Toe</bold>"
 rows: 5
 
@@ -9,11 +9,11 @@ info-item:
   material: PAPER
   name: "<#FFD700><bold>Tic Tac Toe</bold>"
   lore:
-    - "<gray>Tú eres: <white>%my_mark%  <gray>Oponente: <white>%opponent%"
-    - "<gray>Apuesta: <#FFD700>$%amount%"
+    - "<gray>You are: <white>%my_mark%  <gray>Opponent: <white>%opponent%"
+    - "<gray>Bet: <#FFD700>$%amount%"
     - "%turn_status%"
 
-# ── Celdas y Turnos ──
+# ── Cells and Turns ──
 cell-x:
   material: RED_STAINED_GLASS_PANE
   name: "<red><bold>❌ X</bold>"
@@ -24,24 +24,24 @@ cell-o:
 
 cell-empty-my-turn:
   material: WHITE_STAINED_GLASS_PANE
-  name: "<yellow>▶ Clic para jugar aquí</yellow>"
+  name: "<yellow>▶ Click to play here</yellow>"
 
 cell-empty-opp-turn:
   material: GRAY_STAINED_GLASS_PANE
-  name: "<gray>Esperando al oponente...</gray>"
+  name: "<gray>Waiting for opponent...</gray>"
 
-turn-status-my-turn: "<#00FF7F>¡Es tu turno!"
-turn-status-opp-turn: "<gray>Turno del oponente..."
+turn-status-my-turn: "<#00FF7F>It is your turn!"
+turn-status-opp-turn: "<gray>Opponent's turn..."
 
-# ── Bordes (Material dinámico basado en turno) ──
+# ── Borders (Dynamic material based on turn) ──
 my-turn-border-material: YELLOW_STAINED_GLASS_PANE
 opp-turn-border-material: GRAY_STAINED_GLASS_PANE
 
-# ── Slots de celdas ──
-# Las 9 celdas (0-8) del tablero
+# ── Cell slots ──
+# The 9 cells (0-8) of the board
 cell-slots: [10, 12, 14, 19, 21, 23, 28, 30, 32]
 
-# ── Decoraciones estáticas (Bordes) ──
+# ── Static decorations (Borders) ──
 decorations:
   - material: BLACK_STAINED_GLASS_PANE
     name: " "

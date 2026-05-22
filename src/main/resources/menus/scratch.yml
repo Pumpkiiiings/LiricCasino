@@ -1,25 +1,21 @@
 # ═══════════════════════════════════════════════════════
-#   menus/scratch.yml — Menú de Rasca y Gana
+#   menus/scratch.yml — Scratch and Win Menu
 # ═══════════════════════════════════════════════════════
 
-# El título usa {tier} como placeholder (se reemplaza con el displayName del tier)
-title: "<#FFD700><bold>🎟 RASCA Y GANA {tier} 🎟</bold>"
+# The title uses {tier} as a placeholder
+title: "<#FFD700><bold>🎟 SCRATCH & WIN {tier} 🎟</bold>"
 
 filler:
   material: BLACK_STAINED_GLASS_PANE
 
 decorations: []
-# Puedes agregar bordes fijos aquí si lo deseas:
-#  - material: GRAY_STAINED_GLASS_PANE
-#    name: " "
-#    slots: [0, 1, 2, 3]
 
 scratch-block:
   material: BLACK_CONCRETE
-  name: "<#E0E0E0><bold>⬛ ¡Rasca aquí!</bold>"
+  name: "<#E0E0E0><bold>⬛ Scratch here!</bold>"
   lore:
-    - "<#FFD700>Click para revelar"
+    - "<#FFD700>Click to reveal"
 
-missed-suffix: " <dark_gray>(Oculto)"
+missed-suffix: " <dark_gray>(Hidden)"
 
 close-delay-ticks: 50

@@ -1,8 +1,8 @@
 # ═══════════════════════════════════════════════════════
-#   menus/blackjack_tutorial.yml — Guía de Blackjack
+#   menus/blackjack_tutorial.yml — Blackjack Guide
 # ═══════════════════════════════════════════════════════
 
-title: "<black><bold>📖 Cómo Jugar Blackjack"
+title: "<black><bold>📖 How to Play Blackjack"
 rows: 3
 
 decorations:
@@ -16,45 +16,45 @@ decorations:
 back-button:
   slot: 22
   material: ARROW
-  name: "<red><bold>⬅ VOLVER</bold>"
+  name: "<red><bold>⬅ BACK</bold>"
 
 pages:
   objetivo:
     slot: 10
     material: BOOK
-    name: "<#FFD700><bold>1. EL OBJETIVO</bold>"
+    name: "<#FFD700><bold>1. THE OBJECTIVE</bold>"
     lore:
-      - "<gray>Tu meta es ganarle al <#FF5555>Dealer</#FF5555>."
-      - "<gray>Para hacerlo, la suma de tus cartas"
-      - "<gray>debe estar más cerca de <#00FF7F>21</#00FF7F> que las"
-      - "<gray>del Dealer, ¡pero sin pasarte (Volaste)!"
+      - "<gray>Your goal is to beat the <#FF5555>Dealer</#FF5555>."
+      - "<gray>To do so, the sum of your cards"
+      - "<gray>must be closer to <#00FF7F>21</#00FF7F> than the"
+      - "<gray>Dealer's, without going over (Bust)!"
 
   valor-cartas:
     slot: 12
     material: PAPER
-    name: "<#00FF7F><bold>2. VALOR DE LAS CARTAS</bold>"
+    name: "<#00FF7F><bold>2. CARD VALUES</bold>"
     lore:
-      - "<white>• Cartas 2-10: <gray>Valen su número."
-      - "<white>• J, Q, K: <gray>Valen 10 puntos."
-      - "<white>• As (A): <gray>Vale 1 o 11 puntos"
-      - "<gray>  (El juego elige el que más te convenga)."
+      - "<white>• Cards 2-10: <gray>Worth their face value."
+      - "<white>• J, Q, K: <gray>Worth 10 points."
+      - "<white>• Ace (A): <gray>Worth 1 or 11 points"
+      - "<gray>  (The game chooses whichever benefits you most)."
 
   acciones:
     slot: 14
     material: COMPASS
-    name: "<#00FFFF><bold>3. TUS ACCIONES</bold>"
+    name: "<#00FFFF><bold>3. YOUR ACTIONS</bold>"
     lore:
-      - "<#00FF7F>✚ Pedir (Hit): <gray>Pides otra carta."
-      - "<#FF5555>✋ Plantarse (Stand): <gray>Te quedas con lo que tienes."
-      - "<#FFD700>💰 Doblar (Double): <gray>Duplicas tu apuesta,"
-      - "<gray>recibes solo UNA carta más y te plantas automáticamente."
+      - "<#00FF7F>✚ Hit: <gray>Request another card."
+      - "<#FF5555>✋ Stand: <gray>Keep your current hand."
+      - "<#FFD700>💰 Double: <gray>Double your bet,"
+      - "<gray>receive only ONE more card and stand automatically."
 
   pagos:
     slot: 16
     material: GOLD_INGOT
-    name: "<#FFD700><bold>4. LOS PAGOS</bold>"
+    name: "<#FFD700><bold>4. PAYOUTS</bold>"
     lore:
-      - "<white>• Victoria Normal: <gray>Paga 1 a 1 (Ganas el doble)."
-      - "<white>• Blackjack (21 exacto en 2 cartas): <gray>Paga 3 a 2 (Ganas x2.5)."
-      - "<white>• Empate (Push): <gray>Recuperas tu dinero."
-      - "<white>• Pierdes o te pasas: <gray>Pierdes tu apuesta."
+      - "<white>• Normal Win: <gray>Pays 1 to 1 (You win double)."
+      - "<white>• Blackjack (21 on first 2 cards): <gray>Pays 3 to 2 (You win x2.5)."
+      - "<white>• Tie (Push): <gray>Your bet is returned."
+      - "<white>• Loss or Bust: <gray>You lose your bet."

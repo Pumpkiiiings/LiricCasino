@@ -1,21 +1,21 @@
 # ═══════════════════════════════════════════════════════
-#   menus/blackjack_bet.yml — Menú de apuesta de Blackjack
+#   menus/blackjack_bet.yml — Blackjack bet menu
 # ═══════════════════════════════════════════════════════
 
-title-solo: "<black><bold>Apuesta ➔ Solitario"
-title-multi: "<black><bold>Apuesta ➔ Multijugador"
+title-solo: "<black><bold>Bet ➔ Solo"
+title-multi: "<black><bold>Bet ➔ Multiplayer"
 rows: 3
 
 decorations:
-  # Franja superior
+  # Upper line
   - material: BLACK_STAINED_GLASS_PANE
     name: " "
     slots: [0, 1, 2, 3, 4, 5, 6, 7, 8]
-  # Laterales
+  # Side bars
   - material: GRAY_STAINED_GLASS_PANE
     name: " "
     slots: [9, 17]
-  # Franja inferior
+  # Lower line
   - material: BLACK_STAINED_GLASS_PANE
     name: " "
     slots: [18, 19, 20, 21, 23, 24, 25, 26]
@@ -62,8 +62,8 @@ buttons:
   confirm:
     slot: 13
     material: EMERALD_BLOCK
-    name: "<#00FF7F><bold>✔ EMPEZAR A JUGAR ✔</bold>"
-    lore-bet: "<gray>Apuesta inicial: <#FFD700>${amount}"
+    name: "<#00FF7F><bold>✔ START PLAYING ✔</bold>"
+    lore-bet: "<gray>Initial bet: <#FFD700>${amount}"
 
   max-bet:
     slot: 22

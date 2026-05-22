@@ -1,8 +1,8 @@
 # ═══════════════════════════════════════════════════════
-#   menus/blackjack_choice.yml — Menú de elección de modo Blackjack
+#   menus/blackjack_choice.yml — Blackjack mode choice menu
 # ═══════════════════════════════════════════════════════
 
-title: "<black><bold>¿Listo para jugar?"
+title: "<black><bold>Ready to play?"
 rows: 3
 
 decorations:
@@ -17,22 +17,22 @@ items:
   vs-house:
     slot: 11
     material: RED_DYE
-    name: "<#FF5555><bold>SOLITARIO VS LA CASA</bold>"
+    name: "<#FF5555><bold>SOLO VS THE HOUSE</bold>"
     lore:
-      - "<gray>Juega tú solo contra el Dealer de forma rápida."
+      - "<gray>Play by yourself against the Dealer quickly."
 
   tutorial:
     slot: 13
     material: WRITTEN_BOOK
-    name: "<#FFB400><bold>📖 CÓMO JUGAR (Guía)</bold>"
+    name: "<#FFB400><bold>📖 HOW TO PLAY (Guide)</bold>"
     lore:
-      - "<gray>Aprende las reglas y pagos del Blackjack."
+      - "<gray>Learn the rules and payouts of Blackjack."
 
   vs-players:
     slot: 15
     material: DIAMOND
-    name: "<#00FFFF><bold>MESA MULTIJUGADOR (Real)</bold>"
+    name: "<#00FFFF><bold>MULTIPLAYER TABLE (Real)</bold>"
     lore:
-      - "<gray>Únete a la mesa con otros jugadores."
-      - "<gray>Todos juegan sus propias manos"
-      - "<gray>contra el mismo Dealer por turnos."
+      - "<gray>Join the table with other players."
+      - "<gray>Everyone plays their own hands"
+      - "<gray>against the same Dealer in turns."

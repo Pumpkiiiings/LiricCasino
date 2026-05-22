@@ -1,41 +1,46 @@
 package liric.casino
 
-import liric.casino.blackjack.*
-import liric.casino.coinflip.CoinFlipCommand
-import liric.casino.coinflip.CoinFlipManager
+import liric.casino.games.blackjack.*
+import liric.casino.games.coinflip.CoinFlipCommand
+import liric.casino.games.coinflip.CoinFlipManager
 import liric.casino.commands.CasinoCommand
 import liric.casino.config.MenuConfig
 import liric.casino.config.MessagesConfig
 import liric.casino.database.DatabaseManager
 import liric.casino.economy.EconomyManager
-import liric.casino.lottery.LotteryCommand
-import liric.casino.lottery.LotteryManager
-import liric.casino.poker.PokerCommand
-import liric.casino.poker.PokerGame
-import liric.casino.poker.PokerInteractListener
-import liric.casino.poker.PokerManager
-import liric.casino.roulette.RouletteCommand
-import liric.casino.roulette.RouletteGame
-import liric.casino.roulette.RouletteInteractListener
-import liric.casino.roulette.RouletteManager
-import liric.casino.roulette.RouletteMenu
-import liric.casino.scratch.ScratchCommand
-import liric.casino.scratch.ScratchListener
-import liric.casino.scratch.TicketTier
-import liric.casino.slots.SlotCommand
-import liric.casino.slots.SlotInteractListener
-import liric.casino.slots.SlotManager
+import liric.casino.games.blackjack.BlackjackCommand
+import liric.casino.games.blackjack.BlackjackInteractListener
+import liric.casino.games.blackjack.BlackjackManager
+import liric.casino.games.blackjack.BlackjackMultiGame
+import liric.casino.games.coinflip.CoinFlipChatListener
+import liric.casino.games.lottery.LotteryCommand
+import liric.casino.games.lottery.LotteryManager
+import liric.casino.games.poker.PokerCommand
+import liric.casino.games.poker.PokerGame
+import liric.casino.games.poker.PokerInteractListener
+import liric.casino.games.poker.PokerManager
+import liric.casino.games.roulette.RouletteCommand
+import liric.casino.games.roulette.RouletteGame
+import liric.casino.games.roulette.RouletteInteractListener
+import liric.casino.games.roulette.RouletteManager
+import liric.casino.games.roulette.RouletteMenu
+import liric.casino.games.scratch.ScratchCommand
+import liric.casino.games.scratch.ScratchListener
+import liric.casino.games.scratch.TicketTier
+import liric.casino.games.slots.SlotCommand
+import liric.casino.games.slots.SlotInteractListener
+import liric.casino.games.slots.SlotManager
 import liric.casino.stats.CasinoPlaceholders
 import liric.casino.stats.StatsListener
 import liric.casino.stats.StatsManager
 import liric.casino.util.ColorUtil
 import liric.casino.webhook.WebhookManager
-import liric.casino.rps.RPSManager
-import liric.casino.rps.RPSCommand
-import liric.casino.tictactoe.TTTManager
-import liric.casino.tictactoe.TTTCommand
-import liric.casino.racing.RaceManager
-import liric.casino.racing.RaceCommand
+import liric.casino.games.rps.RPSManager
+import liric.casino.games.rps.RPSCommand
+import liric.casino.games.tictactoe.TTTManager
+import liric.casino.games.tictactoe.TTTCommand
+import liric.casino.games.racing.RaceManager
+import liric.casino.games.racing.RaceCommand
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
@@ -46,10 +51,10 @@ class CasinoPlugin : JavaPlugin() {
     lateinit var messages: MessagesConfig
     private val menuConfigMap = mutableMapOf<String, MenuConfig>()
 
-    // ─── Economía ────────────────────────────────────────────────────────
+    // ─── Economy ────────────────────────────────────────────────────────
     lateinit var economyManager: EconomyManager
 
-    // ─── Ruleta ──────────────────────────────────────────────────────────
+    // ─── Roulette ────────────────────────────────────────────────────────
     lateinit var rouletteManager: RouletteManager
     lateinit var rouletteGame: RouletteGame
     lateinit var rouletteMenu: RouletteMenu
@@ -58,14 +63,14 @@ class CasinoPlugin : JavaPlugin() {
     lateinit var pokerManager: PokerManager
     lateinit var pokerGame: PokerGame
 
-    // ─── Tragamonedas ────────────────────────────────────────────────────
+    // ─── Slots ────────────────────────────────────────────────────────────
     lateinit var slotManager: SlotManager
 
     // ─── Blackjack ───────────────────────────────────────────────────────
     lateinit var blackjackManager: BlackjackManager
     lateinit var blackjackMultiGame: BlackjackMultiGame
 
-    // ─── Lotería ─────────────────────────────────────────────────────────
+    // ─── Lottery ─────────────────────────────────────────────────────────
     lateinit var lotteryManager: LotteryManager
 
     // ─── CoinFlip ────────────────────────────────────────────────────────
@@ -79,11 +84,11 @@ class CasinoPlugin : JavaPlugin() {
     // ─── Webhooks ─────────────────────────────────────────────────────────
     lateinit var webhook: WebhookManager
 
-    // ─── Base de Datos y Estadísticas ────────────────────────────────────
+    // ─── Database and Stats ──────────────────────────────────────────────
     lateinit var db: DatabaseManager
     lateinit var statsManager: StatsManager
 
-    // ─── Utilidades ──────────────────────────────────────────────────────
+    // ─── Utilities ──────────────────────────────────────────────────────
     fun format(text: String): Component = ColorUtil.parse(text)
 
     fun menuConfig(name: String): MenuConfig =
@@ -91,10 +96,10 @@ class CasinoPlugin : JavaPlugin() {
 
     // ═════════════════════════════════════════════════════════════════════
     override fun onEnable() {
-        // 1. Config principal
+        // 1. Main config
         saveDefaultConfig()
 
-        // 1b. TicketTier para Rasca y Gana
+        // 1b. TicketTier for Scratch & Win
         TicketTier.loadFromConfig(config)
 
         // 2. MessagesConfig
@@ -117,15 +122,15 @@ class CasinoPlugin : JavaPlugin() {
             menuConfigMap[name] = cfg
         }
 
-        // 4. Economía (Vault)
+        // 4. Economy (Vault)
         economyManager = EconomyManager(this)
         if (!economyManager.setupVault()) {
-            logger.severe("¡Vault no encontrado o no hay plugin de economía! Deshabilitando...")
+            logger.severe("Vault not found or no economy plugin! Disabling...")
             server.pluginManager.disablePlugin(this)
             return
         }
 
-        // 4b. Base de Datos y Stats
+        // 4b. Database and Stats
         db = DatabaseManager(this)
         db.connect()
         statsManager = StatsManager(this)
@@ -135,8 +140,8 @@ class CasinoPlugin : JavaPlugin() {
             CasinoPlaceholders(this).register()
         }
 
-        // 5. Managers y lógica de juego
-        // --- Ruleta ---
+        // 5. Managers and game logic
+        // --- Roulette ---
         rouletteManager = RouletteManager(this)
         rouletteGame    = RouletteGame(this)
         rouletteMenu    = RouletteMenu(this, rouletteGame)
@@ -146,7 +151,7 @@ class CasinoPlugin : JavaPlugin() {
         pokerManager = PokerManager(this)
         pokerGame    = PokerGame(this)
 
-        // --- Tragamonedas ---
+        // --- Slots ---
         slotManager = SlotManager(this)
         slotManager.loadMachines()
 
@@ -154,19 +159,19 @@ class CasinoPlugin : JavaPlugin() {
         blackjackManager  = BlackjackManager(this)
         blackjackMultiGame = BlackjackMultiGame(this)
 
-        // --- Lotería ---
+        // --- Lottery ---
         lotteryManager = LotteryManager(this)
         lotteryManager.start()
 
         // --- CoinFlip ---
         coinFlipManager = CoinFlipManager(this)
 
-        // --- Nuevos Juegos ---
+        // --- New Games ---
         rpsManager = RPSManager(this)
         tttManager = TTTManager(this)
         raceManager = RaceManager(this)
 
-        // 6. Comandos
+        // 6. Commands
         val rouletteCmd = RouletteCommand(this, rouletteMenu, rouletteGame)
         getCommand("ruleta")?.apply { setExecutor(rouletteCmd); tabCompleter = rouletteCmd }
 
@@ -208,10 +213,10 @@ class CasinoPlugin : JavaPlugin() {
         server.pluginManager.registerEvents(BlackjackInteractListener(this), this)
         server.pluginManager.registerEvents(SlotInteractListener(this), this)
         server.pluginManager.registerEvents(StatsListener(this), this)
-        server.pluginManager.registerEvents(liric.casino.coinflip.CoinFlipChatListener(this), this)
+        server.pluginManager.registerEvents(CoinFlipChatListener(this), this)
         server.pluginManager.registerEvents(liric.casino.listeners.PlayerQuitListener(this), this)
 
-        // 8. Mensaje de inicio
+        // 8. Startup message
         sendStartupMessage()
     }
 
@@ -232,12 +237,12 @@ class CasinoPlugin : JavaPlugin() {
         server.consoleSender.sendMessage(format(
             "<red>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
             "<dark_red><bold>  Liric Casino</bold> <gray>v${description.version}\n" +
-            "<red>  Deshabilitando sistemas y limpiando entidades...\n" +
+            "<red>  Disabling systems and cleaning up entities...\n" +
             "<red>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         ))
     }
 
-    // ─── Mensaje de inicio ────────────────────────────────────────────────
+    // ─── Startup message ────────────────────────────────────────────────
     private fun sendStartupMessage() {
         val v = description.version
         val lines = listOf(
@@ -252,21 +257,21 @@ class CasinoPlugin : JavaPlugin() {
             "<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
             "<white>  🎰 <gold><bold>Liric Casino</bold></gold>  <gray>•  <yellow>v$v  <gray>•  <aqua>Paper 1.21.4",
             "<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "<green>  ✔ <gray>Economía (Vault)     <green><bold>CONECTADO",
-            "<green>  ✔ <gray>Ruleta               <green><bold>ACTIVA",
-            "<green>  ✔ <gray>Mesa de Blackjack    <green><bold>ACTIVA",
-            "<green>  ✔ <gray>Mesa de Poker        <green><bold>ACTIVA",
-            "<green>  ✔ <gray>Máquina 777          <green><bold>ACTIVA",
-            "<green>  ✔ <gray>Rasca y Gana         <green><bold>ACTIVO",
-            "<green>  ✔ <gray>Lotería              <green><bold>ACTIVA",
-            "<green>  ✔ <gray>CoinFlip PvP         <green><bold>ACTIVO",
-            "<green>  ✔ <gray>Piedra Papel Tijera  <green><bold>ACTIVO",
-            "<green>  ✔ <gray>Tic Tac Toe PvP      <green><bold>ACTIVO",
-            "<green>  ✔ <gray>Carreras Caballos    <green><bold>ACTIVAS",
-            "<green>  ✔ <gray>Taxes Configurables  <green><bold>ACTIVOS",
-            "<green>  ✔ <gray>Database & Stats     <green><bold>CONECTADO",
+            "<green>  ✔ <gray>Economy (Vault)      <green><bold>CONNECTED",
+            "<green>  ✔ <gray>Roulette             <green><bold>ACTIVE",
+            "<green>  ✔ <gray>Blackjack Table      <green><bold>ACTIVE",
+            "<green>  ✔ <gray>Poker Table          <green><bold>ACTIVE",
+            "<green>  ✔ <gray>777 Slots Machine    <green><bold>ACTIVE",
+            "<green>  ✔ <gray>Scratch Card         <green><bold>ACTIVE",
+            "<green>  ✔ <gray>Lottery              <green><bold>ACTIVE",
+            "<green>  ✔ <gray>CoinFlip PvP         <green><bold>ACTIVE",
+            "<green>  ✔ <gray>Rock Paper Scissors  <green><bold>ACTIVE",
+            "<green>  ✔ <gray>Tic Tac Toe PvP      <green><bold>ACTIVE",
+            "<green>  ✔ <gray>Horse Racing         <green><bold>ACTIVE",
+            "<green>  ✔ <gray>Configurable Taxes   <green><bold>ACTIVE",
+            "<green>  ✔ <gray>Database & Stats     <green><bold>CONNECTED",
             "<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "<gradient:#4facfe:#00f2fe>  ¡EL CASINO DEFINITIVO ESTÁ ABIERTO! 🎲</gradient>",
+            "<gradient:#4facfe:#00f2fe>  THE ULTIMATE CASINO IS OPEN! 🎲</gradient>",
             "<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
             "<gray>"
         )

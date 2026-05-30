@@ -2,6 +2,7 @@ package liric.casino.games.coinflip
 
 import liric.casino.CasinoPlugin
 import liric.casino.util.TaxUtil
+import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -26,19 +27,16 @@ class CoinFlipManager(private val plugin: CasinoPlugin) {
 
     // ─── Crear juego ──────────────────────────────────────────────────────
     fun createGame(player: Player, amount: Double): CoinFlipSession? {
+        if (!ValidationUtil.canPlayDaily(plugin, player, "coinflip")) return null
+        if (!ValidationUtil.validateBet(plugin, player, "coinflip", amount)) return null
         if (playerSession.containsKey(player.uniqueId)) {
             player.sendMessage(msg("coinflip.already-in-game")); return null
-        }
-        val min = minBet(); val max = maxBet()
-        if (amount < min || amount > max) {
-            player.sendMessage(msg("coinflip.invalid-amount",
-                "min" to CoinFlipMenu.formatAmount(min),
-                "max" to CoinFlipMenu.formatAmount(max))); return null
         }
         if (!plugin.economyManager.withdrawPlayer(player, amount).transactionSuccess()) {
             player.sendMessage(msg("coinflip.no-funds")); return null
         }
 
+        plugin.statsManager.recordGameUse(player.uniqueId, "coinflip")
         val session = CoinFlipSession(creatorId = player.uniqueId, creatorName = player.name, betAmount = amount)
         sessions[session.id]             = session
         playerSession[player.uniqueId]   = session.id
@@ -60,19 +58,24 @@ class CoinFlipManager(private val plugin: CasinoPlugin) {
 
     // ─── Unirse ───────────────────────────────────────────────────────────
     fun joinGame(joiner: Player, creatorName: String): Boolean {
-        if (playerSession.containsKey(joiner.uniqueId)) {
-            joiner.sendMessage(msg("coinflip.already-in-game")); return false
-        }
         val session = sessions.values.firstOrNull {
             it.state == CoinFlipState.WAITING &&
             it.creatorName.equals(creatorName, ignoreCase = true) &&
             it.creatorId != joiner.uniqueId
         } ?: run { joiner.sendMessage(msg("coinflip.game-not-found", "player" to creatorName)); return false }
 
+        if (!ValidationUtil.canPlayDaily(plugin, joiner, "coinflip")) return false
+        if (!ValidationUtil.validateBet(plugin, joiner, "coinflip", session.betAmount)) return false
+
+        if (playerSession.containsKey(joiner.uniqueId)) {
+            joiner.sendMessage(msg("coinflip.already-in-game")); return false
+        }
+
         if (!plugin.economyManager.withdrawPlayer(joiner, session.betAmount).transactionSuccess()) {
             joiner.sendMessage(msg("coinflip.no-funds")); return false
         }
 
+        plugin.statsManager.recordGameUse(joiner.uniqueId, "coinflip")
         session.joinerId   = joiner.uniqueId
         session.joinerName = joiner.name
         session.state      = CoinFlipState.ANIMATING

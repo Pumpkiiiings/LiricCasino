@@ -13,6 +13,7 @@ class TTTCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComplet
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) { sender.sendMessage(msg("general.only-players")); return true }
+        if (!plugin.isGameEnabled("ttt")) { sender.sendMessage(msg("general.game-disabled")); return true }
 
         when (args.getOrNull(0)?.lowercase()) {
             null, "ayuda", "help" -> sendHelp(sender)

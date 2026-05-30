@@ -2,6 +2,7 @@ package liric.casino.games.rps
 
 import liric.casino.CasinoPlugin
 import liric.casino.util.TaxUtil
+import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -25,15 +26,16 @@ class RPSManager(private val plugin: CasinoPlugin) {
 
     // ── Crear ─────────────────────────────────────────────────────────────────
     fun createGame(player: Player, amount: Double) {
+        if (!ValidationUtil.canPlayDaily(plugin, player, "rps")) return
+        if (!ValidationUtil.validateBet(plugin, player, "rps", amount)) return
         if (playerSession.containsKey(player.uniqueId)) {
             player.sendMessage(msg("rps.already-in-game")); return
-        }
-        if (amount < minBet() || amount > maxBet()) {
-            player.sendMessage(msg("rps.invalid-amount", "min" to minBet().toLong().toString(), "max" to maxBet().toLong().toString())); return
         }
         if (!plugin.economyManager.withdrawPlayer(player, amount).transactionSuccess()) {
             player.sendMessage(msg("rps.no-funds")); return
         }
+        
+        plugin.statsManager.recordGameUse(player.uniqueId, "rps")
         val session = RPSSession(creatorId = player.uniqueId, creatorName = player.name, betAmount = amount)
         sessions[session.id] = session
         playerSession[player.uniqueId] = session.id
@@ -49,19 +51,24 @@ class RPSManager(private val plugin: CasinoPlugin) {
 
     // ── Unirse ────────────────────────────────────────────────────────────────
     fun joinGame(joiner: Player, creatorName: String) {
-        if (playerSession.containsKey(joiner.uniqueId)) {
-            joiner.sendMessage(msg("rps.already-in-game")); return
-        }
         val session = sessions.values.firstOrNull {
             it.state == RPSState.WAITING &&
             it.creatorName.equals(creatorName, ignoreCase = true) &&
             it.creatorId != joiner.uniqueId
         } ?: run { joiner.sendMessage(msg("rps.game-not-found", "player" to creatorName)); return }
 
+        if (!ValidationUtil.canPlayDaily(plugin, joiner, "rps")) return
+        if (!ValidationUtil.validateBet(plugin, joiner, "rps", session.betAmount)) return
+
+        if (playerSession.containsKey(joiner.uniqueId)) {
+            joiner.sendMessage(msg("rps.already-in-game")); return
+        }
+
         if (!plugin.economyManager.withdrawPlayer(joiner, session.betAmount).transactionSuccess()) {
             joiner.sendMessage(msg("rps.no-funds")); return
         }
 
+        plugin.statsManager.recordGameUse(joiner.uniqueId, "rps")
         session.joinerId   = joiner.uniqueId
         session.joinerName = joiner.name
         session.state      = RPSState.CHOOSING

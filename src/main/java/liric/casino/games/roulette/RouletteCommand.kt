@@ -16,6 +16,12 @@ class RouletteCommand(
     private fun msg(key: String, vararg ph: Pair<String, String>) = plugin.messages.get(key, *ph)
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+        val sub = args.getOrNull(0)?.lowercase()
+        val isAdminSub = sub != null && sub in listOf("setup", "delete", "forcestart", "purge", "scale")
+        if (!isAdminSub && !plugin.isGameEnabled("roulette")) {
+            sender.sendMessage(msg("general.game-disabled"))
+            return true
+        }
         if (args.isEmpty() || args[0].equals("jugar", ignoreCase = true)) {
             if (sender is Player) menu.openBetMenu(sender)
             else sender.sendMessage(msg("general.only-players"))
@@ -39,6 +45,22 @@ class RouletteCommand(
                     val removed = plugin.rouletteManager.purgeAllData(sender.world)
                     sender.sendMessage(msg("roulette.purged", "count" to removed.toString()))
                 }
+                "scale"      -> {
+                    if (args.size < 2) {
+                        sender.sendMessage(plugin.format("<red>Usage: /roulette scale <value>"))
+                        return true
+                    }
+                    val newScale = args[1].toFloatOrNull()
+                    if (newScale == null || newScale <= 0) {
+                        sender.sendMessage(plugin.format("<red>Invalid scale value."))
+                        return true
+                    }
+                    plugin.config.set("roulette.block-scale", newScale.toDouble())
+                    plugin.saveConfig()
+                    val radius = plugin.config.getDouble("roulette.radius", 5.5).toFloat()
+                    plugin.rouletteManager.rescaleAll(newScale, radius)
+                    sender.sendMessage(plugin.format("<green>Roulette scale updated to $newScale. All active roulettes were updated."))
+                }
                 else         -> sender.sendMessage(msg("general.invalid-action"))
             }
         } else {
@@ -49,7 +71,7 @@ class RouletteCommand(
 
     override fun onTabComplete(sender: CommandSender, cmd: Command, alias: String, args: Array<out String>): List<String> {
         if (args.size == 1 && sender.hasPermission("casino.admin")) {
-            return listOf("jugar", "setup", "delete", "forcestart", "purge").filter { it.startsWith(args[0], true) }
+            return listOf("jugar", "setup", "delete", "forcestart", "purge", "scale").filter { it.startsWith(args[0], true) }
         }
         return emptyList()
     }

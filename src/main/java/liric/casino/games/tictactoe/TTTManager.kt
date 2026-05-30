@@ -2,6 +2,7 @@ package liric.casino.games.tictactoe
 
 import liric.casino.CasinoPlugin
 import liric.casino.util.TaxUtil
+import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -25,17 +26,16 @@ class TTTManager(private val plugin: CasinoPlugin) {
 
     // ── Crear ─────────────────────────────────────────────────────────────────
     fun createGame(player: Player, amount: Double) {
+        if (!ValidationUtil.canPlayDaily(plugin, player, "ttt")) return
+        if (!ValidationUtil.validateBet(plugin, player, "ttt", amount)) return
         if (playerSession.containsKey(player.uniqueId)) {
             player.sendMessage(msg("ttt.already-in-game")); return
-        }
-        if (amount < minBet() || amount > maxBet()) {
-            player.sendMessage(msg("ttt.invalid-amount",
-                "min" to minBet().toLong().toString(),
-                "max" to maxBet().toLong().toString())); return
         }
         if (!plugin.economyManager.withdrawPlayer(player, amount).transactionSuccess()) {
             player.sendMessage(msg("ttt.no-funds")); return
         }
+        
+        plugin.statsManager.recordGameUse(player.uniqueId, "ttt")
         val session = TTTSession(creatorId = player.uniqueId, creatorName = player.name, betAmount = amount)
         sessions[session.id] = session
         playerSession[player.uniqueId] = session.id
@@ -50,19 +50,24 @@ class TTTManager(private val plugin: CasinoPlugin) {
 
     // ── Unirse ────────────────────────────────────────────────────────────────
     fun joinGame(joiner: Player, creatorName: String) {
-        if (playerSession.containsKey(joiner.uniqueId)) {
-            joiner.sendMessage(msg("ttt.already-in-game")); return
-        }
         val session = sessions.values.firstOrNull {
             it.state == TTTState.WAITING &&
             it.creatorName.equals(creatorName, ignoreCase = true) &&
             it.creatorId != joiner.uniqueId
         } ?: run { joiner.sendMessage(msg("ttt.game-not-found", "player" to creatorName)); return }
 
+        if (!ValidationUtil.canPlayDaily(plugin, joiner, "ttt")) return
+        if (!ValidationUtil.validateBet(plugin, joiner, "ttt", session.betAmount)) return
+
+        if (playerSession.containsKey(joiner.uniqueId)) {
+            joiner.sendMessage(msg("ttt.already-in-game")); return
+        }
+
         if (!plugin.economyManager.withdrawPlayer(joiner, session.betAmount).transactionSuccess()) {
             joiner.sendMessage(msg("ttt.no-funds")); return
         }
 
+        plugin.statsManager.recordGameUse(joiner.uniqueId, "ttt")
         session.joinerId   = joiner.uniqueId
         session.joinerName = joiner.name
         session.state      = TTTState.PLAYING

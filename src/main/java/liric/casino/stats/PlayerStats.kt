@@ -4,18 +4,20 @@ import java.util.UUID
 
 data class PlayerStats(
     val uuid: UUID,
-    var playerName: String,
+    var name: String,
     // ── Ruleta ───────────────────────────────────────────
     var rouletteBets: Int = 0,
     var rouletteWagered: Double = 0.0,
     var rouletteWon: Double = 0.0,
     var rouletteWins: Int = 0,
     var rouletteLosses: Int = 0,
+    var rouletteDailyUses: Int = 0,
     // ── Slots 777 ────────────────────────────────────────
     var slotsSpins: Int = 0,
     var slotsWagered: Double = 0.0,
     var slotsWon: Double = 0.0,
     var slotsJackpots: Int = 0,
+    var slotsDailyUses: Int = 0,
     // ── Blackjack ────────────────────────────────────────
     var bjGames: Int = 0,
     var bjWagered: Double = 0.0,
@@ -23,28 +25,38 @@ data class PlayerStats(
     var bjWins: Int = 0,
     var bjLosses: Int = 0,
     var bjBlackjacks: Int = 0,
+    var bjDailyUses: Int = 0,
     // ── Rasca y Gana ─────────────────────────────────────
     var scratchUsed: Int = 0,
     var scratchSpent: Double = 0.0,
     var scratchWon: Double = 0.0,
     var scratchWins: Int = 0,
+    var scratchDailyUses: Int = 0,
     // ── Lotería ──────────────────────────────────────────
     var lotteryTickets: Int = 0,
     var lotterySpent: Double = 0.0,
     var lotteryWon: Double = 0.0,
     var lotteryWins: Int = 0,
+    var lotteryDailyUses: Int = 0,
     // ── CoinFlip ─────────────────────────────────────────
     var coinFlipFlips: Int = 0,
     var coinFlipWagered: Double = 0.0,
     var coinFlipWon: Double = 0.0,
     var coinFlipWins: Int = 0,
     var coinFlipLosses: Int = 0,
+    var coinflipDailyUses: Int = 0,
     // ── Carreras ─────────────────────────────────────────
     var racingWagered: Double = 0.0,
     var racingWon: Double = 0.0,
     var racingWins: Int = 0,
     var racingLosses: Int = 0,
+    var racingDailyUses: Int = 0,
+    // ── Otros Juegos ─────────────────────────────────────
+    var rpsDailyUses: Int = 0,
+    var tttDailyUses: Int = 0,
+    var pokerDailyUses: Int = 0,
     // ── Meta ─────────────────────────────────────────────
+    var lastDailyReset: Long = System.currentTimeMillis(),
     var lastSeen: Long = System.currentTimeMillis(),
     @Volatile var dirty: Boolean = false
 ) {

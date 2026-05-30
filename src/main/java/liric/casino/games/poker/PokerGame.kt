@@ -6,6 +6,7 @@ import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
 import java.util.UUID
+import liric.casino.util.ValidationUtil
 
 enum class PokerState { WAITING, STARTING, PRE_FLOP, FLOP, TURN, RIVER, SHOWDOWN }
 
@@ -45,7 +46,11 @@ class PokerGame(val plugin: CasinoPlugin) {
         if (players.any { it.uuid == player.uniqueId }) return
         if (players.size >= maxPlayers) return
 
+        if (!ValidationUtil.canPlayDaily(plugin, player, "poker")) return
+        if (!ValidationUtil.validateBet(plugin, player, "poker", entryFee)) return
+
         if (plugin.economyManager.withdrawPlayer(player, entryFee).transactionSuccess()) {
+            plugin.statsManager.recordGameUse(player.uniqueId, "poker")
             players.add(PokerPlayer(player.uniqueId, player.name))
             plugin.server.broadcast(plugin.format("$prefix <#00FF7F>¡<#FFB400>${player.name}</#FFB400> entró al Poker! (${players.size}/$maxPlayers)</#00FF7F>"))
             plugin.pokerManager.updateHolograms()

@@ -13,6 +13,11 @@ class SlotCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComple
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) return true
+        val sub = args.getOrNull(0)?.lowercase()
+        val isAdminSub = sub in listOf("setup", "delete", "purge")
+        if (!isAdminSub && !plugin.isGameEnabled("slots")) {
+            sender.sendMessage(msg("general.game-disabled")); return true
+        }
 
         if (args.isEmpty()) {
             sender.sendMessage(msg("slots.usage"))

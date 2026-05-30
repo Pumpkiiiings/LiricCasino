@@ -4,6 +4,7 @@ import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.guis.Gui
 import dev.triumphteam.gui.guis.GuiItem
 import liric.casino.CasinoPlugin
+import liric.casino.util.ValidationUtil
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -18,8 +19,8 @@ class BlackjackBetMenu(
     private val cfg      get() = plugin.menuConfig("blackjack_bet.yml")
     private fun msg(key: String, vararg ph: Pair<String, String>) = plugin.messages.get(key, *ph)
 
-    private val minLimit = plugin.config.getDouble("blackjack.bet.min", 100.0)
-    private val maxLimit = plugin.config.getDouble("blackjack.bet.max", 100000.0)
+    private val minLimit = plugin.config.getDouble("blackjack.bet.default.min", 100.0)
+    private val maxLimit = plugin.economyManager.getMaxBet(player, "blackjack")
     private var currentBet = minLimit
 
     private val titleKey = if (isMultiplayer) "title-multi" else "title-solo"
@@ -47,6 +48,30 @@ class BlackjackBetMenu(
             gui.setItem(slot, createModifyButton(mat, label, amount, color))
         }
 
+        // BOTÓN CANTIDAD CUSTOM
+        val customSlot = cfg.getInt("buttons.custom-bet.slot", 4)
+        val customMat  = cfg.getMaterial("buttons.custom-bet.material", Material.PAPER)
+        val customName = cfg.getComponent("buttons.custom-bet.name", "<#FFD700>Cantidad Custom")
+        
+        val customBtn = ItemBuilder.from(customMat)
+            .name(customName)
+            .lore(plugin.format("<gray>Haz clic para escribir el monto en el chat"))
+            .flags(*ItemFlag.values())
+            .asGuiItem {
+                gui.close(player)
+                player.sendMessage(plugin.format("<#FFD700><b>✍ Escribe la cantidad exacta que deseas apostar:</b>"))
+                
+                plugin.economyManager.openCustomBetChat(player) { amount ->
+                    if (amount in minLimit..maxLimit) {
+                        currentBet = amount
+                        open()
+                    } else {
+                        player.sendMessage(plugin.format("<red>Cantidad inválida. Debe estar entre $minLimit y $maxLimit"))
+                    }
+                }
+            }
+        gui.setItem(customSlot, customBtn)
+
         // CONFIRMAR
         val confirmSlot = cfg.getInt("buttons.confirm.slot", 13)
         val confirmMat  = cfg.getMaterial("buttons.confirm.material", Material.EMERALD_BLOCK)
@@ -56,7 +81,12 @@ class BlackjackBetMenu(
         val confirmBtn = ItemBuilder.from(confirmMat)
             .name(confirmName).lore(confirmLore).flags(*ItemFlag.values())
             .asGuiItem {
+                if (!ValidationUtil.validateBet(plugin, player, "blackjack", currentBet)) {
+                    gui.close(player)
+                    return@asGuiItem
+                }
                 if (plugin.economyManager.withdrawPlayer(player, currentBet).transactionSuccess()) {
+                    plugin.statsManager.recordGameUse(player.uniqueId, "blackjack")
                     if (isMultiplayer) {
                         gui.close(player)
                         plugin.blackjackMultiGame.addPlayer(player, currentBet)

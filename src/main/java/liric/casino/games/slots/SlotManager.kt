@@ -53,6 +53,9 @@ class SlotManager(private val plugin: CasinoPlugin) {
     }
 
     fun spawnMachine(blockLoc: Location, isNew: Boolean = true) {
+        // FIX: Evitar spawn si el mundo o chunk no están cargados en este momento
+        if (!isChunkLoaded(blockLoc)) return
+
         purgeExactBlock(blockLoc)
 
         if (isNew) saveToData(blockLoc)
@@ -64,6 +67,11 @@ class SlotManager(private val plugin: CasinoPlugin) {
         }
 
         val textDisplay = blockLoc.world.spawnEntity(holoLoc, EntityType.TEXT_DISPLAY) as TextDisplay
+
+        // FIX CLAVE: Evita que Minecraft guarde el holograma en los archivos del mundo.
+        // Desaparecerá al reiniciar el server o descargar el chunk, evitando duplicaciones.
+        textDisplay.isPersistent = false
+
         textDisplay.persistentDataContainer.set(slotKey, PersistentDataType.BYTE, 1.toByte())
 
         val maxMult = registry.items.maxOfOrNull { it.multiplier } ?: 100.0
@@ -83,27 +91,45 @@ class SlotManager(private val plugin: CasinoPlugin) {
         object : BukkitRunnable() {
             override fun run() {
                 activeSlots.values.forEach { machine ->
-                    if (machine.hologram == null || machine.hologram!!.isDead) {
+                    // FIX CLAVE: Si el chunk no está cargado, ignoramos la máquina por ahora.
+                    if (!isChunkLoaded(machine.location)) return@forEach
+
+                    // Dado que el chunk está cargado, comprobamos si el holograma es válido
+                    if (machine.hologram == null || machine.hologram!!.isDead || !machine.hologram!!.isValid) {
                         purgeExactBlock(machine.location)
+
                         val holoLoc = machine.location.clone().apply { x += 0.5; y += 1.5; z += 0.5 }
                         val textDisplay = machine.location.world.spawnEntity(holoLoc, EntityType.TEXT_DISPLAY) as TextDisplay
+
+                        // FIX: También lo hacemos temporal aquí
+                        textDisplay.isPersistent = false
                         textDisplay.persistentDataContainer.set(slotKey, PersistentDataType.BYTE, 1.toByte())
+
                         val maxMult = registry.items.maxOfOrNull { it.multiplier } ?: 100.0
                         val holoText = plugin.menuConfig("slots.yml").getString("title", "<#FFB400><bold>🎰 MÁQUINA 777 🎰</bold>") +
                                 "<br><#E0E0E0>Haz Click para jugar</#E0E0E0>" +
                                 "<br><#00FF7F>¡Gana hasta x${maxMult.toInt()}!</#00FF7F>"
+
                         textDisplay.text(plugin.format(holoText))
                         textDisplay.billboard = Display.Billboard.CENTER
                         textDisplay.backgroundColor = Color.fromARGB(0, 0, 0, 0)
                         textDisplay.isShadowed = true
+
                         machine.hologram = textDisplay
                     }
                 }
             }
-        }.runTaskTimer(plugin, 200L, 200L)
+        }.runTaskTimer(plugin, 200L, 200L) // Chequeo cada 10 segundos
     }
 
-    // FIX DEFINITIVO DE CLICKS: Ignora decimales, busca por bloque exacto
+    // Método auxiliar seguro para saber si el chunk está cargado
+    private fun isChunkLoaded(loc: Location): Boolean {
+        if (loc.world == null) return false
+        val chunkX = loc.blockX shr 4
+        val chunkZ = loc.blockZ shr 4
+        return loc.world!!.isChunkLoaded(chunkX, chunkZ)
+    }
+
     fun getMachine(loc: Location): SlotMachineInstance? {
         return activeSlots.values.find {
             it.location.world?.name == loc.world?.name &&
@@ -121,13 +147,18 @@ class SlotManager(private val plugin: CasinoPlugin) {
         getMachine(loc)?.occupant = null
     }
 
-    // FIX DEFINITIVO DE BORRADO: Busca la más cercana y borra sin importar decimales
     fun deleteNearestMachine(location: Location): Boolean {
         val nearest = activeSlots.values.minByOrNull { it.location.distanceSquared(location) } ?: return false
-        if (nearest.location.distanceSquared(location) < 25.0) { // Radio de 5 bloques
+        if (nearest.location.distanceSquared(location) < 25.0) {
 
             removeFromData(nearest.location)
-            purgeExactBlock(nearest.location)
+
+            // Si el chunk está cargado, borramos el holograma físico
+            if (isChunkLoaded(nearest.location)) {
+                nearest.hologram?.remove()
+                purgeExactBlock(nearest.location)
+            }
+
             activeSlots.remove(nearest.location)
 
             return true
@@ -135,9 +166,10 @@ class SlotManager(private val plugin: CasinoPlugin) {
         return false
     }
 
-    // PURGA NUCLEAR DE EMERGENCIA PARA EL MUNDO
     fun purgeAllData(world: World): Int {
         var removed = 0
+        // Como algunos pudieron haberse guardado antes de que aplicáramos isPersistent = false,
+        // necesitamos seguir limpiando durante un tiempo por seguridad.
         world.entities.forEach { entity ->
             if (entity.persistentDataContainer.has(slotKey, PersistentDataType.BYTE)) {
                 entity.remove()
@@ -158,8 +190,10 @@ class SlotManager(private val plugin: CasinoPlugin) {
     }
 
     fun purgeExactBlock(blockLoc: Location) {
+        if (!isChunkLoaded(blockLoc)) return // Evita errores si se llama en chunks vacíos
+
         val holoLoc = blockLoc.clone().apply { x += 0.5; y += 1.5; z += 0.5 }
-        blockLoc.world.getNearbyEntities(holoLoc, 2.0, 3.0, 2.0).forEach { entity ->
+        blockLoc.world!!.getNearbyEntities(holoLoc, 2.0, 3.0, 2.0).forEach { entity ->
             if (entity.persistentDataContainer.has(slotKey, PersistentDataType.BYTE)) {
                 entity.remove()
             }
@@ -207,7 +241,7 @@ class SlotManager(private val plugin: CasinoPlugin) {
         }
     }
 
-    private fun locToString(loc: Location): String = "${loc.world.name},${loc.blockX},${loc.blockY},${loc.blockZ}"
+    private fun locToString(loc: Location): String = "${loc.world!!.name},${loc.blockX},${loc.blockY},${loc.blockZ}"
 
     private fun stringToLoc(str: String): Location? {
         val p = str.split(",")

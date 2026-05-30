@@ -13,6 +13,10 @@ class BlackjackCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabC
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) return true
+        val sub = args.getOrNull(0)?.lowercase()
+        if (sub !in listOf("setup", "delete") && !plugin.isGameEnabled("blackjack")) {
+            sender.sendMessage(msg("general.game-disabled")); return true
+        }
 
         if (args.isEmpty() || args[0].equals("play", true)) {
             BlackjackChoiceMenu(plugin, sender).open()

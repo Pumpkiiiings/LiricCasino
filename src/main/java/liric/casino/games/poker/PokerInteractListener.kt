@@ -14,6 +14,10 @@ class PokerInteractListener(private val plugin: CasinoPlugin) : Listener {
         val entity = event.rightClicked
 
         if (entity is Interaction && entity.persistentDataContainer.has(plugin.pokerManager.pokerKey, PersistentDataType.BYTE)) {
+            if (!plugin.isGameEnabled("poker")) {
+                event.player.sendMessage(plugin.messages.get("general.game-disabled"))
+                return
+            }
             plugin.pokerGame.addPlayer(event.player)
         }
     }

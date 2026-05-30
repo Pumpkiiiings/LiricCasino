@@ -13,9 +13,13 @@ class CoinFlipCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabCo
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) { sender.sendMessage(msg("general.only-players")); return true }
+        val sub0 = args.getOrNull(0)?.lowercase()
+        if (sub0 != "reload" && !plugin.isGameEnabled("coinflip")) {
+            sender.sendMessage(msg("general.game-disabled")); return true
+        }
         val mgr = plugin.coinFlipManager
 
-        when (args.getOrNull(0)?.lowercase()) {
+        when (sub0) {
             // Sin args o "menu" → abrir GUI principal
             null, "menu", "lista", "list" -> CoinFlipGUI.open(plugin, sender)
 

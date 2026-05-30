@@ -18,8 +18,13 @@ class ScratchCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabCom
             sender.sendMessage(msg("scratch.usage"))
             return true
         }
+        val sub = args[0].lowercase()
+        val isAdminSub = sub in listOf("get", "give")
+        if (!isAdminSub && !plugin.isGameEnabled("scratch")) {
+            sender.sendMessage(msg("general.game-disabled")); return true
+        }
 
-        when (args[0].lowercase()) {
+        when (sub) {
             "comprar" -> handleComprar(sender, args)
             "get"     -> handleGet(sender, args)
             "give"    -> handleGive(sender, args)

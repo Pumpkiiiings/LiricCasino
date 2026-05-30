@@ -29,8 +29,6 @@ import kotlin.collections.remove
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
-import kotlin.text.clear
-import kotlin.text.toLong
 
 data class RouletteInstance(
     val id: UUID = UUID.randomUUID(),
@@ -74,7 +72,15 @@ class RouletteManager(private val plugin: CasinoPlugin) {
         }
     }
 
+    // Función de seguridad para saber si el chunk está activo
+    private fun isChunkLoaded(loc: Location): Boolean {
+        if (loc.world == null) return false
+        return loc.world!!.isChunkLoaded(loc.blockX shr 4, loc.blockZ shr 4)
+    }
+
     private fun purgeArea(center: Location) {
+        if (!isChunkLoaded(center)) return // Evitamos cargar chunks innecesariamente
+
         val world = center.world ?: return
         world.getNearbyEntities(center, 15.0, 15.0, 15.0).forEach { entity ->
             if (entity.persistentDataContainer.has(rouletteKey, PersistentDataType.STRING)) {
@@ -106,6 +112,8 @@ class RouletteManager(private val plugin: CasinoPlugin) {
     }
 
     fun spawnRoulette(location: Location, isNew: Boolean = true, customScale: Float? = null, customRadius: Float? = null) {
+        if (!isChunkLoaded(location)) return // FIX: No spawnear si el chunk no existe en memoria ahora mismo
+
         val center = if (isNew) {
             location.clone().apply {
                 x = blockX + 0.5
@@ -131,21 +139,29 @@ class RouletteManager(private val plugin: CasinoPlugin) {
             val angle = i * (2.0 * Math.PI / 37.0)
 
             val slotLoc = center.clone().add(radius * cos(angle), 0.0, radius * sin(angle))
-            val blockDisplay = center.world.spawnEntity(slotLoc, EntityType.BLOCK_DISPLAY) as BlockDisplay
+            val blockDisplay = center.world!!.spawnEntity(slotLoc, EntityType.BLOCK_DISPLAY) as BlockDisplay
+
+            blockDisplay.isPersistent = false // FIX DUPE
             blockDisplay.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
             instanceUUIDs.add(blockDisplay.uniqueId)
             blockDisplay.block = getOriginalMaterial(number).createBlockData()
             blocksMap[number] = blockDisplay
 
             val half = scale / 2.0f
-            val theta = -angle.toFloat()
+
+            // FIX BLOQUES RECTOS: Se removió la rotación (Quaternionf en blanco) y se simplificó el centrado.
+            // Ahora los bloques están 100% rectos y alineados a la cuadrícula del mundo.
             blockDisplay.transformation = Transformation(
-                Vector3f(-(half * cos(theta) + half * sin(theta)), 0f, -(-half * sin(theta) + half * cos(theta))),
-                Quaternionf().rotationY(theta), Vector3f(scale, scale, scale), Quaternionf()
+                Vector3f(-half, 0f, -half), // Centra el bloque exactamente en su coordenada
+                Quaternionf(),              // Cero rotación (Totalmente recto)
+                Vector3f(scale, scale, scale),
+                Quaternionf()
             )
 
             val textLoc = slotLoc.clone().add(0.0, 0.6, 0.0)
-            val textDisplay = center.world.spawnEntity(textLoc, EntityType.TEXT_DISPLAY) as TextDisplay
+            val textDisplay = center.world!!.spawnEntity(textLoc, EntityType.TEXT_DISPLAY) as TextDisplay
+
+            textDisplay.isPersistent = false // FIX DUPE
             textDisplay.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
             instanceUUIDs.add(textDisplay.uniqueId)
             textDisplay.text(plugin.format("<white><bold>$number</bold></white>"))
@@ -155,14 +171,18 @@ class RouletteManager(private val plugin: CasinoPlugin) {
         }
 
         val statusLoc = center.clone().add(0.0, 2.0, 0.0)
-        val statusText = center.world.spawnEntity(statusLoc, EntityType.TEXT_DISPLAY) as TextDisplay
+        val statusText = center.world!!.spawnEntity(statusLoc, EntityType.TEXT_DISPLAY) as TextDisplay
+
+        statusText.isPersistent = false // FIX DUPE
         statusText.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
         instanceUUIDs.add(statusText.uniqueId)
         statusText.billboard = Display.Billboard.CENTER
         statusText.backgroundColor = Color.fromARGB(0, 0, 0, 0)
         statusText.isShadowed = true
 
-        val interaction = center.world.spawnEntity(center, EntityType.INTERACTION) as Interaction
+        val interaction = center.world!!.spawnEntity(center, EntityType.INTERACTION) as Interaction
+
+        interaction.isPersistent = false // FIX DUPE
         interaction.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
         interaction.interactionWidth = (radius * 2) - 1.0f
         interaction.interactionHeight = 3.0f
@@ -172,11 +192,15 @@ class RouletteManager(private val plugin: CasinoPlugin) {
         activeRoulettes.add(instance)
 
         plugin.rouletteGame.updateStatusHologram()
-        if (isNew) plugin.server.sendMessage(plugin.messages.get("roulette.created"))
+        if (isNew) {
+            plugin.messages.get("roulette.created")?.let { msg ->
+                plugin.server.consoleSender.sendMessage(msg)
+            }
+        }
+
         respawningKeys.remove(locKey(location))
     }
 
-    /** Recrea todas las ruletas activas con la escala/radio dados (para el comando /casino ruleta escala). */
     fun rescaleAll(scale: Float, radius: Float) {
         val locations = activeRoulettes.map { it.center.clone() }
         activeRoulettes.toList().forEach { purgeArea(it.center) }
@@ -227,7 +251,8 @@ class RouletteManager(private val plugin: CasinoPlugin) {
                     val inst = iterator.next()
                     val world = inst.center.world ?: continue
                     if (!world.isChunkLoaded(inst.center.blockX shr 4, inst.center.blockZ shr 4)) continue
-                    if (inst.statusText.isDead) {
+
+                    if (inst.statusText.isDead || !inst.statusText.isValid) {
                         val key = locKey(inst.center)
                         if (!respawningKeys.contains(key)) {
                             toRespawn.add(inst.center)
@@ -278,7 +303,7 @@ class RouletteManager(private val plugin: CasinoPlugin) {
     }
 
     private fun locToString(loc: Location): String {
-        return "${loc.world.name},${loc.x},${loc.y},${loc.z}"
+        return "${loc.world!!.name},${loc.x},${loc.y},${loc.z}"
     }
 
     private fun stringToLoc(str: String): Location? {
@@ -327,7 +352,7 @@ class RouletteManager(private val plugin: CasinoPlugin) {
                         inst.blocks[winningNumber]?.block = Material.GOLD_BLOCK.createBlockData()
 
                         inst.statusText.text(plugin.format(finishHologram))
-                        inst.center.world.playSound(inst.center, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
+                        inst.center.world!!.playSound(inst.center, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
                     }
                     onFinish()
                     cancel()
@@ -346,7 +371,7 @@ class RouletteManager(private val plugin: CasinoPlugin) {
                         val currentNum = sequence[currentJump % 37]
                         inst.blocks[prevNum]?.block = getOriginalMaterial(prevNum).createBlockData()
                         inst.blocks[currentNum]?.block = Material.GOLD_BLOCK.createBlockData()
-                        inst.center.world.playSound(inst.center, Sound.BLOCK_NOTE_BLOCK_HAT, 0.4f, 2f)
+                        inst.center.world!!.playSound(inst.center, Sound.BLOCK_NOTE_BLOCK_HAT, 0.4f, 2f)
                         previousIndices[inst] = currentJump
                     }
                 }

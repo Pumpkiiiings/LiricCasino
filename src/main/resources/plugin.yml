@@ -1,5 +1,5 @@
 name: CasinoLiric
-version: 2.0.1-FIX
+version: 2.0.3
 main: liric.casino.CasinoPlugin
 api-version: '1.20'
 author: Liric Casino Team

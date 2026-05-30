@@ -12,6 +12,10 @@ class BlackjackInteractListener(private val plugin: CasinoPlugin) : Listener {
     fun onBlackjackClick(event: PlayerInteractEntityEvent) {
         val entity = event.rightClicked
         if (entity is Interaction && entity.persistentDataContainer.has(plugin.blackjackManager.bjKey, PersistentDataType.BYTE)) {
+            if (!plugin.isGameEnabled("blackjack")) {
+                event.player.sendMessage(plugin.messages.get("general.game-disabled"))
+                return
+            }
             // Ya no abre las apuestas, abre el Menú de Selección (Vs House o Vs Jugadores)
             BlackjackChoiceMenu(plugin, event.player).open()
         }

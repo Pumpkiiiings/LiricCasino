@@ -16,6 +16,11 @@ class PokerCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabCompl
             sender.sendMessage(msg("poker.only-players"))
             return true
         }
+        val sub = args.getOrNull(0)?.lowercase()
+        if (sub !in listOf("setup", "delete") && !plugin.isGameEnabled("poker")) {
+            sender.sendMessage(msg("general.game-disabled"))
+            return true
+        }
 
         if (args.isEmpty()) {
             sender.sendMessage(msg("poker.usage"))

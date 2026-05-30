@@ -34,6 +34,7 @@ import liric.casino.stats.CasinoPlaceholders
 import liric.casino.stats.StatsListener
 import liric.casino.stats.StatsManager
 import liric.casino.util.ColorUtil
+import liric.casino.util.ConfigUpdater
 import liric.casino.webhook.WebhookManager
 import liric.casino.games.rps.RPSManager
 import liric.casino.games.rps.RPSCommand
@@ -44,6 +45,7 @@ import liric.casino.games.racing.RaceCommand
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
+import java.io.File
 
 class CasinoPlugin : JavaPlugin() {
 
@@ -94,10 +96,14 @@ class CasinoPlugin : JavaPlugin() {
     fun menuConfig(name: String): MenuConfig =
         menuConfigMap[name] ?: error("MenuConfig '$name' not loaded!")
 
+    /** Returns true if the game is enabled in config.yml. Default: true */
+    fun isGameEnabled(key: String): Boolean = config.getBoolean("$key.active", true)
+
     // ═════════════════════════════════════════════════════════════════════
     override fun onEnable() {
         // 1. Main config
         saveDefaultConfig()
+        ConfigUpdater.updateConfig(File(dataFolder, "config.yml"), "config.yml")
 
         // 1b. TicketTier for Scratch & Win
         TicketTier.loadFromConfig(config)

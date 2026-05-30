@@ -8,6 +8,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.inventory.EquipmentSlot
+import liric.casino.util.ValidationUtil
 
 class ScratchListener(private val plugin: CasinoPlugin) : Listener {
 
@@ -18,13 +19,21 @@ class ScratchListener(private val plugin: CasinoPlugin) : Listener {
 
             if (item.type == Material.PAPER && item.itemMeta?.persistentDataContainer?.has(ScratchTicket.getKey(plugin), PersistentDataType.BYTE) == true) {
                 event.isCancelled = true
+                if (!plugin.isGameEnabled("scratch")) {
+                    event.player.sendMessage(plugin.messages.get("general.game-disabled"))
+                    return
+                }
                 if (event.hand != EquipmentSlot.HAND) return
 
                 val pdc = item.itemMeta?.persistentDataContainer
                 val tierName = pdc?.get(ScratchTicket.getTierKey(plugin), PersistentDataType.STRING)
                 val tier = TicketTier.values().find { it.name == tierName } ?: TicketTier.BASIC
 
+                if (!ValidationUtil.canPlayDaily(plugin, event.player, "scratch")) return
+                if (!ValidationUtil.validateBet(plugin, event.player, "scratch", tier.price)) return
+
                 item.amount -= 1
+                plugin.statsManager.recordGameUse(event.player.uniqueId, "scratch")
 
                 ScratchMenu(plugin, event.player, tier).open()
             }

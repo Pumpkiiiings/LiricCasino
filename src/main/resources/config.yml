@@ -42,10 +42,22 @@ boosters:
 
 # ─── Roulette ──────────────────────────────────────────────
 roulette:
+  active: true
   min-players-to-start: 1
   countdown-seconds: 180
   max-bet: 200000.0
   number-payout: 36.0
+  # Limit uses per day based on rank
+  uses:
+    default:
+      max-uses-per-day: 2
+    ranks:
+      vip:
+        permission: "casinoliric.roulette.vip"
+        max-uses-per-day: 10
+      admin:
+        permission: "casinoliric.roulette.admin"
+        max-uses-per-day: -1 # -1 for unlimited
   # Scale of the roulette blocks (0.1 - 2.0). Default: 0.45
   block-scale: 0.45
   # Radius in blocks of the roulette circle. Default: 5.5
@@ -55,54 +67,57 @@ roulette:
     BLACK: 2.0
     GREEN: 14.0
 
-# ─── Discord Webhooks ─────────────────────────────────────
-webhooks:
-  enabled: false   # Change to true to enable
-
-  # ── Jackpot (Slots 777 x100, etc.) ───────────────────────
-  jackpot:
-    url: "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
-    # Embed color in decimal (0xFF00FF = magenta)
-    color: 16711935
-    title: "🎰 !!JACKPOT 777!!"
-    description: "**{player}** hit the **777** on Slots and won **{amount}**! 🤑"
-    footer: "Liric Casino • Slots"
-    # Role mention (leave empty to not mention): "@everyone" or "<@&ROLE_ID>"
-    mention-role: ""
-
-  # ── Big Win (any game, exceeds min-amount) ────
-  big-win:
-    url: "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
-    color: 16766720
-    title: "💰 Big Win!"
-    description: "**{player}** won **{amount}** playing **{game}**! 🎉"
-    footer: "Liric Casino"
-    mention-role: ""
-    # Only triggers if winnings exceed this amount
-    min-amount: 50000.0
-
-  # ── Lottery Winner ────────────────────────────────────
-  lottery:
-    url: "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
-    color: 16766720
-    title: "🎟 Lottery Winner!"
-    description: "**{player}** guessed the number **{number}** and won **{amount}**! 🎟✨"
-    footer: "Liric Casino • Lottery"
-    mention-role: ""
-
 
 # ─── Blackjack ───────────────────────────────────────────
 blackjack:
+  active: true
   bet:
-    min: 100.0
-    max: 100000.0
+    default:
+      min: 100.0
+      max: 100000.0
+    ranks:
+      vip:
+        permission: "casinoliric.bet.vip"
+        max: 500000.0
+      admin:
+        permission: "casinoliric.bet.admin"
+        max: 10000000.0
   raise-amount: 5000.0
+  uses:
+    default:
+      max-uses-per-day: 10
+    ranks:
+      vip:
+        permission: "casinoliric.uses.vip"
+        max-uses-per-day: 50
+      admin:
+        permission: "casinoliric.uses.admin"
+        max-uses-per-day: -1
 
 # ─── Slots 777 ────────────────────────────
 slots:
+  active: true
   bet:
-    min: 100.0
-    max: 100000.0
+    default:
+      min: 100.0
+      max: 100000.0
+    ranks:
+      vip:
+        permission: "casinoliric.bet.vip"
+        max: 500000.0
+      admin:
+        permission: "casinoliric.bet.admin"
+        max: 10000000.0
+  uses:
+    default:
+      max-uses-per-day: 20
+    ranks:
+      vip:
+        permission: "casinoliric.uses.vip"
+        max-uses-per-day: 100
+      admin:
+        permission: "casinoliric.uses.admin"
+        max-uses-per-day: -1
   luck-boosters:
     casino.suerte.hero: 1.5
     casino.suerte.elite: 2.0
@@ -160,6 +175,28 @@ slots:
 
 # ─── Scratch and Win ────────────────────────────────────────
 scratch:
+  active: true
+  uses:
+    default:
+      max-uses-per-day: 5
+    ranks:
+      vip:
+        permission: "casinoliric.uses.vip"
+        max-uses-per-day: 25
+      admin:
+        permission: "casinoliric.uses.admin"
+        max-uses-per-day: -1
+  bet:
+    default:
+      min: 100.0
+      max: 100000.0
+    ranks:
+      vip:
+        permission: "casinoliric.bet.vip"
+        max: 500000.0
+      admin:
+        permission: "casinoliric.bet.admin"
+        max: 10000000.0
   tiers:
     basico:
       display-name: "&6Basic &7(3x3)"
@@ -233,6 +270,28 @@ scratch:
 
 # ─── Lottery ─────────────────────────────────────────────
 lottery:
+  active: true
+  uses:
+    default:
+      max-uses-per-day: 5
+    ranks:
+      vip:
+        permission: "casinoliric.uses.vip"
+        max-uses-per-day: 10
+      admin:
+        permission: "casinoliric.uses.admin"
+        max-uses-per-day: -1
+  bet:
+    default:
+      min: 100.0
+      max: 100000.0
+    ranks:
+      vip:
+        permission: "casinoliric.bet.vip"
+        max: 500000.0
+      admin:
+        permission: "casinoliric.bet.admin"
+        max: 10000000.0
   ticket-price: 5000.0
   max-tickets-per-player: 5
   draw-interval-minutes: 60
@@ -241,24 +300,127 @@ lottery:
   jackpot-contribution: 0.5  # 50% of the ticket price goes to the jackpot
 
 coinflip:
+  active: true
   bet:
-    min: 100.0
-    max: 500000.0
+    default:
+      min: 100.0
+      max: 500000.0
+    ranks:
+      vip:
+        permission: "casinoliric.bet.vip"
+        max: 1000000.0
+      admin:
+        permission: "casinoliric.bet.admin"
+        max: 10000000.0
+  uses:
+    default:
+      max-uses-per-day: 15
+    ranks:
+      vip:
+        permission: "casinoliric.uses.vip"
+        max-uses-per-day: 50
+      admin:
+        permission: "casinoliric.uses.admin"
+        max-uses-per-day: -1
   animation-ticks: 60  # Animation duration (~3 seconds at 20 tps)
 
 # ─── Rock Paper Scissors ─────────────────────────────────
 rps:
+  active: true
   bet:
-    min: 100.0
-    max: 500000.0
+    default:
+      min: 100.0
+      max: 500000.0
+    ranks:
+      vip:
+        permission: "casinoliric.bet.vip"
+        max: 1000000.0
+      admin:
+        permission: "casinoliric.bet.admin"
+        max: 10000000.0
+  uses:
+    default:
+      max-uses-per-day: 15
+    ranks:
+      vip:
+        permission: "casinoliric.uses.vip"
+        max-uses-per-day: 50
+      admin:
+        permission: "casinoliric.uses.admin"
+        max-uses-per-day: -1
 
 # ─── Tic Tac Toe ─────────────────────────────────────────
 ttt:
+  active: true
   bet:
-    min: 100.0
-    max: 500000.0
+    default:
+      min: 100.0
+      max: 500000.0
+    ranks:
+      vip:
+        permission: "casinoliric.bet.vip"
+        max: 1000000.0
+      admin:
+        permission: "casinoliric.bet.admin"
+        max: 10000000.0
+  uses:
+    default:
+      max-uses-per-day: 10
+    ranks:
+      vip:
+        permission: "casinoliric.uses.vip"
+        max-uses-per-day: 30
+      admin:
+        permission: "casinoliric.uses.admin"
+        max-uses-per-day: -1
 
 # ─── Horse Racing ────────────────────────────────
 racing:
+  active: true
   # Optional, future configuration
+  bet:
+    default:
+      min: 100.0
+      max: 100000.0
+    ranks:
+      vip:
+        permission: "casinoliric.bet.vip"
+        max: 500000.0
+      admin:
+        permission: "casinoliric.bet.admin"
+        max: 10000000.0
+  uses:
+    default:
+      max-uses-per-day: 5
+    ranks:
+      vip:
+        permission: "casinoliric.uses.vip"
+        max-uses-per-day: 20
+      admin:
+        permission: "casinoliric.uses.admin"
+        max-uses-per-day: -1
 
+# ─── Poker ──────────────────────────────────────
+poker:
+  active: true
+  bet:
+    default:
+      min: 100.0
+      max: 100000.0
+    ranks:
+      vip:
+        permission: "casinoliric.bet.vip"
+        max: 500000.0
+      admin:
+        permission: "casinoliric.bet.admin"
+        max: 10000000.0
+  uses:
+    default:
+      max-uses-per-day: 5
+    ranks:
+      vip:
+        permission: "casinoliric.uses.vip"
+        max-uses-per-day: 20
+      admin:
+        permission: "casinoliric.uses.admin"
+        max-uses-per-day: -1

@@ -92,6 +92,56 @@ class StatsManager(private val plugin: CasinoPlugin) {
         if (didWin) coinFlipWins++ else coinFlipLosses++
     }
 
+    fun recordGameUse(uuid: UUID, gameName: String) {
+        update(uuid) {
+            val now = System.currentTimeMillis()
+            if (now - lastDailyReset > 86400000L) {
+                rouletteDailyUses = 0
+                slotsDailyUses = 0
+                bjDailyUses = 0
+                scratchDailyUses = 0
+                lotteryDailyUses = 0
+                coinflipDailyUses = 0
+                racingDailyUses = 0
+                rpsDailyUses = 0
+                tttDailyUses = 0
+                pokerDailyUses = 0
+                lastDailyReset = now
+            }
+            when (gameName.lowercase()) {
+                "roulette" -> rouletteDailyUses++
+                "slots" -> slotsDailyUses++
+                "blackjack" -> bjDailyUses++
+                "scratch" -> scratchDailyUses++
+                "lottery" -> lotteryDailyUses++
+                "coinflip" -> coinflipDailyUses++
+                "racing" -> racingDailyUses++
+                "rps" -> rpsDailyUses++
+                "ttt" -> tttDailyUses++
+                "poker" -> pokerDailyUses++
+            }
+        }
+    }
+
+    fun getGameDailyUses(uuid: UUID, gameName: String): Int {
+        val stats = cache[uuid] ?: return 0
+        val now = System.currentTimeMillis()
+        if (now - stats.lastDailyReset > 86400000L) return 0
+        return when (gameName.lowercase()) {
+            "roulette" -> stats.rouletteDailyUses
+            "slots" -> stats.slotsDailyUses
+            "blackjack" -> stats.bjDailyUses
+            "scratch" -> stats.scratchDailyUses
+            "lottery" -> stats.lotteryDailyUses
+            "coinflip" -> stats.coinflipDailyUses
+            "racing" -> stats.racingDailyUses
+            "rps" -> stats.rpsDailyUses
+            "ttt" -> stats.tttDailyUses
+            "poker" -> stats.pokerDailyUses
+            else -> 0
+        }
+    }
+
     fun recordRacingWin(uuid: UUID, won: Double) = update(uuid) {
         racingWon += won; racingWins++
     }
@@ -150,29 +200,31 @@ class StatsManager(private val plugin: CasinoPlugin) {
     private fun saveToDB(stats: PlayerStats) {
         val columns = listOf(
             "uuid", "player_name",
-            "roulette_bets", "roulette_wagered", "roulette_won", "roulette_wins", "roulette_losses",
-            "slots_spins", "slots_wagered", "slots_won", "slots_jackpots",
-            "bj_games", "bj_wagered", "bj_won", "bj_wins", "bj_losses", "bj_blackjacks",
-            "scratch_used", "scratch_spent", "scratch_won", "scratch_wins",
-            "lottery_tickets", "lottery_spent", "lottery_won", "lottery_wins",
-            "coinflip_flips", "coinflip_wagered", "coinflip_won", "coinflip_wins", "coinflip_losses",
-            "racing_wagered", "racing_won", "racing_wins", "racing_losses",
+            "roulette_bets", "roulette_wagered", "roulette_won", "roulette_wins", "roulette_losses", "roulette_daily_uses",
+            "slots_spins", "slots_wagered", "slots_won", "slots_jackpots", "slots_daily_uses",
+            "bj_games", "bj_wagered", "bj_won", "bj_wins", "bj_losses", "bj_blackjacks", "bj_daily_uses",
+            "scratch_used", "scratch_spent", "scratch_won", "scratch_wins", "scratch_daily_uses",
+            "lottery_tickets", "lottery_spent", "lottery_won", "lottery_wins", "lottery_daily_uses",
+            "coinflip_flips", "coinflip_wagered", "coinflip_won", "coinflip_wins", "coinflip_losses", "coinflip_daily_uses",
+            "racing_wagered", "racing_won", "racing_wins", "racing_losses", "racing_daily_uses",
+            "rps_daily_uses", "ttt_daily_uses", "poker_daily_uses", "last_daily_reset",
             "last_seen"
         )
         val sql = plugin.db.buildUpsertSql(columns)
         val params = listOf(
-            stats.uuid.toString(), stats.playerName,
-            stats.rouletteBets, stats.rouletteWagered, stats.rouletteWon, stats.rouletteWins, stats.rouletteLosses,
-            stats.slotsSpins, stats.slotsWagered, stats.slotsWon, stats.slotsJackpots,
-            stats.bjGames, stats.bjWagered, stats.bjWon, stats.bjWins, stats.bjLosses, stats.bjBlackjacks,
-            stats.scratchUsed, stats.scratchSpent, stats.scratchWon, stats.scratchWins,
-            stats.lotteryTickets, stats.lotterySpent, stats.lotteryWon, stats.lotteryWins,
-            stats.coinFlipFlips, stats.coinFlipWagered, stats.coinFlipWon, stats.coinFlipWins, stats.coinFlipLosses,
-            stats.racingWagered, stats.racingWon, stats.racingWins, stats.racingLosses,
+            stats.uuid.toString(), stats.name,
+            stats.rouletteBets, stats.rouletteWagered, stats.rouletteWon, stats.rouletteWins, stats.rouletteLosses, stats.rouletteDailyUses,
+            stats.slotsSpins, stats.slotsWagered, stats.slotsWon, stats.slotsJackpots, stats.slotsDailyUses,
+            stats.bjGames, stats.bjWagered, stats.bjWon, stats.bjWins, stats.bjLosses, stats.bjBlackjacks, stats.bjDailyUses,
+            stats.scratchUsed, stats.scratchSpent, stats.scratchWon, stats.scratchWins, stats.scratchDailyUses,
+            stats.lotteryTickets, stats.lotterySpent, stats.lotteryWon, stats.lotteryWins, stats.lotteryDailyUses,
+            stats.coinFlipFlips, stats.coinFlipWagered, stats.coinFlipWon, stats.coinFlipWins, stats.coinFlipLosses, stats.coinflipDailyUses,
+            stats.racingWagered, stats.racingWon, stats.racingWins, stats.racingLosses, stats.racingDailyUses,
+            stats.rpsDailyUses, stats.tttDailyUses, stats.pokerDailyUses, stats.lastDailyReset,
             System.currentTimeMillis()
         )
         runCatching { plugin.db.upsert(sql, params); stats.dirty = false }
-            .onFailure { plugin.logger.warning("Stats save error for ${stats.playerName}: ${it.message}") }
+            .onFailure { plugin.logger.warning("Stats save error for ${stats.name}: ${it.message}") }
     }
 
     private fun loadFromDB(uuid: UUID, name: String): PlayerStats {
@@ -191,39 +243,50 @@ class StatsManager(private val plugin: CasinoPlugin) {
 
     private fun fromRS(uuid: UUID, rs: ResultSet) = PlayerStats(
         uuid            = uuid,
-        playerName      = rs.getString("player_name"),
+        name            = rs.getString("player_name"),
         rouletteBets    = rs.getInt("roulette_bets"),
         rouletteWagered = rs.getDouble("roulette_wagered"),
         rouletteWon     = rs.getDouble("roulette_won"),
         rouletteWins    = rs.getInt("roulette_wins"),
         rouletteLosses  = rs.getInt("roulette_losses"),
+        rouletteDailyUses = safeInt(rs, "roulette_daily_uses"),
         slotsSpins      = rs.getInt("slots_spins"),
         slotsWagered    = rs.getDouble("slots_wagered"),
         slotsWon        = rs.getDouble("slots_won"),
         slotsJackpots   = rs.getInt("slots_jackpots"),
+        slotsDailyUses  = safeInt(rs, "slots_daily_uses"),
         bjGames         = rs.getInt("bj_games"),
         bjWagered       = rs.getDouble("bj_wagered"),
         bjWon           = rs.getDouble("bj_won"),
         bjWins          = rs.getInt("bj_wins"),
         bjLosses        = rs.getInt("bj_losses"),
         bjBlackjacks    = rs.getInt("bj_blackjacks"),
+        bjDailyUses     = safeInt(rs, "bj_daily_uses"),
         scratchUsed     = rs.getInt("scratch_used"),
         scratchSpent    = rs.getDouble("scratch_spent"),
         scratchWon      = rs.getDouble("scratch_won"),
         scratchWins     = rs.getInt("scratch_wins"),
+        scratchDailyUses = safeInt(rs, "scratch_daily_uses"),
         lotteryTickets  = safeInt(rs, "lottery_tickets"),
         lotterySpent    = safeDouble(rs, "lottery_spent"),
         lotteryWon      = safeDouble(rs, "lottery_won"),
         lotteryWins     = safeInt(rs, "lottery_wins"),
+        lotteryDailyUses = safeInt(rs, "lottery_daily_uses"),
         coinFlipFlips   = safeInt(rs, "coinflip_flips"),
         coinFlipWagered = safeDouble(rs, "coinflip_wagered"),
         coinFlipWon     = safeDouble(rs, "coinflip_won"),
         coinFlipWins    = safeInt(rs, "coinflip_wins"),
         coinFlipLosses  = safeInt(rs, "coinflip_losses"),
+        coinflipDailyUses = safeInt(rs, "coinflip_daily_uses"),
         racingWagered   = safeDouble(rs, "racing_wagered"),
         racingWon       = safeDouble(rs, "racing_won"),
         racingWins      = safeInt(rs, "racing_wins"),
         racingLosses    = safeInt(rs, "racing_losses"),
+        racingDailyUses = safeInt(rs, "racing_daily_uses"),
+        rpsDailyUses    = safeInt(rs, "rps_daily_uses"),
+        tttDailyUses    = safeInt(rs, "ttt_daily_uses"),
+        pokerDailyUses  = safeInt(rs, "poker_daily_uses"),
+        lastDailyReset  = runCatching { rs.getLong("last_daily_reset") }.getOrDefault(System.currentTimeMillis()),
         lastSeen        = rs.getLong("last_seen"),
         dirty           = false
     )

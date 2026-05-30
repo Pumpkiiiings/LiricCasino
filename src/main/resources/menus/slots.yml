@@ -49,6 +49,11 @@ buttons:
     amount: 10000.0
     color: "<#00FF7F>"
 
+  custom-bet:
+    slot: 4
+    material: PAPER
+    name: "<#FFD700>Cantidad Custom"
+
   spin:
     slot: 22
     material: TRIPWIRE_HOOK

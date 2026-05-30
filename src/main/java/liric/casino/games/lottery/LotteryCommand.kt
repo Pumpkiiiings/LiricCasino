@@ -16,8 +16,14 @@ class LotteryCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabCom
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         val manager = plugin.lotteryManager
+        val sub0 = args.getOrNull(0)?.lowercase()
+        val isAdminSub = sub0 in listOf("forcestart", "give")
+        if (!isAdminSub && !plugin.isGameEnabled("lottery")) {
+            sender.sendMessage(msg("general.game-disabled"))
+            return true
+        }
 
-        when (args.getOrNull(0)?.lowercase()) {
+        when (sub0) {
             null, "info" -> {
                 if (sender !is Player) { sender.sendMessage(msg("general.only-players")); return true }
                 LotteryGUI.open(plugin, sender)

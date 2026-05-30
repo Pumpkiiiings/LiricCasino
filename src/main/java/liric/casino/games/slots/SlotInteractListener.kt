@@ -19,6 +19,10 @@ class SlotInteractListener(private val plugin: CasinoPlugin) : Listener {
         event.isCancelled = true
 
         val player = event.player
+        if (!plugin.isGameEnabled("slots")) {
+            player.sendMessage(plugin.messages.get("general.game-disabled"))
+            return
+        }
 
         // Verificar ocupación
         if (machine.occupant != null && machine.occupant != player.uniqueId) {

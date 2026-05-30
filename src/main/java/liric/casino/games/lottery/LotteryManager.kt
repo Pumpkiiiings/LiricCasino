@@ -2,6 +2,7 @@ package liric.casino.games.lottery
 
 import liric.casino.CasinoPlugin
 import liric.casino.util.TaxUtil
+import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.configuration.file.YamlConfiguration
@@ -46,7 +47,10 @@ class LotteryManager(private val plugin: CasinoPlugin) {
 
     // ─── Compra de boleto ────────────────────────────────────────────────
     fun buyTicket(player: Player, amount: Int = 1) {
+        if (!ValidationUtil.canPlayDaily(plugin, player, "lottery")) return
         val price = ticketPrice()
+        if (!ValidationUtil.validateBet(plugin, player, "lottery", price * amount)) return
+
         val maxPer = maxPerPlayer()
         val currentCount = tickets.count { it.ownerUuid == player.uniqueId }
 
@@ -61,6 +65,7 @@ class LotteryManager(private val plugin: CasinoPlugin) {
             return
         }
 
+        plugin.statsManager.recordGameUse(player.uniqueId, "lottery")
         val contribution = totalCost * jackpotContrib()
         jackpot += contribution
 

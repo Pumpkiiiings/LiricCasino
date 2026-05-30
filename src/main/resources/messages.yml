@@ -13,6 +13,7 @@ general:
   only-players: "{prefix} <#FF5555>Only players can use this command."
   invalid-action: "{prefix} <#FF5555>Invalid action. Check command usage."
   no-funds: "{prefix} <#FF5555>You do not have enough money."
+  game-disabled: "{prefix} <#FF5555>This game is currently <#FFB400><bold>disabled</bold></#FFB400><#FF5555>."
 
 # ─── Stats and Top ─────────────────────────────────────────
 stats:

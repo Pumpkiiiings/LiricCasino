@@ -2,6 +2,7 @@ package liric.casino.games.roulette
 
 import liric.casino.CasinoPlugin
 import liric.casino.util.TaxUtil
+import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.command.CommandSender
@@ -66,18 +67,18 @@ class RouletteGame(private val plugin: CasinoPlugin) {
             player.sendMessage(msg("roulette.already-spinning"))
             return
         }
+
+        if (!ValidationUtil.canPlayDaily(plugin, player, "roulette")) return
+        if (!ValidationUtil.validateBet(plugin, player, "roulette", amount)) return
+
         if (bets.containsKey(player.uniqueId)) {
             player.sendMessage(msg("roulette.already-bet"))
-            return
-        }
-        val max = maxBet()
-        if (amount <= 0 || amount.isNaN() || amount > max) {
-            player.sendMessage(msg("roulette.bet-range", "max" to max.toLong().toString()))
             return
         }
         if (plugin.economyManager.withdrawPlayer(player, amount).transactionSuccess()) {
             bets[player.uniqueId] = Pair(betType, amount)
             plugin.statsManager.recordRouletteBet(player.uniqueId, amount)
+            plugin.statsManager.recordGameUse(player.uniqueId, "roulette")
 
             val targetName = when (betType) {
                 is BetType.Number -> "on number ${getNumberColor(betType.num).chatColor}<bold>${betType.num}</bold>"

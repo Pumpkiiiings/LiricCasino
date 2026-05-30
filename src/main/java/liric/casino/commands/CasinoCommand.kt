@@ -66,6 +66,10 @@ class CasinoCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComp
     private fun handleRuleta(sender: CommandSender, args: List<String>) {
         if (sender !is Player) { sender.sendMessage(msg("general.only-players")); return }
         val sub = args.getOrNull(0)?.lowercase()
+        val isAdminSub = sub != null && sub in listOf("setup", "delete", "forcestart", "purge", "escala", "ayuda", "help")
+        if (!isAdminSub && !plugin.isGameEnabled("roulette")) {
+            sender.sendMessage(msg("general.game-disabled")); return
+        }
         if (sub == null || sub == "jugar") {
             plugin.rouletteMenu.openBetMenu(sender); return
         }
@@ -134,7 +138,11 @@ class CasinoCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComp
     // ── Blackjack ─────────────────────────────────────────────────────────────
     private fun handleBlackjack(sender: CommandSender, args: List<String>) {
         if (sender !is Player) { sender.sendMessage(msg("general.only-players")); return }
-        when (args.getOrNull(0)?.lowercase()) {
+        val sub0 = args.getOrNull(0)?.lowercase()
+        if (sub0 !in listOf("setup", "delete") && !plugin.isGameEnabled("blackjack")) {
+            sender.sendMessage(msg("general.game-disabled")); return
+        }
+        when (sub0) {
             null, "jugar", "play" -> BlackjackChoiceMenu(plugin, sender).open()
             "leave", "salir"      -> plugin.blackjackMultiGame.removePlayer(sender)
             "setup" -> {
@@ -155,7 +163,11 @@ class CasinoCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComp
     // ── Slots ──────────────────────────────────────────────────────────
     private fun handleSlots(sender: CommandSender, args: List<String>) {
         if (sender !is Player) { sender.sendMessage(msg("general.only-players")); return }
-        when (args.getOrNull(0)?.lowercase()) {
+        val sub0 = args.getOrNull(0)?.lowercase()
+        if (sub0 !in listOf("setup", "delete", "purge") && !plugin.isGameEnabled("slots")) {
+            sender.sendMessage(msg("general.game-disabled")); return
+        }
+        when (sub0) {
             null, "jugar", "play" -> {
                 // Open bet menu if standing at a machine
                 sender.sendMessage(msg("slots.usage"))
@@ -186,7 +198,11 @@ class CasinoCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComp
     // ── Poker ─────────────────────────────────────────────────────────────────
     private fun handlePoker(sender: CommandSender, args: List<String>) {
         if (sender !is Player) { sender.sendMessage(msg("general.only-players")); return }
-        when (args.getOrNull(0)?.lowercase()) {
+        val sub0 = args.getOrNull(0)?.lowercase()
+        if (sub0 !in listOf("setup", "delete") && !plugin.isGameEnabled("poker")) {
+            sender.sendMessage(msg("general.game-disabled")); return
+        }
+        when (sub0) {
             null, "jugar", "join" -> plugin.pokerGame.addPlayer(sender)
             "leave", "salir"      -> plugin.pokerGame.removePlayer(sender)
             "setup" -> {
@@ -206,36 +222,43 @@ class CasinoCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComp
 
     // ── Boleto (Scratch) ──────────────────────────────────────────────────────
     private fun handleBoleto(sender: CommandSender, args: List<String>) {
+        if (!plugin.isGameEnabled("scratch")) { sender.sendMessage(msg("general.game-disabled")); return }
         val cmd = plugin.server.getPluginCommand("boleto") ?: return
         cmd.execute(sender, "boleto", args.toTypedArray())
     }
 
     // ── Lotería ───────────────────────────────────────────────────────────────
     private fun handleLoteria(sender: CommandSender, args: List<String>) {
+        val isAdminSub = args.getOrNull(0)?.lowercase() in listOf("forcestart", "give")
+        if (!isAdminSub && !plugin.isGameEnabled("lottery")) { sender.sendMessage(msg("general.game-disabled")); return }
         val cmd = plugin.server.getPluginCommand("loteria") ?: return
         cmd.execute(sender, "loteria", args.toTypedArray())
     }
 
     // ── CoinFlip ──────────────────────────────────────────────────────────────
     private fun handleCoinFlip(sender: CommandSender, args: List<String>) {
+        if (!plugin.isGameEnabled("coinflip")) { sender.sendMessage(msg("general.game-disabled")); return }
         val cmd = plugin.server.getPluginCommand("coinflip") ?: return
         cmd.execute(sender, "coinflip", args.toTypedArray())
     }
 
     // ── RPS ───────────────────────────────────────────────────────────────────
     private fun handleRPS(sender: CommandSender, args: List<String>) {
+        if (!plugin.isGameEnabled("rps")) { sender.sendMessage(msg("general.game-disabled")); return }
         val cmd = plugin.server.getPluginCommand("rps") ?: return
         cmd.execute(sender, "rps", args.toTypedArray())
     }
 
     // ── TTT ───────────────────────────────────────────────────────────────────
     private fun handleTTT(sender: CommandSender, args: List<String>) {
+        if (!plugin.isGameEnabled("ttt")) { sender.sendMessage(msg("general.game-disabled")); return }
         val cmd = plugin.server.getPluginCommand("ttt") ?: return
         cmd.execute(sender, "ttt", args.toTypedArray())
     }
 
     // ── Carreras ──────────────────────────────────────────────────────────────
     private fun handleCarreras(sender: CommandSender, args: List<String>) {
+        if (!plugin.isGameEnabled("racing")) { sender.sendMessage(msg("general.game-disabled")); return }
         val cmd = plugin.server.getPluginCommand("carreras") ?: return
         cmd.execute(sender, "carreras", args.toTypedArray())
     }

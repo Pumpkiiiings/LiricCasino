@@ -2,6 +2,9 @@ package liric.casino.webhook
 
 import liric.casino.CasinoPlugin
 import org.bukkit.Bukkit
+import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.configuration.file.YamlConfiguration
+import java.io.File
 import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -10,11 +13,21 @@ import java.util.Locale
 
 /**
  * Envía embeds a Discord vía webhook de forma asíncrona.
- * Configuración en config.yml bajo la clave "webhooks".
+ * Configuración en webhooks.yml.
  */
 class WebhookManager(private val plugin: CasinoPlugin) {
 
-    private fun cfg() = plugin.config
+    private val configFile = File(plugin.dataFolder, "webhooks.yml")
+    private var config: FileConfiguration
+
+    init {
+        if (!configFile.exists()) {
+            plugin.saveResource("webhooks.yml", false)
+        }
+        config = YamlConfiguration.loadConfiguration(configFile)
+    }
+
+    private fun cfg() = config
     private fun enabled() = cfg().getBoolean("webhooks.enabled", false)
     private fun fmt(n: Double) = "$" + NumberFormat.getNumberInstance(Locale.US).format(n)
 

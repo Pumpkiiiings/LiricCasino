@@ -3,6 +3,7 @@ package liric.casino.games.blackjack
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.guis.Gui
 import liric.casino.CasinoPlugin
+import liric.casino.util.ValidationUtil
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -28,6 +29,10 @@ class BlackjackChoiceMenu(private val plugin: CasinoPlugin, private val player: 
         val vsHouseLore = cfg.getComponentList("items.vs-house.lore")
         gui.setItem(vsHouseSlot, ItemBuilder.from(vsHouseMat).name(vsHouseName).lore(vsHouseLore)
             .flags(*ItemFlag.values()).asGuiItem {
+                if (!ValidationUtil.canPlayDaily(plugin, player, "blackjack")) {
+                    gui.close(player)
+                    return@asGuiItem
+                }
                 player.playSound(player.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
                 BlackjackBetMenu(plugin, player, isMultiplayer = false).open()
             })
@@ -50,6 +55,10 @@ class BlackjackChoiceMenu(private val plugin: CasinoPlugin, private val player: 
         val vsPlayersLore = cfg.getComponentList("items.vs-players.lore")
         gui.setItem(vsPlayersSlot, ItemBuilder.from(vsPlayersMat).name(vsPlayersName).lore(vsPlayersLore)
             .flags(*ItemFlag.values()).asGuiItem {
+                if (!ValidationUtil.canPlayDaily(plugin, player, "blackjack")) {
+                    gui.close(player)
+                    return@asGuiItem
+                }
                 player.playSound(player.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
                 BlackjackBetMenu(plugin, player, isMultiplayer = true).open()
             })

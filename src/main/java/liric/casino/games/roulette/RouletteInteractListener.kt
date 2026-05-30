@@ -14,6 +14,10 @@ class RouletteInteractListener(private val plugin: CasinoPlugin) : Listener {
         val entity = event.rightClicked
 
         if (entity is Interaction && entity.persistentDataContainer.has(plugin.rouletteManager.rouletteKey, PersistentDataType.STRING)) {
+            if (!plugin.isGameEnabled("roulette")) {
+                event.player.sendMessage(plugin.messages.get("general.game-disabled"))
+                return
+            }
             if (plugin.rouletteGame.state == GameState.SPINNING) {
                 event.player.sendMessage(plugin.format("<#FF0000><bold>CASINO</bold></#FF0000> <gray>»</gray> <#FF5555>¡La ruleta está girando, espera a que termine!</#FF5555>"))
                 return

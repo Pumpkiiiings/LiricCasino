@@ -2,6 +2,7 @@ package liric.casino.games.racing
 
 import liric.casino.CasinoPlugin
 import liric.casino.util.TaxUtil
+import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
@@ -60,6 +61,9 @@ class RaceManager(private val plugin: CasinoPlugin) {
             return
         }
 
+        if (!ValidationUtil.canPlayDaily(plugin, player, "racing")) return
+        if (!ValidationUtil.validateBet(plugin, player, "racing", amount)) return
+
         if (session.bets.any { it.playerId == player.uniqueId }) {
             player.sendMessage(msg("racing.already-bet"))
             return
@@ -71,6 +75,8 @@ class RaceManager(private val plugin: CasinoPlugin) {
         }
 
         val horse = defaultHorses.firstOrNull { it.id == horseId } ?: return
+        
+        plugin.statsManager.recordGameUse(player.uniqueId, "racing")
         session.bets.add(RacePlayerBet(player.uniqueId, player.name, horseId, amount))
 
         player.sendMessage(msg("racing.bet-placed", 

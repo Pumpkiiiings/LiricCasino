@@ -13,6 +13,7 @@ class RaceCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComple
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) { sender.sendMessage(msg("general.only-players")); return true }
+        if (!plugin.isGameEnabled("racing")) { sender.sendMessage(msg("general.game-disabled")); return true }
 
         when (args.getOrNull(0)?.lowercase()) {
             null, "menu", "jugar" -> {

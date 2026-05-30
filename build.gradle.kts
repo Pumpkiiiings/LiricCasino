@@ -18,7 +18,7 @@ plugins {
 }
 
 group = "liric.mistaken" // Actualizado a tu nuevo package
-version = "2.0.1-FIX"
+version = "2.0.3"
 
 java {
     toolchain {

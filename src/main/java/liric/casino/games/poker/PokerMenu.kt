@@ -33,7 +33,7 @@ class PokerMenu(private val plugin: CasinoPlugin, private val game: PokerGame, p
         val me = game.players.find { it.uuid == player.uniqueId } ?: return
         val isMyTurn = game.getCurrentPlayer()?.uuid == player.uniqueId && game.state != PokerState.SHOWDOWN
 
-        // ================= ROW 1: RIVALES =================
+
         game.players.forEachIndexed { index, p ->
             if (p.uuid != player.uniqueId) {
                 val status = if (p.hasFolded) "<#FF5555>Se retiró" else "<#00FF7F>Apostado: $${p.currentBet}"
@@ -47,11 +47,11 @@ class PokerMenu(private val plugin: CasinoPlugin, private val game: PokerGame, p
             }
         }
 
-        // ================= ROW 3: CARTAS COMUNITARIAS =================
+
         val tableSlots = listOf(20, 21, 22, 23, 24)
         for (i in 0..4) {
             if (i < game.communityCards.size) {
-                // AQUÍ ESTÁ EL FIX: Envuelto en ItemBuilder.from(...)
+
                 val cardItem = ItemBuilder.from(game.communityCards[i].toItemStack(plugin)).asGuiItem()
                 gui.setItem(tableSlots[i], cardItem)
             } else {
@@ -60,16 +60,16 @@ class PokerMenu(private val plugin: CasinoPlugin, private val game: PokerGame, p
             }
         }
 
-        // ================= INFO DEL POZO =================
+
         val potInfo = ItemBuilder.from(Material.GOLD_BLOCK)
             .name(plugin.format("<#FFD700><bold>POZO TOTAL: $${game.pot}</bold></#FFD700>"))
             .lore(plugin.format("<#E0E0E0>Estado: ${game.state.name}</#E0E0E0>"))
             .asGuiItem()
         gui.setItem(4, potInfo)
 
-        // ================= TUS CARTAS =================
+
         if (me.holeCards.size == 2) {
-            // AQUÍ ESTÁ EL FIX: Envuelto en ItemBuilder.from(...)
+
             val card1 = ItemBuilder.from(me.holeCards[0].toItemStack(plugin)).asGuiItem()
             val card2 = ItemBuilder.from(me.holeCards[1].toItemStack(plugin)).asGuiItem()
 
@@ -77,19 +77,19 @@ class PokerMenu(private val plugin: CasinoPlugin, private val game: PokerGame, p
             gui.setItem(50, card2)
         }
 
-        // ================= BOTONES DE ACCIÓN =================
+
         if (isMyTurn) {
             val timeItem = ItemBuilder.from(Material.CLOCK).name(plugin.format("<#FFB400>Tiempo: ${game.countdownSeconds}s</#FFB400>")).asGuiItem()
             gui.setItem(40, timeItem)
 
-            // FOLD
+
             val foldBtn = ItemBuilder.from(Material.RED_DYE).name(plugin.format("<#FF5555><bold>RETIRARSE (Fold)</bold>")).asGuiItem {
                 game.handleAction(player.uniqueId, "FOLD", 0.0)
                 player.playSound(player.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
             }
             gui.setItem(45, foldBtn)
 
-            // CALL / CHECK
+
             val callAmount = game.currentHighestBet - me.currentBet
             val callText = if (callAmount == 0.0) "PASAR (Check)" else "IGUALAR ($$callAmount)"
             val callBtn = ItemBuilder.from(Material.YELLOW_DYE).name(plugin.format("<#FFD700><bold>$callText</bold>")).asGuiItem {
@@ -98,14 +98,14 @@ class PokerMenu(private val plugin: CasinoPlugin, private val game: PokerGame, p
             }
             gui.setItem(49, callBtn)
 
-            // RAISE (Subir $5,000 fijo para no complicar el menú)
+
             val raiseBtn = ItemBuilder.from(Material.LIME_DYE).name(plugin.format("<#00FF7F><bold>SUBIR (Raise +$5,000)</bold>")).asGuiItem {
                 game.handleAction(player.uniqueId, "RAISE", 5000.0)
                 player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
             }
             gui.setItem(53, raiseBtn)
         } else {
-            // Tapar los botones si no es su turno o se retiró
+
             val waitBtn = ItemBuilder.from(Material.BARRIER).name(plugin.format("<#555555>Espera tu turno...</#555555>")).asGuiItem()
             gui.setItem(45, waitBtn)
             gui.setItem(49, waitBtn)

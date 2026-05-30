@@ -11,7 +11,7 @@ class PlayerQuitListener(private val plugin: CasinoPlugin) : Listener {
     fun onQuit(event: PlayerQuitEvent) {
         val uuid = event.player.uniqueId
 
-        // Delegar manejo de desconexiones a los respectivos managers
+
         plugin.coinFlipManager.handleDisconnect(uuid)
         plugin.rpsManager.handleDisconnect(uuid)
         plugin.tttManager.handleDisconnect(uuid)

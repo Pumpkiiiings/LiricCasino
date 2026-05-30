@@ -24,7 +24,7 @@ class LotteryManager(private val plugin: CasinoPlugin) {
     private val dataFile = File(plugin.dataFolder, "lottery.yml")
     private var dataConfig = YamlConfiguration.loadConfiguration(dataFile)
 
-    // ─── Config helpers ──────────────────────────────────────────────────
+
     private fun ticketPrice()     = plugin.config.getDouble("lottery.ticket-price", 5000.0)
     private fun maxPerPlayer()    = plugin.config.getInt("lottery.max-tickets-per-player", 5)
     private fun drawIntervalSec() = plugin.config.getInt("lottery.draw-interval-minutes", 60) * 60
@@ -32,7 +32,7 @@ class LotteryManager(private val plugin: CasinoPlugin) {
     private fun jackpotStart()    = plugin.config.getDouble("lottery.jackpot-start", 50000.0)
     private fun jackpotContrib()  = plugin.config.getDouble("lottery.jackpot-contribution", 0.5)
 
-    // ─── Inicio ──────────────────────────────────────────────────────────
+
     fun start() {
         loadData()
         if (jackpot < jackpotStart()) jackpot = jackpotStart()
@@ -45,7 +45,7 @@ class LotteryManager(private val plugin: CasinoPlugin) {
         saveData()
     }
 
-    // ─── Compra de boleto ────────────────────────────────────────────────
+
     fun buyTicket(player: Player, amount: Int = 1) {
         if (!ValidationUtil.canPlayDaily(plugin, player, "lottery")) return
         val price = ticketPrice()
@@ -89,7 +89,7 @@ class LotteryManager(private val plugin: CasinoPlugin) {
         ))
     }
 
-    // ─── Admin: dar boleto gratis ─────────────────────────────────────────
+
     fun giveTicket(player: Player, amount: Int) {
         repeat(amount) {
             val number = Random.nextInt(1, numberRange() + 1)
@@ -99,20 +99,20 @@ class LotteryManager(private val plugin: CasinoPlugin) {
         player.sendMessage(plugin.messages.get("lottery.received", "amount" to amount.toString()))
     }
 
-    // ─── Info ────────────────────────────────────────────────────────────
+
     fun getJackpot() = jackpot
     fun getTicketCount() = tickets.size
     fun getPlayerTickets(uuid: UUID) = tickets.filter { it.ownerUuid == uuid }
     fun getSecondsUntilDraw() = secondsUntilDraw
 
-    // ─── Countdown & Draw ────────────────────────────────────────────────
+
     private fun startCountdown() {
         drawTask?.cancel()
         drawTask = object : BukkitRunnable() {
             override fun run() {
                 secondsUntilDraw--
 
-                // Anuncios
+
                 when (secondsUntilDraw) {
                     3600 -> broadcast("lottery.announce-1h")
                     1800 -> broadcast("lottery.announce-30m")
@@ -139,17 +139,17 @@ class LotteryManager(private val plugin: CasinoPlugin) {
     private fun runDraw() {
         val winningNumber = Random.nextInt(1, numberRange() + 1)
 
-        // Buscar ganadores exactos
+
         val exactWinners = tickets.filter { it.number == winningNumber }
 
         if (exactWinners.isEmpty()) {
-            // Nadie ganó: el pozo crece, anuncio
+
             plugin.server.broadcast(plugin.messages.get("lottery.no-winner",
                 "number" to winningNumber.toString(),
                 "jackpot" to String.format("%.0f", jackpot)
             ))
         } else {
-            // Dividir el pozo entre ganadores
+
             val share = jackpot / exactWinners.size
             val (netShare, tax) = TaxUtil.applyTax(plugin, share, "lottery")
 
@@ -169,7 +169,7 @@ class LotteryManager(private val plugin: CasinoPlugin) {
                 plugin.statsManager.recordLotteryWin(ticket.ownerUuid, netShare)
             }
 
-            // Anuncio global
+
             val winnersStr = exactWinners.joinToString(", ") { it.ownerName }
             plugin.server.broadcast(plugin.messages.get("lottery.winner-broadcast",
                 "number" to winningNumber.toString(),
@@ -177,18 +177,18 @@ class LotteryManager(private val plugin: CasinoPlugin) {
                 "amount" to String.format("%.0f", netShare)
             ))
 
-            // Webhook Discord
+
             plugin.webhook.sendLotteryWinner(winnersStr, netShare, winningNumber)
 
-            // Resetear pozo
+
             jackpot = jackpotStart()
         }
 
-        // Limpiar tickets
+
         tickets.clear()
         saveData()
 
-        // Reiniciar countdown
+
         secondsUntilDraw = drawIntervalSec()
         startCountdown()
     }
@@ -212,7 +212,7 @@ class LotteryManager(private val plugin: CasinoPlugin) {
         }
     }
 
-    // ─── Persistencia ────────────────────────────────────────────────────
+
     private fun saveData() {
         dataConfig.set("jackpot", jackpot)
         val ticketList = tickets.map { t ->

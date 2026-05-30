@@ -72,14 +72,14 @@ class RouletteManager(private val plugin: CasinoPlugin) {
         }
     }
 
-    // Función de seguridad para saber si el chunk está activo
+
     private fun isChunkLoaded(loc: Location): Boolean {
         if (loc.world == null) return false
         return loc.world!!.isChunkLoaded(loc.blockX shr 4, loc.blockZ shr 4)
     }
 
     private fun purgeArea(center: Location) {
-        if (!isChunkLoaded(center)) return // Evitamos cargar chunks innecesariamente
+        if (!isChunkLoaded(center)) return
 
         val world = center.world ?: return
         world.getNearbyEntities(center, 15.0, 15.0, 15.0).forEach { entity ->
@@ -112,7 +112,7 @@ class RouletteManager(private val plugin: CasinoPlugin) {
     }
 
     fun spawnRoulette(location: Location, isNew: Boolean = true, customScale: Float? = null, customRadius: Float? = null) {
-        if (!isChunkLoaded(location)) return // FIX: No spawnear si el chunk no existe en memoria ahora mismo
+        if (!isChunkLoaded(location)) return
 
         val center = if (isNew) {
             location.clone().apply {
@@ -141,7 +141,7 @@ class RouletteManager(private val plugin: CasinoPlugin) {
             val slotLoc = center.clone().add(radius * cos(angle), 0.0, radius * sin(angle))
             val blockDisplay = center.world!!.spawnEntity(slotLoc, EntityType.BLOCK_DISPLAY) as BlockDisplay
 
-            blockDisplay.isPersistent = false // FIX DUPE
+            blockDisplay.isPersistent = false
             blockDisplay.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
             instanceUUIDs.add(blockDisplay.uniqueId)
             blockDisplay.block = getOriginalMaterial(number).createBlockData()
@@ -149,11 +149,11 @@ class RouletteManager(private val plugin: CasinoPlugin) {
 
             val half = scale / 2.0f
 
-            // FIX BLOQUES RECTOS: Se removió la rotación (Quaternionf en blanco) y se simplificó el centrado.
-            // Ahora los bloques están 100% rectos y alineados a la cuadrícula del mundo.
+
+
             blockDisplay.transformation = Transformation(
-                Vector3f(-half, 0f, -half), // Centra el bloque exactamente en su coordenada
-                Quaternionf(),              // Cero rotación (Totalmente recto)
+                Vector3f(-half, 0f, -half),
+                Quaternionf(),
                 Vector3f(scale, scale, scale),
                 Quaternionf()
             )
@@ -161,7 +161,7 @@ class RouletteManager(private val plugin: CasinoPlugin) {
             val textLoc = slotLoc.clone().add(0.0, 0.6, 0.0)
             val textDisplay = center.world!!.spawnEntity(textLoc, EntityType.TEXT_DISPLAY) as TextDisplay
 
-            textDisplay.isPersistent = false // FIX DUPE
+            textDisplay.isPersistent = false
             textDisplay.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
             instanceUUIDs.add(textDisplay.uniqueId)
             textDisplay.text(plugin.format("<white><bold>$number</bold></white>"))
@@ -173,7 +173,7 @@ class RouletteManager(private val plugin: CasinoPlugin) {
         val statusLoc = center.clone().add(0.0, 2.0, 0.0)
         val statusText = center.world!!.spawnEntity(statusLoc, EntityType.TEXT_DISPLAY) as TextDisplay
 
-        statusText.isPersistent = false // FIX DUPE
+        statusText.isPersistent = false
         statusText.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
         instanceUUIDs.add(statusText.uniqueId)
         statusText.billboard = Display.Billboard.CENTER
@@ -182,7 +182,7 @@ class RouletteManager(private val plugin: CasinoPlugin) {
 
         val interaction = center.world!!.spawnEntity(center, EntityType.INTERACTION) as Interaction
 
-        interaction.isPersistent = false // FIX DUPE
+        interaction.isPersistent = false
         interaction.persistentDataContainer.set(rouletteKey, PersistentDataType.STRING, instanceId.toString())
         interaction.interactionWidth = (radius * 2) - 1.0f
         interaction.interactionHeight = 3.0f

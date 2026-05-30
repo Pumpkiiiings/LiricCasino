@@ -13,19 +13,19 @@ class CoinFlipManager(private val plugin: CasinoPlugin) {
 
     private val sessions      = ConcurrentHashMap<UUID, CoinFlipSession>()
     private val playerSession = ConcurrentHashMap<UUID, UUID>()
-    // Jugadores esperando escribir el monto en el chat
+
     private val pendingChat   = ConcurrentHashMap.newKeySet<UUID>()
 
     private fun msg(key: String, vararg ph: Pair<String, String>) = plugin.messages.get(key, *ph)
     private fun minBet() = plugin.config.getDouble("coinflip.bet.min", 100.0)
     private fun maxBet() = plugin.config.getDouble("coinflip.bet.max", 500000.0)
 
-    // ─── Chat capture ─────────────────────────────────────────────────────
+
     fun setPendingChat(uuid: UUID)    { pendingChat.add(uuid) }
     fun removePendingChat(uuid: UUID) { pendingChat.remove(uuid) }
     fun hasPendingChat(uuid: UUID)    = pendingChat.contains(uuid)
 
-    // ─── Crear juego ──────────────────────────────────────────────────────
+
     fun createGame(player: Player, amount: Double): CoinFlipSession? {
         if (!ValidationUtil.canPlayDaily(plugin, player, "coinflip")) return null
         if (!ValidationUtil.validateBet(plugin, player, "coinflip", amount)) return null
@@ -46,7 +46,7 @@ class CoinFlipManager(private val plugin: CasinoPlugin) {
             "amount" to CoinFlipMenu.formatAmount(amount),
             "id"     to session.id.toString().take(8)))
 
-        // Broadcast a todos
+
         plugin.server.onlinePlayers.forEach { p ->
             if (p.uniqueId != player.uniqueId)
                 p.sendMessage(msg("coinflip.new-game-broadcast",
@@ -56,7 +56,7 @@ class CoinFlipManager(private val plugin: CasinoPlugin) {
         return session
     }
 
-    // ─── Unirse ───────────────────────────────────────────────────────────
+
     fun joinGame(joiner: Player, creatorName: String): Boolean {
         val session = sessions.values.firstOrNull {
             it.state == CoinFlipState.WAITING &&
@@ -86,7 +86,7 @@ class CoinFlipManager(private val plugin: CasinoPlugin) {
         return true
     }
 
-    // ─── Cancelar ─────────────────────────────────────────────────────────
+
     fun cancelGame(player: Player): Boolean {
         val sessionId = playerSession[player.uniqueId]
             ?: run { player.sendMessage(msg("coinflip.no-game")); return false }
@@ -102,7 +102,7 @@ class CoinFlipManager(private val plugin: CasinoPlugin) {
         return true
     }
 
-    // ─── Resolver resultado ───────────────────────────────────────────────
+
     fun resolveGame(session: CoinFlipSession, winnerId: UUID) {
         val totalPot        = session.betAmount * 2
         val (netWin, tax)   = TaxUtil.applyTax(plugin, totalPot, "coinflip")
@@ -121,12 +121,12 @@ class CoinFlipManager(private val plugin: CasinoPlugin) {
         }
         loser?.sendMessage(msg("coinflip.lose", "amount" to CoinFlipMenu.formatAmount(session.betAmount)))
 
-        // Stats
+
         plugin.statsManager.recordCoinFlip(session.creatorId, session.betAmount,
             if (winnerId == session.creatorId) netWin else 0.0, winnerId == session.creatorId)
         plugin.statsManager.recordCoinFlip(loserId, session.betAmount, 0.0, false)
 
-        // Broadcast
+
         val winnerName = winner?.name ?: Bukkit.getOfflinePlayer(winnerId).name ?: "?"
         val loserName  = loser?.name  ?: Bukkit.getOfflinePlayer(loserId).name  ?: "?"
         plugin.server.broadcast(plugin.messages.get("coinflip.broadcast-result",
@@ -160,7 +160,7 @@ class CoinFlipManager(private val plugin: CasinoPlugin) {
                 removeSession(session)
             }
         }
-        // If ANIMATING, the BukkitRunnable will resolve it safely and deposit to offline player
+
     }
 
     fun cleanupAll() {

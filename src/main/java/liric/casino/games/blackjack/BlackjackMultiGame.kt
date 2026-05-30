@@ -15,7 +15,7 @@ class BlackjackMultiGame(private val plugin: CasinoPlugin) {
     var countdownSeconds = 15
         private set
 
-    // UUID a la cantidad apostada
+
     val activePlayers = mutableMapOf<UUID, Double>()
     private var countdownTask: BukkitRunnable? = null
 
@@ -43,12 +43,12 @@ class BlackjackMultiGame(private val plugin: CasinoPlugin) {
         if (state == MultiGameState.WAITING) {
             startCountdown()
         } else if (activePlayers.size == maxPlayers) {
-            // Fuerza inicio si se llena
+
             countdownSeconds = 2
         }
     }
 
-    // --- NUEVA FUNCIÓN AÑADIDA PARA SALIR DEL LOBBY ---
+
     fun removePlayer(player: Player) {
         if (!activePlayers.containsKey(player.uniqueId)) {
             player.sendMessage(plugin.format("<#FF0000>CASINO</#FF0000> <gray>» <red>No estás en la mesa multijugador."))
@@ -60,10 +60,10 @@ class BlackjackMultiGame(private val plugin: CasinoPlugin) {
             return
         }
 
-        // Obtener apuesta, eliminarlo de la mesa y devolverle el dinero
+
         val betAmount = activePlayers.remove(player.uniqueId) ?: 0.0
 
-        // Devolvemos el dinero usando Vault/EconomyManager
+
         plugin.economyManager.vault?.depositPlayer(player, betAmount)
 
         player.sendMessage(plugin.format("<#FF0000>CASINO</#FF0000> <gray>» <#00FF7F>Has salido de la mesa. Se te devolvieron tus $${betAmount}.</#00FF7F>"))
@@ -71,14 +71,14 @@ class BlackjackMultiGame(private val plugin: CasinoPlugin) {
 
         plugin.blackjackManager.updateHolograms()
 
-        // Si la mesa se queda vacía, cancelamos el contador
+
         if (activePlayers.isEmpty()) {
             state = MultiGameState.WAITING
             countdownTask?.cancel()
             countdownTask = null
         }
     }
-    // --------------------------------------------------
+
 
     private fun startCountdown() {
         state = MultiGameState.STARTING
@@ -113,7 +113,7 @@ class BlackjackMultiGame(private val plugin: CasinoPlugin) {
         plugin.blackjackManager.updateHolograms()
         broadcast("<#FFB400>¡NO VA MÁS! El Dealer empieza a repartir...</#FFB400>")
 
-        // Instanciar la verdadera mesa
+
         val session = BlackjackMultiSession(plugin, activePlayers.toMap(), this)
         session.start()
     }

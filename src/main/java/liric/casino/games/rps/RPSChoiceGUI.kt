@@ -26,7 +26,7 @@ class RPSChoiceGUI(
             .disableAllInteractions()
             .create()
 
-        // Decoraciones
+
         config.getMapList("decorations").forEach { dec ->
             val mat = Material.valueOf(dec["material"].toString())
             val name = plugin.format(dec["name"].toString())
@@ -35,7 +35,7 @@ class RPSChoiceGUI(
             slots.forEach { slot -> gui.setItem(slot.toString().toInt(), item) }
         }
 
-        // Info
+
         val opponent = if (isCreator) session.joinerName ?: "Esperando..." else session.creatorName
         val infoItem = config.getItemBuilder("info-item")
             .name(plugin.format(config.getString("info-item.name", "")
@@ -46,7 +46,7 @@ class RPSChoiceGUI(
             .flags(*ItemFlag.values()).asGuiItem()
         gui.setItem(config.getInt("info-item.slot", 4), infoItem)
 
-        // Piedra
+
         val piedraBtn = config.getItemBuilder("piedra-btn")
             .name(plugin.format(config.getString("piedra-btn.name", "")))
             .lore(config.getStringList("piedra-btn.lore").map { plugin.format(it) })
@@ -58,7 +58,7 @@ class RPSChoiceGUI(
             }
         gui.setItem(config.getInt("piedra-btn.slot", 11), piedraBtn)
 
-        // Papel
+
         val papelBtn = config.getItemBuilder("papel-btn")
             .name(plugin.format(config.getString("papel-btn.name", "")))
             .lore(config.getStringList("papel-btn.lore").map { plugin.format(it) })
@@ -70,7 +70,7 @@ class RPSChoiceGUI(
             }
         gui.setItem(config.getInt("papel-btn.slot", 13), papelBtn)
 
-        // Tijera
+
         val tijeraBtn = config.getItemBuilder("tijera-btn")
             .name(plugin.format(config.getString("tijera-btn.name", "")))
             .lore(config.getStringList("tijera-btn.lore").map { plugin.format(it) })
@@ -82,7 +82,7 @@ class RPSChoiceGUI(
             }
         gui.setItem(config.getInt("tijera-btn.slot", 15), tijeraBtn)
 
-        // Cancelar
+
         val cancelBtn = config.getItemBuilder("cancel-btn")
             .name(plugin.format(config.getString("cancel-btn.name", "")))
             .lore(config.getStringList("cancel-btn.lore").map { plugin.format(it) })

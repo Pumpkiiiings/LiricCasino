@@ -25,22 +25,22 @@ class BlackjackMultiSession(
     private var currentTurnIndex = 0
     private var isDealerTurn = false
 
-    // GUI personalizada por cada jugador para evitar conflictos de clicks
+
     private val playerGuis = mutableMapOf<UUID, Gui>()
 
     fun start() {
-        // Inicializar datos de los jugadores
+
         initialBets.forEach { (uuid, bet) ->
             playersData.add(PlayerHandData(uuid, bet, mutableListOf(), PlayerStatus.WAITING_TURN))
         }
 
-        // Reparto inicial (2 para cada jugador, 2 para Dealer)
+
         repeat(2) {
             playersData.forEach { it.hand.add(deck.draw()) }
             dealerHand.add(deck.draw())
         }
 
-        // Crear GUIs y comprobar Blackjacks naturales
+
         playersData.forEach { data ->
             val player = Bukkit.getPlayer(data.uuid)
             if (player != null) {
@@ -59,18 +59,18 @@ class BlackjackMultiSession(
     }
 
     private fun advanceToNextValidTurn() {
-        // Buscar el siguiente jugador que pueda jugar
+
         while (currentTurnIndex < playersData.size && playersData[currentTurnIndex].status != PlayerStatus.WAITING_TURN) {
             currentTurnIndex++
         }
 
         if (currentTurnIndex >= playersData.size) {
-            // Todos terminaron, es el turno del Dealer
+
             isDealerTurn = true
             renderAll()
             playDealerTurn()
         } else {
-            // Es el turno del jugador en currentTurnIndex
+
             playersData[currentTurnIndex].status = PlayerStatus.PLAYING
             val pTurn = Bukkit.getPlayer(playersData[currentTurnIndex].uuid)
             pTurn?.playSound(pTurn.location, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 2f)
@@ -87,7 +87,7 @@ class BlackjackMultiSession(
             val filler = ItemBuilder.from(Material.BLACK_STAINED_GLASS_PANE).name(plugin.format(" ")).asGuiItem()
             gui.filler.fill(filler)
 
-            // 1. DIBUJAR AL DEALER (Arriba)
+
             val dealerScore = BlackjackLogic.calculateScore(dealerHand)
             val dStatus = if (!isDealerTurn) "?" else dealerScore.toString()
             gui.setItem(4, ItemBuilder.from(Material.SKELETON_SKULL).name(plugin.format("<#FF5555><bold>DEALER</bold>")).lore(plugin.format("<gray>Puntos: <white>$dStatus")).asGuiItem())
@@ -101,7 +101,7 @@ class BlackjackMultiSession(
                 }
             }
 
-            // 2. DIBUJAR AL RESTO DE LA MESA (En medio)
+
             var displaySlot = 19
             playersData.forEachIndexed { idx, pData ->
                 val pName = Bukkit.getOfflinePlayer(pData.uuid).name ?: "Desconocido"
@@ -127,10 +127,10 @@ class BlackjackMultiSession(
                     ).asGuiItem()
 
                 gui.setItem(displaySlot, headItem)
-                displaySlot += 2 // Deja un hueco entre jugadores
+                displaySlot += 2
             }
 
-            // 3. DIBUJAR TUS CARTAS (Abajo)
+
             val myScore = BlackjackLogic.calculateScore(data.hand)
             gui.setItem(31, ItemBuilder.from(Material.DIAMOND)
                 .name(plugin.format("<#00FFFF><bold>TUS CARTAS</bold>"))
@@ -140,7 +140,7 @@ class BlackjackMultiSession(
                 gui.setItem(38 + index, ItemBuilder.from(card.toItemStack(plugin)).asGuiItem())
             }
 
-            // 4. BOTONES (Solo si es el turno de este jugador)
+
             if (data.status == PlayerStatus.PLAYING) {
                 gui.setItem(48, ItemBuilder.from(Material.LIME_DYE).name(plugin.format("<#00FF7F><bold>✚ PEDIR CARTA (Hit)</bold>")).asGuiItem {
                     data.hand.add(deck.draw())
@@ -150,7 +150,7 @@ class BlackjackMultiSession(
                         player.sendMessage(plugin.format("<#FF5555>¡Te pasaste de 21! Has volado.</#FF5555>"))
                         advanceToNextValidTurn()
                     } else {
-                        renderAll() // Sigue siendo su turno
+                        renderAll()
                     }
                 })
 
@@ -160,7 +160,7 @@ class BlackjackMultiSession(
                     advanceToNextValidTurn()
                 })
 
-                // Doblar solo si tiene 2 cartas
+
                 if (data.hand.size == 2) {
                     gui.setItem(49, ItemBuilder.from(Material.GOLD_BLOCK).name(plugin.format("<#FFD700><bold>💰 DOBLAR (Double)</bold>")).asGuiItem {
                         if (plugin.economyManager.withdrawPlayer(player, data.bet).transactionSuccess()) {
@@ -216,7 +216,7 @@ class BlackjackMultiSession(
                         winAmount = data.bet
                         message = "<#FFD700>Empate de Blackjacks (Push). Recuperas $${data.bet}.</#FFD700>"
                     } else {
-                        winAmount = data.bet * 2.5 // Paga 3:2 + devuelve apuesta
+                        winAmount = data.bet * 2.5
                         message = "<#00FF7F>¡BLACKJACK! Ganaste $$winAmount.</#00FF7F>"
                     }
                 }
@@ -244,7 +244,7 @@ class BlackjackMultiSession(
             player?.closeInventory()
         }
 
-        // Reiniciar mesa después de 3 segundos
+
         object : BukkitRunnable() {
             override fun run() {
                 gameManager.resetGame()

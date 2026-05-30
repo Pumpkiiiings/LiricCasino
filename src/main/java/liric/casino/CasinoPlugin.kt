@@ -49,73 +49,73 @@ import java.io.File
 
 class CasinoPlugin : JavaPlugin() {
 
-    // ─── Configs ─────────────────────────────────────────────────────────
+
     lateinit var messages: MessagesConfig
     private val menuConfigMap = mutableMapOf<String, MenuConfig>()
 
-    // ─── Economy ────────────────────────────────────────────────────────
+
     lateinit var economyManager: EconomyManager
 
-    // ─── Roulette ────────────────────────────────────────────────────────
+
     lateinit var rouletteManager: RouletteManager
     lateinit var rouletteGame: RouletteGame
     lateinit var rouletteMenu: RouletteMenu
 
-    // ─── Poker ───────────────────────────────────────────────────────────
+
     lateinit var pokerManager: PokerManager
     lateinit var pokerGame: PokerGame
 
-    // ─── Slots ────────────────────────────────────────────────────────────
+
     lateinit var slotManager: SlotManager
 
-    // ─── Blackjack ───────────────────────────────────────────────────────
+
     lateinit var blackjackManager: BlackjackManager
     lateinit var blackjackMultiGame: BlackjackMultiGame
 
-    // ─── Lottery ─────────────────────────────────────────────────────────
+
     lateinit var lotteryManager: LotteryManager
 
-    // ─── CoinFlip ────────────────────────────────────────────────────────
+
     lateinit var coinFlipManager: CoinFlipManager
 
-    // ─── RPS & TTT & Racing ──────────────────────────────────────────────
+
     lateinit var rpsManager: RPSManager
     lateinit var tttManager: TTTManager
     lateinit var raceManager: RaceManager
 
-    // ─── Webhooks ─────────────────────────────────────────────────────────
+
     lateinit var webhook: WebhookManager
 
-    // ─── Database and Stats ──────────────────────────────────────────────
+
     lateinit var db: DatabaseManager
     lateinit var statsManager: StatsManager
 
-    // ─── Utilities ──────────────────────────────────────────────────────
+
     fun format(text: String): Component = ColorUtil.parse(text)
 
     fun menuConfig(name: String): MenuConfig =
         menuConfigMap[name] ?: error("MenuConfig '$name' not loaded!")
 
-    /** Returns true if the game is enabled in config.yml. Default: true */
+
     fun isGameEnabled(key: String): Boolean = config.getBoolean("$key.active", true)
 
-    // ═════════════════════════════════════════════════════════════════════
+
     override fun onEnable() {
-        // 1. Main config
+
         saveDefaultConfig()
         ConfigUpdater.updateConfig(File(dataFolder, "config.yml"), "config.yml")
 
-        // 1b. TicketTier for Scratch & Win
+
         TicketTier.loadFromConfig(config)
 
-        // 2. MessagesConfig
+
         messages = MessagesConfig(this)
         messages.load()
 
-        // 2b. WebhookManager
+
         webhook = WebhookManager(this)
 
-        // 3. MenuConfigs
+
         val menuNames = listOf(
             "ruleta.yml", "apuesta_ruleta.yml",
             "blackjack_choice.yml", "blackjack_bet.yml", "blackjack_tutorial.yml",
@@ -128,7 +128,7 @@ class CasinoPlugin : JavaPlugin() {
             menuConfigMap[name] = cfg
         }
 
-        // 4. Economy (Vault)
+
         economyManager = EconomyManager(this)
         if (!economyManager.setupVault()) {
             logger.severe("Vault not found or no economy plugin! Disabling...")
@@ -136,7 +136,7 @@ class CasinoPlugin : JavaPlugin() {
             return
         }
 
-        // 4b. Database and Stats
+
         db = DatabaseManager(this)
         db.connect()
         statsManager = StatsManager(this)
@@ -146,38 +146,38 @@ class CasinoPlugin : JavaPlugin() {
             CasinoPlaceholders(this).register()
         }
 
-        // 5. Managers and game logic
-        // --- Roulette ---
+
+
         rouletteManager = RouletteManager(this)
         rouletteGame    = RouletteGame(this)
         rouletteMenu    = RouletteMenu(this, rouletteGame)
         rouletteManager.loadRoulettes()
 
-        // --- Poker ---
+
         pokerManager = PokerManager(this)
         pokerGame    = PokerGame(this)
 
-        // --- Slots ---
+
         slotManager = SlotManager(this)
         slotManager.loadMachines()
 
-        // --- Blackjack ---
+
         blackjackManager  = BlackjackManager(this)
         blackjackMultiGame = BlackjackMultiGame(this)
 
-        // --- Lottery ---
+
         lotteryManager = LotteryManager(this)
         lotteryManager.start()
 
-        // --- CoinFlip ---
+
         coinFlipManager = CoinFlipManager(this)
 
-        // --- New Games ---
+
         rpsManager = RPSManager(this)
         tttManager = TTTManager(this)
         raceManager = RaceManager(this)
 
-        // 6. Commands
+
         val rouletteCmd = RouletteCommand(this, rouletteMenu, rouletteGame)
         getCommand("ruleta")?.apply { setExecutor(rouletteCmd); tabCompleter = rouletteCmd }
 
@@ -212,7 +212,7 @@ class CasinoPlugin : JavaPlugin() {
         val raceCmd = RaceCommand(this)
         getCommand("carreras")?.apply { setExecutor(raceCmd); tabCompleter = raceCmd }
 
-        // 7. Listeners
+
         server.pluginManager.registerEvents(RouletteInteractListener(this), this)
         server.pluginManager.registerEvents(ScratchListener(this), this)
         server.pluginManager.registerEvents(PokerInteractListener(this), this)
@@ -222,7 +222,7 @@ class CasinoPlugin : JavaPlugin() {
         server.pluginManager.registerEvents(CoinFlipChatListener(this), this)
         server.pluginManager.registerEvents(liric.casino.listeners.PlayerQuitListener(this), this)
 
-        // 8. Startup message
+
         sendStartupMessage()
     }
 
@@ -248,7 +248,7 @@ class CasinoPlugin : JavaPlugin() {
         ))
     }
 
-    // ─── Startup message ────────────────────────────────────────────────
+
     private fun sendStartupMessage() {
         val v = description.version
         val lines = listOf(

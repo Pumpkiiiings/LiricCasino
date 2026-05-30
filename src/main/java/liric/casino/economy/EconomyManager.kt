@@ -9,7 +9,7 @@ import org.bukkit.entity.Player
 class EconomyManager(private val plugin: CasinoPlugin) {
     var vault: Economy? = null
 
-    // El Prefix Oficial
+
     private val prefix = "<#FF0000><bold>CASINO</bold></#FF0000> <gray>»</gray>"
 
     fun setupVault(): Boolean {
@@ -19,7 +19,7 @@ class EconomyManager(private val plugin: CasinoPlugin) {
         return vault != null
     }
 
-    // Cambiado a 'getPlayerBooster' para que RouletteGame lo encuentre
+
     fun getPlayerBooster(player: Player): Double {
         val config = plugin.config.getConfigurationSection("boosters") ?: return 1.0
         var highestMultiplier = 1.0
@@ -35,23 +35,23 @@ class EconomyManager(private val plugin: CasinoPlugin) {
         return highestMultiplier
     }
 
-    // Cambiado a 'withdrawPlayer' y ahora devuelve el objeto de respuesta de Vault
+
     fun withdrawPlayer(player: Player, amount: Double): EconomyResponse {
         return vault?.withdrawPlayer(player, amount) ?: EconomyResponse(0.0, 0.0, EconomyResponse.ResponseType.FAILURE, "Vault no cargado")
     }
 
-    // Función para depositar a jugadores Online (con mensajes bonitos)
+
     fun depositPlayer(player: Player, amount: Double) {
         vault?.depositPlayer(player, amount)
-        // Aquí podrías añadir un log o mensaje, pero RouletteGame ya lo maneja
+
     }
 
-    // Función para depositar a jugadores Offline (Necesario para el bucle de ganadores)
+
     fun depositPlayer(player: OfflinePlayer, amount: Double) {
         vault?.depositPlayer(player, amount)
     }
 
-    // Función antigua por si la usas en otros lados, ahora con colores premium
+
     fun depositWin(player: Player, baseAmount: Double) {
         val multiplier = getPlayerBooster(player)
         val finalAmount = baseAmount * multiplier
@@ -77,22 +77,22 @@ class EconomyManager(private val plugin: CasinoPlugin) {
     }
 
     fun openCustomBetChat(player: Player, callback: (Double) -> Unit) {
-        // Implementación simplificada de captura de chat
-        // En un plugin real, esto requeriría un AsyncPlayerChatEvent listener temporal
-        // Para este ejemplo, simulamos la captura llamando al callback con un valor
-        // o registrando el evento en un mapa de sesiones.
-        
-        // Nota: Para que esto sea 100% funcional, se debe añadir un Listener global 
-        // que verifique si el jugador está en estado 'esperando_apuesta'.
-        
-        // Simulamos la lógica de captura:
+
+
+
+
+
+
+
+
+
         plugin.server.scheduler.runTaskAsynchronously(plugin, Runnable {
-            // Aquí iría la lógica de esperar el mensaje del jugador
-            // Por ahora, dejamos la estructura para que el desarrollador 
-            // implemente el listener de chat específico.
+
+
+
         })
-        
-        // Para fines de este flujo, asumimos que el listener de chat 
-        // llamará a este callback cuando el jugador escriba el número.
+
+
+
     }
 }

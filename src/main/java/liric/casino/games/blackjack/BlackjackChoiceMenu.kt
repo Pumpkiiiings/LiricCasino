@@ -22,7 +22,7 @@ class BlackjackChoiceMenu(private val plugin: CasinoPlugin, private val player: 
     fun open() {
         cfg.applyDecorations(gui)
 
-        // VS HOUSE
+
         val vsHouseSlot = cfg.getInt("items.vs-house.slot", 11)
         val vsHouseMat  = cfg.getMaterial("items.vs-house.material", Material.RED_DYE)
         val vsHouseName = cfg.getComponent("items.vs-house.name")
@@ -37,7 +37,7 @@ class BlackjackChoiceMenu(private val plugin: CasinoPlugin, private val player: 
                 BlackjackBetMenu(plugin, player, isMultiplayer = false).open()
             })
 
-        // TUTORIAL
+
         val tutSlot = cfg.getInt("items.tutorial.slot", 13)
         val tutMat  = cfg.getMaterial("items.tutorial.material", Material.WRITTEN_BOOK)
         val tutName = cfg.getComponent("items.tutorial.name")
@@ -48,7 +48,7 @@ class BlackjackChoiceMenu(private val plugin: CasinoPlugin, private val player: 
                 BlackjackTutorialMenu(plugin, player).open()
             })
 
-        // VS PLAYERS
+
         val vsPlayersSlot = cfg.getInt("items.vs-players.slot", 15)
         val vsPlayersMat  = cfg.getMaterial("items.vs-players.material", Material.DIAMOND)
         val vsPlayersName = cfg.getComponent("items.vs-players.name")

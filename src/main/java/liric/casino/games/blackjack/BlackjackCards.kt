@@ -48,7 +48,7 @@ class BjDeck {
 }
 
 object BlackjackLogic {
-    // Suma los puntos y ajusta los Ases automáticamente para no pasarse de 21
+
     fun calculateScore(hand: List<BjCard>): Int {
         var sum = hand.sumOf { it.rank.value }
         var aces = hand.count { it.rank == BjRank.ACE }

@@ -21,7 +21,7 @@ class BlackjackTutorialMenu(private val plugin: CasinoPlugin, private val player
     fun open() {
         cfg.applyDecorations(gui)
 
-        // Páginas dinámicas desde YAML
+
         val pageKeys = cfg.getKeys("pages")
         pageKeys.forEach { pageKey ->
             val path = "pages.$pageKey"
@@ -32,7 +32,7 @@ class BlackjackTutorialMenu(private val plugin: CasinoPlugin, private val player
             gui.setItem(slot, ItemBuilder.from(mat).name(name).lore(lore).flags(*ItemFlag.values()).asGuiItem())
         }
 
-        // Botón volver
+
         val backSlot = cfg.getInt("back-button.slot", 22)
         val backMat  = cfg.getMaterial("back-button.material", Material.ARROW)
         val backName = cfg.getComponent("back-button.name")

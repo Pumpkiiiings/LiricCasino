@@ -24,7 +24,7 @@ class TTTManager(private val plugin: CasinoPlugin) {
     private fun minBet() = plugin.config.getDouble("ttt.bet.min", 100.0)
     private fun maxBet() = plugin.config.getDouble("ttt.bet.max", 500000.0)
 
-    // ── Crear ─────────────────────────────────────────────────────────────────
+
     fun createGame(player: Player, amount: Double) {
         if (!ValidationUtil.canPlayDaily(plugin, player, "ttt")) return
         if (!ValidationUtil.validateBet(plugin, player, "ttt", amount)) return
@@ -34,7 +34,7 @@ class TTTManager(private val plugin: CasinoPlugin) {
         if (!plugin.economyManager.withdrawPlayer(player, amount).transactionSuccess()) {
             player.sendMessage(msg("ttt.no-funds")); return
         }
-        
+
         plugin.statsManager.recordGameUse(player.uniqueId, "ttt")
         val session = TTTSession(creatorId = player.uniqueId, creatorName = player.name, betAmount = amount)
         sessions[session.id] = session
@@ -48,7 +48,7 @@ class TTTManager(private val plugin: CasinoPlugin) {
         }
     }
 
-    // ── Unirse ────────────────────────────────────────────────────────────────
+
     fun joinGame(joiner: Player, creatorName: String) {
         val session = sessions.values.firstOrNull {
             it.state == TTTState.WAITING &&
@@ -77,14 +77,14 @@ class TTTManager(private val plugin: CasinoPlugin) {
         joiner.sendMessage(msg("ttt.joined", "player" to session.creatorName))
         creator?.sendMessage(msg("ttt.opponent-joined", "player" to joiner.name))
 
-        // Abrir tablero a ambos (delay para que lean el mensaje)
+
         Bukkit.getScheduler().runTaskLater(plugin, Runnable {
             TTTBoard(plugin, session, joiner).open()
             creator?.let { TTTBoard(plugin, session, it).open() }
         }, 5L)
     }
 
-    // ── Jugada ────────────────────────────────────────────────────────────────
+
     fun playMove(session: TTTSession, playerId: UUID, cellIndex: Int) {
         if (session.state != TTTState.PLAYING) return
         if (session.currentTurn != playerId) return
@@ -93,7 +93,7 @@ class TTTManager(private val plugin: CasinoPlugin) {
         session.board[cellIndex] = session.getMarkOf(playerId)
         val sound = if (session.board[cellIndex] == TTTMark.X) Sound.BLOCK_NOTE_BLOCK_PLING else Sound.BLOCK_NOTE_BLOCK_BELL
 
-        // Sonido y actualizar ambas vistas
+
         Bukkit.getPlayer(playerId)?.playSound(Bukkit.getPlayer(playerId)!!.location, sound, 1f, 1.5f)
         val otherId = if (playerId == session.creatorId) session.joinerId else session.creatorId
         otherId?.let { Bukkit.getPlayer(it)?.playSound(Bukkit.getPlayer(it)!!.location, sound, 1f, 1.5f) }
@@ -101,9 +101,9 @@ class TTTManager(private val plugin: CasinoPlugin) {
         val winner = session.checkWinner()
         when {
             winner != TTTMark.NONE -> finishGame(session, winnerId = if (winner == session.creatorMark) session.creatorId else session.joinerId!!)
-            session.isFull()       -> finishGame(session, winnerId = null) // empate
+            session.isFull()       -> finishGame(session, winnerId = null)
             else -> {
-                // Cambiar turno y actualizar GUIs
+
                 session.currentTurn = otherId ?: session.creatorId
                 updateBothBoards(session)
             }
@@ -115,18 +115,18 @@ class TTTManager(private val plugin: CasinoPlugin) {
         session.joinerId?.let { Bukkit.getPlayer(it)?.let { p -> TTTBoard(plugin, session, p).update() } }
     }
 
-    // ── Resultado ─────────────────────────────────────────────────────────────
+
     private fun finishGame(session: TTTSession, winnerId: UUID?) {
         session.state = TTTState.FINISHED
         val creator = Bukkit.getPlayer(session.creatorId)
         val joiner  = session.joinerId?.let { Bukkit.getPlayer(it) }
 
-        // Cerrar GUIs
+
         creator?.closeInventory()
         joiner?.closeInventory()
 
         if (winnerId == null) {
-            // Empate — devolver apuestas
+
             plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(session.creatorId), session.betAmount)
             session.joinerId?.let { plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(it), session.betAmount) }
             creator?.sendMessage(msg("ttt.tie"))
@@ -158,7 +158,7 @@ class TTTManager(private val plugin: CasinoPlugin) {
         removeSession(session)
     }
 
-    // ── Cancelar ──────────────────────────────────────────────────────────────
+
     fun cancelGame(player: Player) {
         val sessionId = playerSession[player.uniqueId]
             ?: run { player.sendMessage(msg("ttt.no-game")); return }
@@ -193,11 +193,11 @@ class TTTManager(private val plugin: CasinoPlugin) {
             val (netWin, _) = TaxUtil.applyTax(plugin, totalPot, "ttt")
 
             plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(winnerId), netWin)
-            
+
             val winner = Bukkit.getPlayer(winnerId)
             winner?.sendMessage(plugin.format("<red>Your opponent disconnected. <green>You won the bet automatically!"))
             winner?.playSound(winner.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
-            
+
             removeSession(session)
             winner?.closeInventory()
         }

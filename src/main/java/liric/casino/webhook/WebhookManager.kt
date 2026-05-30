@@ -11,10 +11,7 @@ import java.net.URL
 import java.text.NumberFormat
 import java.util.Locale
 
-/**
- * Envía embeds a Discord vía webhook de forma asíncrona.
- * Configuración en webhooks.yml.
- */
+
 class WebhookManager(private val plugin: CasinoPlugin) {
 
     private val configFile = File(plugin.dataFolder, "webhooks.yml")
@@ -31,7 +28,7 @@ class WebhookManager(private val plugin: CasinoPlugin) {
     private fun enabled() = cfg().getBoolean("webhooks.enabled", false)
     private fun fmt(n: Double) = "$" + NumberFormat.getNumberInstance(Locale.US).format(n)
 
-    // ── Jackpot genérico (slots 777 o cualquier jackpot) ──────────────────────
+
     fun sendJackpot(game: String, playerName: String, amount: Double) {
         if (!enabled()) return
         val url = cfg().getString("webhooks.jackpot.url") ?: return
@@ -52,7 +49,7 @@ class WebhookManager(private val plugin: CasinoPlugin) {
         sendEmbed(url, content, title, desc, color, footer)
     }
 
-    // ── Victoria grande (cuando supera un umbral configurable) ────────────────
+
     fun sendBigWin(game: String, playerName: String, amount: Double) {
         if (!enabled()) return
         val url = cfg().getString("webhooks.big-win.url") ?: return
@@ -76,7 +73,7 @@ class WebhookManager(private val plugin: CasinoPlugin) {
         sendEmbed(url, content, title, desc, color, footer)
     }
 
-    // ── Ganador de Lotería ────────────────────────────────────────────────────
+
     fun sendLotteryWinner(playerName: String, amount: Double, number: Int) {
         if (!enabled()) return
         val url = cfg().getString("webhooks.lottery.url") ?: return
@@ -97,7 +94,7 @@ class WebhookManager(private val plugin: CasinoPlugin) {
         sendEmbed(url, content, title, desc, color, footer)
     }
 
-    // ── Implementación HTTP ───────────────────────────────────────────────────
+
     private fun sendEmbed(
         webhookUrl: String,
         content: String,

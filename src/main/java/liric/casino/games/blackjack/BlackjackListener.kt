@@ -16,7 +16,7 @@ class BlackjackInteractListener(private val plugin: CasinoPlugin) : Listener {
                 event.player.sendMessage(plugin.messages.get("general.game-disabled"))
                 return
             }
-            // Ya no abre las apuestas, abre el Menú de Selección (Vs House o Vs Jugadores)
+
             BlackjackChoiceMenu(plugin, event.player).open()
         }
     }

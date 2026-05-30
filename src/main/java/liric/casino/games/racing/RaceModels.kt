@@ -7,8 +7,8 @@ data class Horse(
     val id: Int,
     val name: String,
     val emoji: String,
-    val oddsMult: Double,  // multiplicador si gana (ej. 3.0 = x3)
-    val winChance: Int     // peso de probabilidad (mayor = más probable de ganar)
+    val oddsMult: Double,
+    val winChance: Int
 )
 
 data class RaceTrack(

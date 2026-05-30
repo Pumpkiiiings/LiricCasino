@@ -13,10 +13,7 @@ data class SlotPrize(
     val weight: Int
 )
 
-/**
- * Registry de premios del tragamonedas, cargado desde config.yml (slots.prizes).
- * Ya no es un object estático — se instancia con la sección de config.
- */
+
 class SlotRegistry(private val prizesSection: List<Map<*, *>>, private val boostersMap: Map<String, Double>) {
 
     val items: List<SlotPrize> = loadPrizes()
@@ -57,7 +54,7 @@ class SlotRegistry(private val prizesSection: List<Map<*, *>>, private val boost
     }
 
     companion object {
-        /** Crea un SlotRegistry desde la configuración del plugin. */
+
         fun fromConfig(config: FileConfiguration): SlotRegistry {
             @Suppress("UNCHECKED_CAST")
             val prizes   = config.getList("slots.prizes") as? List<Map<*, *>> ?: emptyList()

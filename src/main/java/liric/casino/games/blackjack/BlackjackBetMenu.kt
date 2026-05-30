@@ -38,7 +38,7 @@ class BlackjackBetMenu(
     }
 
     private fun updateMenu() {
-        // Botones de ajuste
+
         listOf("minus-big", "minus-medium", "minus-small", "plus-small", "plus-medium", "plus-big").forEach { key ->
             val slot   = cfg.getInt("buttons.$key.slot")
             val mat    = cfg.getMaterial("buttons.$key.material", Material.STONE)
@@ -48,11 +48,11 @@ class BlackjackBetMenu(
             gui.setItem(slot, createModifyButton(mat, label, amount, color))
         }
 
-        // BOTÓN CANTIDAD CUSTOM
+
         val customSlot = cfg.getInt("buttons.custom-bet.slot", 4)
         val customMat  = cfg.getMaterial("buttons.custom-bet.material", Material.PAPER)
         val customName = cfg.getComponent("buttons.custom-bet.name", "<#FFD700>Cantidad Custom")
-        
+
         val customBtn = ItemBuilder.from(customMat)
             .name(customName)
             .lore(plugin.format("<gray>Haz clic para escribir el monto en el chat"))
@@ -60,7 +60,7 @@ class BlackjackBetMenu(
             .asGuiItem {
                 gui.close(player)
                 player.sendMessage(plugin.format("<#FFD700><b>✍ Escribe la cantidad exacta que deseas apostar:</b>"))
-                
+
                 plugin.economyManager.openCustomBetChat(player) { amount ->
                     if (amount in minLimit..maxLimit) {
                         currentBet = amount
@@ -72,7 +72,7 @@ class BlackjackBetMenu(
             }
         gui.setItem(customSlot, customBtn)
 
-        // CONFIRMAR
+
         val confirmSlot = cfg.getInt("buttons.confirm.slot", 13)
         val confirmMat  = cfg.getMaterial("buttons.confirm.material", Material.EMERALD_BLOCK)
         val confirmName = cfg.getComponent("buttons.confirm.name")
@@ -100,7 +100,7 @@ class BlackjackBetMenu(
             }
         gui.setItem(confirmSlot, confirmBtn)
 
-        // MAX BET
+
         val maxBalance = plugin.economyManager.vault?.getBalance(player) ?: 0.0
         val maxAllowed = min(maxBalance, maxLimit)
         val maxSlot    = cfg.getInt("buttons.max-bet.slot", 22)

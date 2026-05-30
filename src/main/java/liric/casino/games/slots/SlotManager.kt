@@ -26,7 +26,7 @@ class SlotManager(private val plugin: CasinoPlugin) {
     private val activeSlots = mutableMapOf<Location, SlotMachineInstance>()
     val slotKey = NamespacedKey(plugin, "casino_slot_id")
 
-    /** Registro de premios cargado desde config.yml */
+
     val registry: SlotRegistry = SlotRegistry.fromConfig(plugin.config)
 
     private val dataFile = File(plugin.dataFolder, "data.yml")
@@ -53,7 +53,7 @@ class SlotManager(private val plugin: CasinoPlugin) {
     }
 
     fun spawnMachine(blockLoc: Location, isNew: Boolean = true) {
-        // FIX: Evitar spawn si el mundo o chunk no están cargados en este momento
+
         if (!isChunkLoaded(blockLoc)) return
 
         purgeExactBlock(blockLoc)
@@ -68,8 +68,8 @@ class SlotManager(private val plugin: CasinoPlugin) {
 
         val textDisplay = blockLoc.world.spawnEntity(holoLoc, EntityType.TEXT_DISPLAY) as TextDisplay
 
-        // FIX CLAVE: Evita que Minecraft guarde el holograma en los archivos del mundo.
-        // Desaparecerá al reiniciar el server o descargar el chunk, evitando duplicaciones.
+
+
         textDisplay.isPersistent = false
 
         textDisplay.persistentDataContainer.set(slotKey, PersistentDataType.BYTE, 1.toByte())
@@ -91,17 +91,17 @@ class SlotManager(private val plugin: CasinoPlugin) {
         object : BukkitRunnable() {
             override fun run() {
                 activeSlots.values.forEach { machine ->
-                    // FIX CLAVE: Si el chunk no está cargado, ignoramos la máquina por ahora.
+
                     if (!isChunkLoaded(machine.location)) return@forEach
 
-                    // Dado que el chunk está cargado, comprobamos si el holograma es válido
+
                     if (machine.hologram == null || machine.hologram!!.isDead || !machine.hologram!!.isValid) {
                         purgeExactBlock(machine.location)
 
                         val holoLoc = machine.location.clone().apply { x += 0.5; y += 1.5; z += 0.5 }
                         val textDisplay = machine.location.world.spawnEntity(holoLoc, EntityType.TEXT_DISPLAY) as TextDisplay
 
-                        // FIX: También lo hacemos temporal aquí
+
                         textDisplay.isPersistent = false
                         textDisplay.persistentDataContainer.set(slotKey, PersistentDataType.BYTE, 1.toByte())
 
@@ -119,10 +119,10 @@ class SlotManager(private val plugin: CasinoPlugin) {
                     }
                 }
             }
-        }.runTaskTimer(plugin, 200L, 200L) // Chequeo cada 10 segundos
+        }.runTaskTimer(plugin, 200L, 200L)
     }
 
-    // Método auxiliar seguro para saber si el chunk está cargado
+
     private fun isChunkLoaded(loc: Location): Boolean {
         if (loc.world == null) return false
         val chunkX = loc.blockX shr 4
@@ -153,7 +153,7 @@ class SlotManager(private val plugin: CasinoPlugin) {
 
             removeFromData(nearest.location)
 
-            // Si el chunk está cargado, borramos el holograma físico
+
             if (isChunkLoaded(nearest.location)) {
                 nearest.hologram?.remove()
                 purgeExactBlock(nearest.location)
@@ -168,8 +168,8 @@ class SlotManager(private val plugin: CasinoPlugin) {
 
     fun purgeAllData(world: World): Int {
         var removed = 0
-        // Como algunos pudieron haberse guardado antes de que aplicáramos isPersistent = false,
-        // necesitamos seguir limpiando durante un tiempo por seguridad.
+
+
         world.entities.forEach { entity ->
             if (entity.persistentDataContainer.has(slotKey, PersistentDataType.BYTE)) {
                 entity.remove()
@@ -190,7 +190,7 @@ class SlotManager(private val plugin: CasinoPlugin) {
     }
 
     fun purgeExactBlock(blockLoc: Location) {
-        if (!isChunkLoaded(blockLoc)) return // Evita errores si se llama en chunks vacíos
+        if (!isChunkLoaded(blockLoc)) return
 
         val holoLoc = blockLoc.clone().apply { x += 0.5; y += 1.5; z += 0.5 }
         blockLoc.world!!.getNearbyEntities(holoLoc, 2.0, 3.0, 2.0).forEach { entity ->

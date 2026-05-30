@@ -29,7 +29,7 @@ class RaceManager(private val plugin: CasinoPlugin) {
 
     fun getHorses() = defaultHorses
 
-    // ─── Setup ─────────────────────────────────────────────────────────────
+
     fun createTrack(loc: Location): RaceTrack {
         val track = RaceTrack(world = loc.world.name, x = loc.x, y = loc.y, z = loc.z)
         tracks.add(track)
@@ -52,10 +52,10 @@ class RaceManager(private val plugin: CasinoPlugin) {
         sessions.remove(track.id)
     }
 
-    // ─── Apuestas ─────────────────────────────────────────────────────────
+
     fun placeBet(player: Player, track: RaceTrack, horseId: Int, amount: Double) {
         val session = sessions[track.id] ?: return
-        
+
         if (session.state == RaceState.RACING) {
             player.sendMessage(msg("racing.already-started"))
             return
@@ -75,12 +75,12 @@ class RaceManager(private val plugin: CasinoPlugin) {
         }
 
         val horse = defaultHorses.firstOrNull { it.id == horseId } ?: return
-        
+
         plugin.statsManager.recordGameUse(player.uniqueId, "racing")
         session.bets.add(RacePlayerBet(player.uniqueId, player.name, horseId, amount))
 
-        player.sendMessage(msg("racing.bet-placed", 
-            "horse" to "${horse.emoji} ${horse.name}", 
+        player.sendMessage(msg("racing.bet-placed",
+            "horse" to "${horse.emoji} ${horse.name}",
             "amount" to amount.toLong().toString()
         ))
         player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
@@ -90,7 +90,7 @@ class RaceManager(private val plugin: CasinoPlugin) {
         }
     }
 
-    // ─── Countdown & Race ──────────────────────────────────────────────────
+
     private fun startCountdown(session: RaceSession) {
         session.state = RaceState.WAITING
         session.countdownSeconds = 30
@@ -111,7 +111,7 @@ class RaceManager(private val plugin: CasinoPlugin) {
                 if (session.countdownSeconds % 10 == 0 || session.countdownSeconds <= 5) {
                     broadcastToBettors(session, "racing.countdown", "time" to session.countdownSeconds.toString())
                 }
-                
+
                 session.countdownSeconds--
             }
         }.runTaskTimer(plugin, 0L, 20L)
@@ -121,12 +121,12 @@ class RaceManager(private val plugin: CasinoPlugin) {
         session.state = RaceState.RACING
         broadcastToBettors(session, "racing.started")
 
-        // Simulamos la carrera con un delay
+
         object : BukkitRunnable() {
             var ticks = 0
             override fun run() {
                 ticks++
-                if (ticks >= 5) { // 5 segundos de carrera simulada
+                if (ticks >= 5) {
                     finishRace(session)
                     cancel()
                 } else {
@@ -140,12 +140,12 @@ class RaceManager(private val plugin: CasinoPlugin) {
 
     private fun finishRace(session: RaceSession) {
         session.state = RaceState.FINISHED
-        
-        // Determinar ganador basado en pesos
+
+
         val totalWeight = defaultHorses.sumOf { it.winChance }
         var randomVal = Random.nextInt(totalWeight)
         var winnerHorse = defaultHorses.first()
-        
+
         for (horse in defaultHorses) {
             randomVal -= horse.winChance
             if (randomVal < 0) {
@@ -153,20 +153,20 @@ class RaceManager(private val plugin: CasinoPlugin) {
                 break
             }
         }
-        
+
         session.winnerHorseId = winnerHorse.id
         broadcastToBettors(session, "racing.winner", "horse" to "${winnerHorse.emoji} ${winnerHorse.name}")
 
-        // Pagar ganadores
+
         session.bets.forEach { bet ->
             val player = Bukkit.getPlayer(bet.playerId)
             if (bet.horseId == winnerHorse.id) {
                 val rawWin = bet.amount * winnerHorse.oddsMult
                 val (netWin, tax) = TaxUtil.applyTax(plugin, rawWin, "racing")
-                
+
                 plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(bet.playerId), netWin)
                 plugin.statsManager.recordRacingWin(bet.playerId, netWin)
-                
+
                 player?.let {
                     it.sendMessage(msg("racing.win", "amount" to netWin.toLong().toString(), "tax" to TaxUtil.taxMessage(plugin, tax)))
                     it.playSound(it.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
@@ -181,7 +181,7 @@ class RaceManager(private val plugin: CasinoPlugin) {
             }
         }
 
-        // Reset session
+
         session.bets.clear()
         session.winnerHorseId = -1
         session.state = RaceState.WAITING

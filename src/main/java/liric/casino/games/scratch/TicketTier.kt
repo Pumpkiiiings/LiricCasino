@@ -2,10 +2,7 @@ package liric.casino.games.scratch
 
 import org.bukkit.configuration.file.FileConfiguration
 
-/**
- * Niveles de boleto de Rasca y Gana.
- * Las propiedades son var para ser inyectadas desde config.yml en onEnable().
- */
+
 enum class TicketTier(val id: String) {
     BASIC("basico"),
     ADVANCED("avanzado"),
@@ -18,7 +15,7 @@ enum class TicketTier(val id: String) {
     var matchRequired: Int = 3
     var payoutMultiplier: Double = 1.0
 
-    /** Calcula los slots del inventario donde irán los bloques rascables. */
+
     fun getScratchableSlots(): List<Int> {
         return when (this) {
             BASIC    -> listOf(3, 4, 5, 12, 13, 14, 21, 22, 23)
@@ -29,7 +26,7 @@ enum class TicketTier(val id: String) {
     }
 
     companion object {
-        /** Aplica los valores de config.yml a todos los tiers. */
+
         fun loadFromConfig(config: FileConfiguration) {
             values().forEach { tier ->
                 val path = "scratch.tiers.${tier.id}"

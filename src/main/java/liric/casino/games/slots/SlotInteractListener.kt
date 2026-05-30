@@ -24,15 +24,15 @@ class SlotInteractListener(private val plugin: CasinoPlugin) : Listener {
             return
         }
 
-        // Verificar ocupación
+
         if (machine.occupant != null && machine.occupant != player.uniqueId) {
             val occupantPlayer = Bukkit.getPlayer(machine.occupant!!)
 
-            // Si el ocupante está desconectado o cerró el menú, liberamos la máquina
+
             if (occupantPlayer == null || !occupantPlayer.isOnline || !occupantPlayer.openInventory.title.contains("MÁQUINA 777")) {
                 plugin.slotManager.freeMachine(block.location)
             } else {
-                // ¡ESTÁ OCUPADA! Lo empujamos hacia atrás
+
                 val pushDir = player.location.toVector().subtract(block.location.toVector())
                 if (pushDir.lengthSquared() > 0) {
                     pushDir.normalize().multiply(1.2).setY(0.3)
@@ -45,7 +45,7 @@ class SlotInteractListener(private val plugin: CasinoPlugin) : Listener {
             }
         }
 
-        // Si está libre, la ocupamos y abrimos el menú
+
         plugin.slotManager.occupyMachine(block.location, player.uniqueId)
         SlotMachineMenu(plugin, player, block.location).open()
     }

@@ -15,16 +15,16 @@ data class TTTSession(
     var joinerId: UUID? = null,
     var joinerName: String? = null,
     var state: TTTState = TTTState.WAITING,
-    val board: Array<TTTMark> = Array(9) { TTTMark.NONE },  // índices 0-8
-    var currentTurn: UUID = creatorId,  // X siempre empieza (creator)
+    val board: Array<TTTMark> = Array(9) { TTTMark.NONE },
+    var currentTurn: UUID = creatorId,
     var creatorMark: TTTMark = TTTMark.X,
     var joinerMark: TTTMark = TTTMark.O
 ) {
     fun checkWinner(): TTTMark {
         val lines = arrayOf(
-            intArrayOf(0,1,2), intArrayOf(3,4,5), intArrayOf(6,7,8), // filas
-            intArrayOf(0,3,6), intArrayOf(1,4,7), intArrayOf(2,5,8), // columnas
-            intArrayOf(0,4,8), intArrayOf(2,4,6)                     // diagonales
+            intArrayOf(0,1,2), intArrayOf(3,4,5), intArrayOf(6,7,8),
+            intArrayOf(0,3,6), intArrayOf(1,4,7), intArrayOf(2,5,8),
+            intArrayOf(0,4,8), intArrayOf(2,4,6)
         )
         for (line in lines) {
             val (a, b, c) = line

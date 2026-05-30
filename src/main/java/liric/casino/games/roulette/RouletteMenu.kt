@@ -28,7 +28,7 @@ class RouletteMenu(private val plugin: CasinoPlugin, private val game: RouletteG
 
         cfg.applyDecorations(gui)
 
-        // ── Número 0 ──────────────────────────────────────────────────────
+
         val zeroSlot = cfg.getInt("zero-slot", 4)
         val zeroMat  = cfg.getMaterial("items.zero.material", Material.LIME_DYE)
         val zeroName = cfg.getComponent("items.zero.name")
@@ -39,7 +39,7 @@ class RouletteMenu(private val plugin: CasinoPlugin, private val game: RouletteG
             .asGuiItem { BetAmountMenu(plugin, game, BetType.Number(0), player).open() }
         gui.setItem(zeroSlot, zeroBet)
 
-        // ── Números 1-36 ──────────────────────────────────────────────────
+
         val numberBase  = cfg.getInt("number-start-slot", 8)
         val redTemplate = cfg.getString("items.red-number.name-template", "<#FF2A2A><bold>NÚMERO {num} <gray>(Paga x36)")
         val blkTemplate = cfg.getString("items.black-number.name-template", "<#666666><bold>NÚMERO {num} <gray>(Paga x36)")
@@ -57,7 +57,7 @@ class RouletteMenu(private val plugin: CasinoPlugin, private val game: RouletteG
             gui.setItem(numberBase + i, item)
         }
 
-        // ── Apuestas de color ─────────────────────────────────────────────
+
         data class ColorBtn(val cfgKey: String, val betColor: BetColor, val slotKey: String)
         val colorBtns = listOf(
             ColorBtn("items.color-red",   BetColor.RED,   "color-slots.red"),

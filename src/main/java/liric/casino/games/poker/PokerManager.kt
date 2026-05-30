@@ -32,7 +32,7 @@ class PokerManager(private val plugin: CasinoPlugin) {
         textDisplay.isShadowed = true
         activeTables.add(textDisplay)
 
-        // Entidad invisible para detectar el Click
+
         val interaction = center.world.spawnEntity(center, EntityType.INTERACTION) as Interaction
         interaction.persistentDataContainer.set(pokerKey, PersistentDataType.BYTE, 1.toByte())
         interaction.interactionWidth = 2.0f
@@ -44,8 +44,8 @@ class PokerManager(private val plugin: CasinoPlugin) {
     fun updateHolograms() {
         val game = plugin.pokerGame
 
-        // CORRECCIÓN: Usamos 'players.size' en lugar de 'activePlayers',
-        // y agrupamos todos los estados de juego en un 'else'
+
+
         val text = when (game.state) {
             PokerState.WAITING -> """
                 <#FF0000><bold>♠ MESA DE POKER ♠</bold></#FF0000>

@@ -21,12 +21,12 @@ class CasinoPlaceholders(private val plugin: CasinoPlugin) : PlaceholderExpansio
             ?: plugin.statsManager.getOrCreate(player.uniqueId, player.name).also { return "..." }
 
         return when (params.lowercase()) {
-            // ── Global ───────────────────────────────────────────────────────
+
             "total_wagered"        -> stats.totalWagered.fmt()
             "total_won"            -> stats.totalWon.fmt()
             "profit"               -> stats.profit.fmt()
 
-            // ── Ruleta ───────────────────────────────────────────────────────
+
             "roulette_bets"        -> stats.rouletteBets.toString()
             "roulette_wagered"     -> stats.rouletteWagered.fmt()
             "roulette_won"         -> stats.rouletteWon.fmt()
@@ -36,13 +36,13 @@ class CasinoPlaceholders(private val plugin: CasinoPlugin) : PlaceholderExpansio
                 if (total > 0) "${(stats.rouletteWins * 100 / total)}%" else "N/A"
             }
 
-            // ── Slots ────────────────────────────────────────────────────────
+
             "slots_spins"          -> stats.slotsSpins.toString()
             "slots_wagered"        -> stats.slotsWagered.fmt()
             "slots_won"            -> stats.slotsWon.fmt()
             "slots_jackpots"       -> stats.slotsJackpots.toString()
 
-            // ── Blackjack ────────────────────────────────────────────────────
+
             "bj_games"             -> stats.bjGames.toString()
             "bj_wagered"           -> stats.bjWagered.fmt()
             "bj_won"               -> stats.bjWon.fmt()
@@ -53,7 +53,7 @@ class CasinoPlaceholders(private val plugin: CasinoPlugin) : PlaceholderExpansio
                 if (g > 0) "${(stats.bjWins * 100 / g)}%" else "N/A"
             }
 
-            // ── Rasca y Gana ─────────────────────────────────────────────────
+
             "scratch_used"         -> stats.scratchUsed.toString()
             "scratch_spent"        -> stats.scratchSpent.fmt()
             "scratch_won"          -> stats.scratchWon.fmt()

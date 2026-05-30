@@ -35,7 +35,7 @@ class RouletteGame(private val plugin: CasinoPlugin) {
     private val bets = mutableMapOf<UUID, Pair<BetType, Double>>()
     private var countdownTask: BukkitRunnable? = null
 
-    // ─── Config helpers ──────────────────────────────────────────────────
+
     private fun cfg() = plugin.config
     private fun msg(key: String, vararg ph: Pair<String, String>) = plugin.messages.get(key, *ph)
 
@@ -46,7 +46,7 @@ class RouletteGame(private val plugin: CasinoPlugin) {
     private fun colorMultiplier(color: BetColor): Double =
         cfg().getDouble("roulette.color-multipliers.${color.name}", 2.0)
 
-    // ─── Hologramas ──────────────────────────────────────────────────────
+
     fun updateStatusHologram() {
         val text = "<#FF00FF><bold>🌀 ROULETTE 🌀</bold></#FF00FF><br>" +
                 "<#E0E0E0>Max Bet: <#00FF7F>$${maxBet().toLong()}</#00FF7F></#E0E0E0><br>" +
@@ -54,14 +54,14 @@ class RouletteGame(private val plugin: CasinoPlugin) {
         plugin.rouletteManager.updateHolograms(text)
     }
 
-    // ─── Utilidad ─────────────────────────────────────────────────────────
+
     fun getNumberColor(number: Int): BetColor {
         if (number == 0) return BetColor.GREEN
         val redNumbers = setOf(1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36)
         return if (number in redNumbers) BetColor.RED else BetColor.BLACK
     }
 
-    // ─── Apuesta ─────────────────────────────────────────────────────────
+
     fun addBet(player: Player, betType: BetType, amount: Double) {
         if (state == GameState.SPINNING) {
             player.sendMessage(msg("roulette.already-spinning"))
@@ -94,7 +94,7 @@ class RouletteGame(private val plugin: CasinoPlugin) {
         }
     }
 
-    // ─── Lógica de inicio ─────────────────────────────────────────────────
+
     private fun checkStartCondition() {
         if (state == GameState.WAITING && bets.size >= minPlayers()) startCountdown()
     }
@@ -132,7 +132,7 @@ class RouletteGame(private val plugin: CasinoPlugin) {
         startSpin()
     }
 
-    // ─── Spin ─────────────────────────────────────────────────────────────
+
     private fun startSpin() {
         state = GameState.SPINNING
         plugin.server.broadcast(msg("roulette.spinning"))

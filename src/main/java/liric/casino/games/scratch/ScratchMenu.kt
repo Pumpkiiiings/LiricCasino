@@ -15,12 +15,12 @@ class ScratchMenu(private val plugin: CasinoPlugin, private val player: Player, 
     private val cfg get() = plugin.menuConfig("scratch.yml")
     private fun msg(key: String, vararg ph: Pair<String, String>) = plugin.messages.get(key, *ph)
 
-    // PrizeRegistry cargado desde config en ScratchManager/plugin
+
     private val prizeRegistry = PrizeRegistry.fromConfig(plugin.config)
 
     private val scratchableSlots = tier.getScratchableSlots()
     private val board = List(scratchableSlots.size) { prizeRegistry.getRandomPrize() }
-    // FIX DUPE: ConcurrentHashSet + @Volatile para evitar race condition por click spam
+
     private val scratchedSlots = ConcurrentHashMap.newKeySet<Int>()
     private val revealedCounts = ConcurrentHashMap<ScratchPrize, Int>()
     @Volatile private var locked = false
@@ -51,7 +51,7 @@ class ScratchMenu(private val plugin: CasinoPlugin, private val player: Player, 
             val hiddenItem = ItemBuilder.from(scratchMat)
                 .name(scratchName).lore(scratchLore).flags(*ItemFlag.values())
                 .asGuiItem {
-                    // FIX: double-check atómico
+
                     if (locked || !scratchedSlots.add(slot)) return@asGuiItem
 
                     val prize = board[index]
@@ -71,7 +71,7 @@ class ScratchMenu(private val plugin: CasinoPlugin, private val player: Player, 
 
     private fun checkWinCondition(gui: Gui, lastPrize: ScratchPrize, missedSuffix: String, closeDelay: Long) {
         if ((revealedCounts[lastPrize] ?: 0) == tier.matchRequired) {
-            if (!locked) locked = true else return  // FIX: previene doble pago atómicamente
+            if (!locked) locked = true else return
             val totalPayout = lastPrize.basePayout * tier.payoutMultiplier
             if (totalPayout > 0) {
                 plugin.economyManager.depositPlayer(player, totalPayout)

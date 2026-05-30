@@ -51,7 +51,7 @@ class DatabaseManager(private val plugin: CasinoPlugin) {
 
     fun getConnection(): Connection = dataSource.connection
 
-    // ─── DDL ─────────────────────────────────────────────────────────────────
+
     private fun createTables() {
         getConnection().use { conn ->
             conn.createStatement().use { stmt ->
@@ -110,10 +110,7 @@ class DatabaseManager(private val plugin: CasinoPlugin) {
         }
     }
 
-    /**
-     * Agrega columnas nuevas a tablas existentes (migración segura).
-     * No falla si la columna ya existe.
-     */
+
     private fun migrateColumns() {
         val newColumns = mapOf(
             "lottery_tickets"  to "INT DEFAULT 0",
@@ -152,12 +149,12 @@ class DatabaseManager(private val plugin: CasinoPlugin) {
                             stmt.execute("ALTER TABLE casino_stats ADD COLUMN IF NOT EXISTS $col $definition")
                         }
                     }
-                } // Silencioso si ya existe (SQLite lanza excepción, se ignora)
+                }
             }
         }
     }
 
-    // ─── UPSERT (compatible SQLite e MariaDB) ────────────────────────────────
+
     fun upsert(sql: String, params: List<Any?>) {
         getConnection().use { conn ->
             conn.prepareStatement(sql).use { ps ->

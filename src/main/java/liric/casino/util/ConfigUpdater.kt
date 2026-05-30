@@ -7,10 +7,7 @@ import java.io.File
 
 object ConfigUpdater {
 
-    /**
-     * Merges the default configuration from the JAR into the existing file on disk.
-     * It adds missing keys without overwriting existing values.
-     */
+
     fun updateConfig(file: File, resourcePath: String) {
         if (!file.exists()) return
 
@@ -25,7 +22,7 @@ object ConfigUpdater {
 
     private fun mergeConfigs(current: ConfigurationSection, default: ConfigurationSection): Boolean {
         var changed = false
-        
+
         for (key in default.getKeys(false)) {
             if (!current.contains(key)) {
                 current.set(key, default.get(key))
@@ -33,7 +30,7 @@ object ConfigUpdater {
             } else if (default.getConfigurationSection(key) != null) {
                 val currentSection = current.getConfigurationSection(key)
                 val defaultSection = default.getConfigurationSection(key)
-                
+
                 if (currentSection == null || (defaultSection != null && mergeConfigs(currentSection, defaultSection))) {
                     changed = true
                 }

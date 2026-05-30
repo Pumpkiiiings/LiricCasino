@@ -33,11 +33,11 @@ class PokerGame(val plugin: CasinoPlugin) {
 
     val maxPlayers = 6
     val minPlayers = 2
-    val entryFee = 5000.0 // Ciega Grande inicial
+    val entryFee = 5000.0
 
-    // ==========================================
-    // LOBBY Y RECLUTAMIENTO
-    // ==========================================
+
+
+
     fun addPlayer(player: Player) {
         if (state != PokerState.WAITING && state != PokerState.STARTING) {
             player.sendMessage(plugin.format("$prefix <#FF5555>Juego en curso. ¡Espera!</#FF5555>"))
@@ -69,7 +69,7 @@ class PokerGame(val plugin: CasinoPlugin) {
         }
 
         if (state == PokerState.WAITING || state == PokerState.STARTING) {
-            // El juego aún no empieza: Se sale de la lista y se le REEMBOLSA el dinero
+
             plugin.economyManager.depositPlayer(player, entryFee)
             players.remove(pokerPlayer)
 
@@ -77,14 +77,14 @@ class PokerGame(val plugin: CasinoPlugin) {
             plugin.pokerManager.updateHolograms()
             player.sendMessage(plugin.format("$prefix <#00FF7F>Has salido de la mesa. Tu entrada de $$entryFee fue reembolsada.</#00FF7F>"))
         } else {
-            // El juego está en curso: Hace "Fold" automático y pierde el dinero que apostó
+
             if (!pokerPlayer.hasFolded) {
                 handleAction(player.uniqueId, "FOLD", 0.0)
             }
             player.sendMessage(plugin.format("$prefix <#FF5555>Has abandonado la partida en curso (Te has retirado automáticamente).</#FF5555>"))
         }
 
-        // Cierra el inventario por si tenía el menú abierto
+
         player.closeInventory()
     }
 
@@ -119,9 +119,9 @@ class PokerGame(val plugin: CasinoPlugin) {
         task?.runTaskTimer(plugin, 0L, 20L)
     }
 
-    // ==========================================
-    // MOTOR DE TEXAS HOLD'EM
-    // ==========================================
+
+
+
     private fun startRealGame() {
         deck = Deck()
         communityCards.clear()
@@ -140,7 +140,7 @@ class PokerGame(val plugin: CasinoPlugin) {
         state = PokerState.PRE_FLOP
         plugin.pokerManager.updateHolograms()
 
-        // Abrir menú a todos
+
         players.forEach { p ->
             val bukkitPlayer = Bukkit.getPlayer(p.uuid)
             if (bukkitPlayer != null) {
@@ -150,19 +150,19 @@ class PokerGame(val plugin: CasinoPlugin) {
         startTurnTimer()
     }
 
-    // Temporizador de turno: Si no juega en 15s, se retira (Fold)
+
     private fun startTurnTimer() {
         task?.cancel()
         countdownSeconds = 15
         task = object : BukkitRunnable() {
             override fun run() {
-                // Actualiza visualmente el menú para todos en vivo
+
                 updateMenus()
 
                 if (countdownSeconds <= 0) {
                     val currentPlayer = getCurrentPlayer()
                     if (currentPlayer != null && !currentPlayer.hasFolded) {
-                        handleAction(currentPlayer.uuid, "FOLD", 0.0) // Auto-Fold
+                        handleAction(currentPlayer.uuid, "FOLD", 0.0)
                     }
                 }
                 countdownSeconds--
@@ -174,7 +174,7 @@ class PokerGame(val plugin: CasinoPlugin) {
     fun getCurrentPlayer(): PokerPlayer? {
         val p = players.getOrNull(turnIndex)
         if (p?.hasFolded == true) {
-            advanceTurn() // Saltar a los que se retiraron
+            advanceTurn()
             return players.getOrNull(turnIndex)
         }
         return p
@@ -211,26 +211,26 @@ class PokerGame(val plugin: CasinoPlugin) {
     private fun advanceTurn() {
         turnIndex++
 
-        // Verifica si todos jugaron
+
         val activeParticipants = players.filter { !it.hasFolded }
         if (activeParticipants.size == 1) {
-            // Todos se retiraron menos 1, gana automáticamente
+
             endGame(activeParticipants.first())
             return
         }
 
-        // Si ya dio la vuelta a la mesa y todos igualaron la apuesta, avanza la ronda
+
         if (turnIndex >= players.size) {
             val betsMatched = activeParticipants.all { it.currentBet == currentHighestBet }
             if (betsMatched) {
                 nextRound()
                 return
             } else {
-                turnIndex = 0 // Da otra vuelta si alguien subió
+                turnIndex = 0
             }
         }
 
-        // Si el siguiente se retiró, lo salta
+
         if (players[turnIndex].hasFolded) {
             advanceTurn()
         } else {
@@ -289,7 +289,7 @@ class PokerGame(val plugin: CasinoPlugin) {
             }
         }
 
-        updateMenus() // Para que vean todas las cartas
+        updateMenus()
         endGame(bestPlayer, HandEvaluator.getHandName(bestScore))
     }
 
@@ -310,14 +310,14 @@ class PokerGame(val plugin: CasinoPlugin) {
                 state = PokerState.WAITING
                 plugin.pokerManager.updateHolograms()
             }
-        }.runTaskLater(plugin, 100L) // Cierra el menú tras 5 segundos
+        }.runTaskLater(plugin, 100L)
     }
 
     private fun updateMenus() {
         players.forEach { p ->
             val bp = Bukkit.getPlayer(p.uuid)
             if (bp != null && bp.openInventory.title.contains("TEXAS HOLD'EM")) {
-                // Forzar actualización del menú activo
+
                 PokerMenu(plugin, this, bp).updateExisting(bp)
             }
         }

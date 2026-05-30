@@ -22,10 +22,10 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
     private val minBet = plugin.config.getDouble("slots.bet.default.min", 100.0)
     private val maxBet = plugin.economyManager.getMaxBet(player, "slots")
     private var currentBet = minBet
-    // FIX RACE: AtomicBoolean para evitar doble spin
+
     private val isSpinning = AtomicBoolean(false)
 
-    // SlotRegistry cargado por SlotManager
+
     private val registry get() = plugin.slotManager.registry
 
     private val gui = Gui.gui()
@@ -54,7 +54,7 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
             return
         }
 
-        // Botones de ajuste
+
         listOf("minus-big", "minus-small", "plus-small", "plus-big").forEach { key ->
             val slot   = cfg.getInt("buttons.$key.slot")
             val mat    = cfg.getMaterial("buttons.$key.material", Material.STONE)
@@ -64,11 +64,11 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
             gui.setItem(slot, createBetButton(mat, label, amount, color))
         }
 
-        // BOTÓN CANTIDAD CUSTOM
+
         val customSlot = cfg.getInt("buttons.custom-bet.slot", 4)
         val customMat  = cfg.getMaterial("buttons.custom-bet.material", Material.PAPER)
         val customName = cfg.getComponent("buttons.custom-bet.name", "<#FFD700>Cantidad Custom")
-        
+
         val customBtn = ItemBuilder.from(customMat)
             .name(customName)
             .lore(plugin.format("<gray>Haz clic para escribir el monto en el chat"))
@@ -76,7 +76,7 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
             .asGuiItem {
                 gui.close(player)
                 player.sendMessage(plugin.format("<#FFD700><b>✍ Escribe la cantidad exacta que deseas apostar:</b>"))
-                
+
                 plugin.economyManager.openCustomBetChat(player) { amount ->
                     if (amount in minBet..maxBet) {
                         currentBet = amount
@@ -88,7 +88,7 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
             }
         gui.setItem(customSlot, customBtn)
 
-        // SPIN button
+
         val spinSlot = cfg.getInt("buttons.spin.slot", 22)
         val spinMat  = cfg.getMaterial("buttons.spin.material", Material.TRIPWIRE_HOOK)
         val spinName = cfg.getComponent("buttons.spin.name")
@@ -100,8 +100,8 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
             .flags(*ItemFlag.values()).asGuiItem {
                 if (!ValidationUtil.canPlayDaily(plugin, player, "slots")) return@asGuiItem
                 if (!ValidationUtil.validateBet(plugin, player, "slots", currentBet)) return@asGuiItem
-                
-                // FIX: compareAndSet evita doble-spin por click spam
+
+
                 if (!isSpinning.compareAndSet(false, true)) return@asGuiItem
                 if (plugin.economyManager.withdrawPlayer(player, currentBet).transactionSuccess()) {
                     plugin.statsManager.recordGameUse(player.uniqueId, "slots")
@@ -139,7 +139,7 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
     }
 
     private fun startSpin() {
-        // isSpinning ya está en true por compareAndSet
+
         updateBottomRow()
 
         gui.setItem(26, ItemBuilder.from(Material.BLACK_STAINED_GLASS_PANE).name(plugin.format(" ")).asGuiItem())

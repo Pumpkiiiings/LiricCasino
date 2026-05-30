@@ -20,10 +20,10 @@ class CoinFlipCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabCo
         val mgr = plugin.coinFlipManager
 
         when (sub0) {
-            // Sin args o "menu" → abrir GUI principal
+
             null, "menu", "lista", "list" -> CoinFlipGUI.open(plugin, sender)
 
-            // Crear con monto directo
+
             "crear", "create" -> {
                 val raw = args.getOrNull(1) ?: run { sendHelp(sender); return true }
                 val amount = CoinFlipMenu.parseAmount(raw)
@@ -32,19 +32,19 @@ class CoinFlipCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabCo
                 mgr.createGame(sender, amount)
             }
 
-            // Unirse a la partida de alguien
+
             "unirse", "join" -> {
                 val target = args.getOrNull(1) ?: run { sendHelp(sender); return true }
                 mgr.joinGame(sender, target)
             }
 
-            // Cancelar la partida propia
+
             "cancelar", "cancel" -> mgr.cancelGame(sender)
 
-            // Ayuda
+
             "help", "ayuda" -> sendHelp(sender)
 
-            // Admin: reload (delegado a CasinoCommand reload)
+
             "reload" -> {
                 if (!sender.hasPermission("casino.admin")) {
                     sender.sendMessage(msg("general.no-permission")); return true

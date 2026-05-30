@@ -24,11 +24,11 @@ object LotteryGUI {
 
         cfg.applyDecorations(gui)
 
-        // Formato para variables
+
         val jackpotFmt = "$" + NumberFormat.getNumberInstance(Locale.US).format(manager.getJackpot())
         val ticketsCount = manager.getTicketCount().toString()
         val timeFmt = formatTime(manager.getSecondsUntilDraw())
-        
+
         val myTicketsList = manager.getPlayerTickets(viewer.uniqueId)
         val myTicketsStr = if (myTicketsList.isEmpty()) {
             cfg.getString("no-tickets-format", "<gray>No tienes boletos actualmente.")
@@ -36,7 +36,7 @@ object LotteryGUI {
             myTicketsList.joinToString(", ") { it.number.toString() }
         }
 
-        // ── Info de Lotería ────────────────────────────
+
         val infoMat = cfg.getMaterial("info.material", Material.GOLD_INGOT)
         val infoItem = ItemBuilder.from(infoMat)
             .name(cfg.getComponent("info.name"))
@@ -51,7 +51,7 @@ object LotteryGUI {
             .asGuiItem()
         gui.setItem(cfg.getInt("info.slot", 13), infoItem)
 
-        // ── Botón Comprar 1 ────────────────────────────
+
         val buy1Mat = cfg.getMaterial("buy-1.material", Material.PAPER)
         val buy1Btn = ItemBuilder.from(buy1Mat)
             .name(cfg.getComponent("buy-1.name"))
@@ -64,7 +64,7 @@ object LotteryGUI {
             }
         gui.setItem(cfg.getInt("buy-1.slot", 29), buy1Btn)
 
-        // ── Botón Comprar 5 ────────────────────────────
+
         val buy5Mat = cfg.getMaterial("buy-5.material", Material.MAP)
         val buy5Btn = ItemBuilder.from(buy5Mat)
             .name(cfg.getComponent("buy-5.name"))
@@ -73,7 +73,7 @@ object LotteryGUI {
             .asGuiItem {
                 viewer.playSound(viewer.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
                 viewer.closeInventory()
-                manager.buyTicket(viewer, 5) // max tickets (can be read from config, but 5 is fine)
+                manager.buyTicket(viewer, 5)
             }
         gui.setItem(cfg.getInt("buy-5.slot", 33), buy5Btn)
 

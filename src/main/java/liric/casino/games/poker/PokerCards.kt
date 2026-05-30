@@ -46,7 +46,7 @@ class Deck {
 }
 
 object HandEvaluator {
-    // Evalúa la mano y devuelve un puntaje. A mayor puntaje, mejor mano.
+
     fun evaluate(holeCards: List<Card>, communityCards: List<Card>): Long {
         val all = holeCards + communityCards
         if (all.size < 5) return 0L

@@ -11,9 +11,7 @@ data class ScratchPrize(
     val weight: Int
 )
 
-/**
- * Registro de premios de Rasca y Gana cargado desde config.yml (scratch.prizes).
- */
+
 class PrizeRegistry(private val prizesSection: List<Map<*, *>>) {
 
     val prizes: List<ScratchPrize> = loadPrizes()
@@ -42,7 +40,7 @@ class PrizeRegistry(private val prizesSection: List<Map<*, *>>) {
     }
 
     companion object {
-        /** Crea un PrizeRegistry desde la sección scratch.prizes de config.yml. */
+
         fun fromConfig(config: FileConfiguration): PrizeRegistry {
             @Suppress("UNCHECKED_CAST")
             val list = config.getList("scratch.prizes") as? List<Map<*, *>> ?: emptyList()

@@ -40,7 +40,7 @@ class RaceBetGUI(
     }
 
     private fun refresh(gui: Gui, config: MenuConfig) {
-        // Decoraciones
+
         config.getMapList("decorations").forEach { dec ->
             val mat = Material.valueOf(dec["material"].toString())
             val name = plugin.format(dec["name"].toString())
@@ -51,17 +51,17 @@ class RaceBetGUI(
 
         val horses = mgr.getHorses()
 
-        // ── Caballos ─────────────────────────────────
+
         val horseSlots = config.getIntegerList("horse-slots")
         horses.forEachIndexed { idx, horse ->
             val slot = if (idx < horseSlots.size) horseSlots[idx] else return@forEachIndexed
             val isSelected = selectedHorse == horse.id
-            
+
             val itemKey = if (isSelected) "horse-item-selected" else "horse-item"
             val itemStrName = config.getString("$itemKey.name", "")
                 .replace("%horse_emoji%", horse.emoji)
                 .replace("%horse_name%", horse.name)
-            
+
             val loreLines = config.getStringList("$itemKey.lore").map {
                 plugin.format(it.replace("%horse_odds%", horse.oddsMult.toString())
                     .replace("%win_chance%", winChancePct(horse, horses).toString()))
@@ -80,13 +80,13 @@ class RaceBetGUI(
             gui.setItem(slot, btn)
         }
 
-        // ── Apuesta ─────────────────────────────────────────────────────────
+
         val betAmounts = config.getDoubleList("bet-amounts")
         betAmounts.forEachIndexed { idx, amount ->
-            val slot = 36 + idx // Fijo para simplificar, como antes
+            val slot = 36 + idx
             val isSelected = selectedBet == amount
             val itemKey = if (isSelected) "bet-item-selected" else "bet-item"
-            
+
             val btnName = config.getString("$itemKey.name", "")
                 .replace("%amount%", amount.toLong().toString())
 
@@ -102,12 +102,12 @@ class RaceBetGUI(
             gui.setItem(slot, btn)
         }
 
-        // ── Botón Apostar ────────────────────────────────────────────────────
+
         val horseSelected = selectedHorse
         if (horseSelected != null) {
             val horse = horses.firstOrNull { it.id == horseSelected }
             val potWin = selectedBet * (horse?.oddsMult ?: 3.0)
-            
+
             val betBtnStr = config.getString("bet-action-btn.name", "")
             val betBtnLore = config.getStringList("bet-action-btn.lore").map {
                 plugin.format(it.replace("%horse_emoji%", horse?.emoji ?: "")
@@ -133,7 +133,7 @@ class RaceBetGUI(
             gui.setItem(config.getInt("bet-no-selection.slot", 41), noSelItem)
         }
 
-        // ── Cancelar ────────────────────────────────────────────────────────
+
         val cancelBtn = config.getItemBuilder("cancel-btn")
             .name(plugin.format(config.getString("cancel-btn.name", "")))
             .lore(config.getStringList("cancel-btn.lore").map { plugin.format(it) })

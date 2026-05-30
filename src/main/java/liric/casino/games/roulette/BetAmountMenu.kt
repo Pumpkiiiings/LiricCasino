@@ -58,11 +58,11 @@ class BetAmountMenu(
             gui.setItem(slot, createModifyButton(slot, mat, label, amount, color))
         }
 
-        // BOTÓN CANTIDAD CUSTOM
+
         val customSlot = cfg.getInt("buttons.custom-bet.slot", 4)
         val customMat  = cfg.getMaterial("buttons.custom-bet.material", Material.PAPER)
         val customName = cfg.getComponent("buttons.custom-bet.name", "<#FFD700>Cantidad Custom")
-        
+
         val customBtn = ItemBuilder.from(customMat)
             .name(customName)
             .lore(plugin.format("<gray>Haz clic para escribir el monto en el chat"))
@@ -70,7 +70,7 @@ class BetAmountMenu(
             .asGuiItem {
                 gui.close(player)
                 player.sendMessage(plugin.format("<#FFD700><b>✍ Escribe la cantidad exacta que deseas apostar:</b>"))
-                
+
                 plugin.economyManager.openCustomBetChat(player) { amount ->
                     if (amount in 0.0..absoluteMaxLimit) {
                         currentBet = amount

@@ -11,7 +11,7 @@ class StatsManager(private val plugin: CasinoPlugin) {
 
     private val cache = ConcurrentHashMap<UUID, PlayerStats>()
 
-    // ─── Ciclo de vida ────────────────────────────────────────────────────────
+
     fun startAutoSave() {
         object : BukkitRunnable() {
             override fun run() { saveAllAsync() }
@@ -22,7 +22,7 @@ class StatsManager(private val plugin: CasinoPlugin) {
         cache.values.filter { it.dirty }.forEach { saveToDB(it) }
     }
 
-    // ─── Carga / obtención ───────────────────────────────────────────────────
+
     fun loadAsync(uuid: UUID, name: String) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
             val stats = loadFromDB(uuid, name)
@@ -48,7 +48,7 @@ class StatsManager(private val plugin: CasinoPlugin) {
             PlayerStats(uuid, name)
         }
 
-    // ─── Registros ───────────────────────────────────────────────────────────
+
 
     fun recordRouletteBet(uuid: UUID, wagered: Double) = update(uuid) {
         rouletteBets++; rouletteWagered += wagered
@@ -151,7 +151,7 @@ class StatsManager(private val plugin: CasinoPlugin) {
     }
 
 
-    // ─── Top leaderboard ─────────────────────────────────────────────────────
+
     enum class TopMode(val sqlColumn: String, val label: String) {
         GLOBAL("(roulette_won + slots_won + bj_won + scratch_won + lottery_won + coinflip_won)", "Global"),
         RULETA("roulette_won", "Roulette"),
@@ -184,7 +184,7 @@ class StatsManager(private val plugin: CasinoPlugin) {
         })
     }
 
-    // ─── Internos ─────────────────────────────────────────────────────────────
+
     private fun update(uuid: UUID, block: PlayerStats.() -> Unit) {
         cache[uuid]?.apply { block(); dirty = true }
     }
@@ -291,7 +291,7 @@ class StatsManager(private val plugin: CasinoPlugin) {
         dirty           = false
     )
 
-    // Safe getters para columnas que pueden no existir aún en DB antigua
+
     private fun safeInt(rs: ResultSet, col: String): Int = runCatching { rs.getInt(col) }.getOrDefault(0)
     private fun safeDouble(rs: ResultSet, col: String): Double = runCatching { rs.getDouble(col) }.getOrDefault(0.0)
 }

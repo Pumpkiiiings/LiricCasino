@@ -24,7 +24,7 @@ class RPSManager(private val plugin: CasinoPlugin) {
     private fun minBet() = plugin.config.getDouble("rps.bet.min", 100.0)
     private fun maxBet() = plugin.config.getDouble("rps.bet.max", 500000.0)
 
-    // ── Crear ─────────────────────────────────────────────────────────────────
+
     fun createGame(player: Player, amount: Double) {
         if (!ValidationUtil.canPlayDaily(plugin, player, "rps")) return
         if (!ValidationUtil.validateBet(plugin, player, "rps", amount)) return
@@ -34,7 +34,7 @@ class RPSManager(private val plugin: CasinoPlugin) {
         if (!plugin.economyManager.withdrawPlayer(player, amount).transactionSuccess()) {
             player.sendMessage(msg("rps.no-funds")); return
         }
-        
+
         plugin.statsManager.recordGameUse(player.uniqueId, "rps")
         val session = RPSSession(creatorId = player.uniqueId, creatorName = player.name, betAmount = amount)
         sessions[session.id] = session
@@ -43,13 +43,13 @@ class RPSManager(private val plugin: CasinoPlugin) {
         player.sendMessage(msg("rps.created", "amount" to amount.toLong().toString()))
         player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
 
-        // Broadcast
+
         plugin.server.onlinePlayers.filter { it.uniqueId != player.uniqueId }.forEach { p ->
             p.sendMessage(msg("rps.broadcast-new", "player" to player.name, "amount" to amount.toLong().toString()))
         }
     }
 
-    // ── Unirse ────────────────────────────────────────────────────────────────
+
     fun joinGame(joiner: Player, creatorName: String) {
         val session = sessions.values.firstOrNull {
             it.state == RPSState.WAITING &&
@@ -76,18 +76,18 @@ class RPSManager(private val plugin: CasinoPlugin) {
 
         val creator = Bukkit.getPlayer(session.creatorId)
 
-        // Abrir GUI a ambos jugadores
+
         joiner.sendMessage(msg("rps.joined", "player" to session.creatorName, "amount" to session.betAmount.toLong().toString()))
         creator?.sendMessage(msg("rps.opponent-joined", "player" to joiner.name))
 
-        // Delay de 1 tick para que el mensaje se vea antes de abrir GUI
+
         Bukkit.getScheduler().runTaskLater(plugin, Runnable {
             RPSChoiceGUI(plugin, session, joiner, false).open()
             creator?.let { RPSChoiceGUI(plugin, session, it, true).open() }
         }, 5L)
     }
 
-    // ── Registrar elección ────────────────────────────────────────────────────
+
     fun recordChoice(session: RPSSession, playerId: UUID, choice: RPSChoice) {
         if (session.state != RPSState.CHOOSING) return
         val isCreator = playerId == session.creatorId
@@ -103,13 +103,13 @@ class RPSManager(private val plugin: CasinoPlugin) {
         val player = Bukkit.getPlayer(playerId)
         player?.sendMessage(msg("rps.choice-locked", "choice" to "${choice.emoji} ${choice.displayName}"))
 
-        // Si ambos eligieron, resolver
+
         if (session.creatorChoice != null && session.joinerChoice != null) {
             Bukkit.getScheduler().runTaskLater(plugin, Runnable { resolveGame(session) }, 20L)
         }
     }
 
-    // ── Resolver ──────────────────────────────────────────────────────────────
+
     private fun resolveGame(session: RPSSession) {
         session.state = RPSState.FINISHED
         val c1 = session.creatorChoice!!
@@ -124,7 +124,7 @@ class RPSManager(private val plugin: CasinoPlugin) {
 
         when {
             c1 == c2 -> {
-                // Empate — devolver apuestas
+
                 plugin.economyManager.depositPlayer(
                     Bukkit.getOfflinePlayer(session.creatorId), session.betAmount)
                 session.joinerId?.let {
@@ -136,7 +136,7 @@ class RPSManager(private val plugin: CasinoPlugin) {
                 joiner?.playSound(joiner.location,  Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f)
             }
             c1.beats(c2) -> {
-                // Creator gana
+
                 plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(session.creatorId), netWin)
                 creator?.sendMessage(msg("rps.win",  "myChoice" to "${c1.emoji} ${c1.displayName}", "opChoice" to "${c2.emoji} ${c2.displayName}", "amount" to netWin.toLong().toString(), "tax" to taxMsg))
                 joiner?.sendMessage(msg("rps.lose",  "myChoice" to "${c2.emoji} ${c2.displayName}", "opChoice" to "${c1.emoji} ${c1.displayName}", "amount" to session.betAmount.toLong().toString()))
@@ -145,7 +145,7 @@ class RPSManager(private val plugin: CasinoPlugin) {
                 broadcastResult(session.creatorName, session.joinerName ?: "?", c1, c2, netWin)
             }
             else -> {
-                // Joiner gana
+
                 session.joinerId?.let { jid ->
                     plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(jid), netWin)
                 }
@@ -169,7 +169,7 @@ class RPSManager(private val plugin: CasinoPlugin) {
         ))
     }
 
-    // ── Cancelar ──────────────────────────────────────────────────────────────
+
     fun cancelGame(player: Player) {
         val sessionId = playerSession[player.uniqueId]
             ?: run { player.sendMessage(msg("rps.no-game")); return }
@@ -206,11 +206,11 @@ class RPSManager(private val plugin: CasinoPlugin) {
             val (netWin, _) = TaxUtil.applyTax(plugin, totalPot, "rps")
 
             plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(winnerId), netWin)
-            
+
             val winner = Bukkit.getPlayer(winnerId)
             winner?.sendMessage(plugin.format("<red>Your opponent disconnected. <green>You won the bet automatically!"))
             winner?.playSound(winner.location, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
-            
+
             removeSession(session)
             winner?.closeInventory()
         }

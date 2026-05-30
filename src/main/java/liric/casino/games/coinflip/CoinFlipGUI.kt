@@ -23,10 +23,10 @@ object CoinFlipGUI {
             .disableAllInteractions().disableItemTake().disableItemSwap().disableItemDrop().disableItemPlace()
             .create()
 
-        // Aplicar decoraciones desde el YAML
+
         cfg.applyDecorations(gui)
 
-        // ── Botón Crear ────────────────────────────
+
         val createMat = cfg.getMaterial("create-btn.material", Material.NETHER_STAR)
         val createBtn = ItemBuilder.from(createMat)
             .name(cfg.getComponent("create-btn.name", "<#00FF7F><bold>✚ Crear Juego</bold>"))
@@ -45,7 +45,7 @@ object CoinFlipGUI {
             }
         gui.setItem(cfg.getInt("create-btn.slot", 4), createBtn)
 
-        // ── Botón Actualizar ───────────────────
+
         val refreshMat = cfg.getMaterial("refresh-btn.material", Material.COMPASS)
         val refresh = ItemBuilder.from(refreshMat)
             .name(cfg.getComponent("refresh-btn.name", "<white><bold>↺ Actualizar</bold>"))
@@ -57,7 +57,7 @@ object CoinFlipGUI {
             }
         gui.setItem(cfg.getInt("refresh-btn.slot", 49), refresh)
 
-        // ── Juegos activos ─────────────────────────────────
+
         val games = plugin.coinFlipManager.getOpenGames()
         val gameSlots = cfg.getStringList("games-slots").mapNotNull { it.toIntOrNull() }
 
@@ -87,7 +87,7 @@ object CoinFlipGUI {
         val rawName = cfg.getString("game-item.name", "<white>%creator%")
             .replace("%creator%", session.creatorName)
             .replace("%amount%", amountFmt)
-        
+
         val rawLore = cfg.getStringList("game-item.lore").map { line ->
             line.replace("%creator%", session.creatorName)
                 .replace("%amount%", amountFmt)

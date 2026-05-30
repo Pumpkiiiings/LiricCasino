@@ -18,7 +18,7 @@ class RaceCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComple
         when (args.getOrNull(0)?.lowercase()) {
             null, "menu", "jugar" -> {
                 val track = plugin.raceManager.getNearestTrack(sender.location)
-                    ?: plugin.raceManager.createTrack(sender.location) // Auto-create para simplificar si no hay
+                    ?: plugin.raceManager.createTrack(sender.location)
                 RaceBetGUI(plugin, track, sender).open()
             }
             "ayuda", "help" -> sendHelp(sender)

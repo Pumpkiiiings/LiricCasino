@@ -1,6 +1,7 @@
 package liric.casino.games.roulette
 
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.GameMode
@@ -17,7 +18,6 @@ import org.bukkit.entity.Interaction
 import org.bukkit.entity.Player
 import org.bukkit.entity.TextDisplay
 import org.bukkit.persistence.PersistentDataType
-import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.util.Transformation
 import org.bukkit.util.Vector
 import org.joml.Quaternionf
@@ -209,65 +209,61 @@ class RouletteManager(private val plugin: CasinoPlugin) {
     }
 
     private fun startPlayerRepeller() {
-        object : BukkitRunnable() {
-            override fun run() {
-                activeRoulettes.forEach { inst ->
-                    if (inst.statusText.isDead) return@forEach
-                    val center = inst.center
-                    val world = center.world ?: return@forEach
+        SchedulerUtil.runGlobalTimer(plugin, 0L, 10L) {
+            activeRoulettes.forEach { inst ->
+                if (inst.statusText.isDead) return@runGlobalTimer
+                val center = inst.center
+                val world = center.world ?: return@runGlobalTimer
 
-                    world.getNearbyEntities(center, 6.0, 3.0, 6.0) { it is Player }.forEach { entity ->
-                        val player = entity as Player
-                        if (player.hasPermission("casino.admin") && player.gameMode == GameMode.CREATIVE) return@forEach
+                world.getNearbyEntities(center, 6.0, 3.0, 6.0) { it is Player }.forEach { entity ->
+                    val player = entity as Player
+                    if (player.hasPermission("casino.admin") && player.gameMode == GameMode.CREATIVE) return@forEach
 
-                        val distance = player.location.distance(center)
-                        val yDiff = player.location.y - center.y
+                    val distance = player.location.distance(center)
+                    val yDiff = player.location.y - center.y
 
-                        if (distance <= 5.8 && yDiff in -1.0..4.0) {
-                            var pushDir = player.location.toVector().subtract(center.toVector())
-                            if (pushDir.lengthSquared() == 0.0) {
-                                pushDir = Vector(1.0, 0.0, 0.0)
-                            } else {
-                                pushDir = pushDir.normalize()
-                            }
-                            pushDir.multiply(1.5).setY(0.5)
-                            player.velocity = pushDir
-                            player.sendActionBar(plugin.format("<#FF5555><bold>You cannot climb onto the table!</bold></#FF5555>"))
-                            player.playSound(player.location, Sound.ENTITY_VILLAGER_NO, 1f, 1f)
+                    if (distance <= 5.8 && yDiff in -1.0..4.0) {
+                        var pushDir = player.location.toVector().subtract(center.toVector())
+                        if (pushDir.lengthSquared() == 0.0) {
+                            pushDir = Vector(1.0, 0.0, 0.0)
+                        } else {
+                            pushDir = pushDir.normalize()
                         }
+                        pushDir.multiply(1.5).setY(0.5)
+                        player.velocity = pushDir
+                        player.sendActionBar(plugin.format("<#FF5555><bold>You cannot climb onto the table!</bold></#FF5555>"))
+                        player.playSound(player.location, Sound.ENTITY_VILLAGER_NO, 1f, 1f)
                     }
                 }
             }
-        }.runTaskTimer(plugin, 0L, 10L)
+        }
     }
 
     private fun startEntityMonitor() {
-        object : BukkitRunnable() {
-            override fun run() {
-                val toRespawn = mutableListOf<Location>()
-                val iterator = activeRoulettes.iterator()
+        SchedulerUtil.runGlobalTimer(plugin, 600L, 600L) {
+            val toRespawn = mutableListOf<Location>()
+            val iterator = activeRoulettes.iterator()
 
-                while (iterator.hasNext()) {
-                    val inst = iterator.next()
-                    val world = inst.center.world ?: continue
-                    if (!world.isChunkLoaded(inst.center.blockX shr 4, inst.center.blockZ shr 4)) continue
+            while (iterator.hasNext()) {
+                val inst = iterator.next()
+                val world = inst.center.world ?: continue
+                if (!world.isChunkLoaded(inst.center.blockX shr 4, inst.center.blockZ shr 4)) continue
 
-                    if (inst.statusText.isDead || !inst.statusText.isValid) {
-                        val key = locKey(inst.center)
-                        if (!respawningKeys.contains(key)) {
-                            toRespawn.add(inst.center)
-                            respawningKeys.add(key)
-                            iterator.remove()
-                        }
+                if (inst.statusText.isDead || !inst.statusText.isValid) {
+                    val key = locKey(inst.center)
+                    if (!respawningKeys.contains(key)) {
+                        toRespawn.add(inst.center)
+                        respawningKeys.add(key)
+                        iterator.remove()
                     }
                 }
-
-                toRespawn.forEach { loc ->
-                    purgeArea(loc)
-                    spawnRoulette(loc, isNew = false)
-                }
             }
-        }.runTaskTimer(plugin, 600L, 600L)
+
+            toRespawn.forEach { loc ->
+                purgeArea(loc)
+                spawnRoulette(loc, isNew = false)
+            }
+        }
     }
 
     private fun locKey(loc: Location) = "${loc.world?.name},${loc.blockX},${loc.blockY},${loc.blockZ}"
@@ -333,51 +329,50 @@ class RouletteManager(private val plugin: CasinoPlugin) {
         if (targetIndex == -1) return
         val totalJumps = (8 * 37) + targetIndex
 
-        object : BukkitRunnable() {
-            var ticks = 0
-            val previousIndices = activeRoulettes.associateWith { 0 }.toMutableMap()
+        var ticks = 0
+        val previousIndices = activeRoulettes.associateWith { 0 }.toMutableMap()
+        var spinCanceller: Runnable? = null
 
-            override fun run() {
-                if (ticks >= durationTicks) {
-                    val finishHologram = """
-                        <#FF00FF><bold>🌀 ROULETTE 🌀</bold></#FF00FF>
-                        <#E0E0E0>Winning Number:</#E0E0E0>
-                        ${winningColor.chatColor}<bold>$winningNumber (${winningColor.displayName})</bold>
-                    """.trimIndent().replace("\n", "<br>")
-
-                    activeRoulettes.forEach { inst ->
-                        if (inst.statusText.isDead) return@forEach
-                        val prevNum = sequence[previousIndices[inst]!! % 37]
-                        inst.blocks[prevNum]?.block = getOriginalMaterial(prevNum).createBlockData()
-                        inst.blocks[winningNumber]?.block = Material.GOLD_BLOCK.createBlockData()
-
-                        inst.statusText.text(plugin.format(finishHologram))
-                        inst.center.world!!.playSound(inst.center, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
-                    }
-                    onFinish()
-                    cancel()
-                    return
-                }
-
-                val t = ticks.toFloat() / durationTicks.toFloat()
-                val easeOut = 1.0 - (1.0 - t).pow(3)
-                val currentJump = (easeOut * totalJumps).toInt()
+        spinCanceller = SchedulerUtil.runGlobalTimer(plugin, 0L, 1L) {
+            if (ticks >= durationTicks) {
+                val finishHologram = """
+                    <#FF00FF><bold>🌀 ROULETTE 🌀</bold></#FF00FF>
+                    <#E0E0E0>Winning Number:</#E0E0E0>
+                    ${winningColor.chatColor}<bold>$winningNumber (${winningColor.displayName})</bold>
+                """.trimIndent().replace("\n", "<br>")
 
                 activeRoulettes.forEach { inst ->
                     if (inst.statusText.isDead) return@forEach
-                    val prevJump = previousIndices[inst]!!
-                    if (currentJump > prevJump) {
-                        val prevNum = sequence[prevJump % 37]
-                        val currentNum = sequence[currentJump % 37]
-                        inst.blocks[prevNum]?.block = getOriginalMaterial(prevNum).createBlockData()
-                        inst.blocks[currentNum]?.block = Material.GOLD_BLOCK.createBlockData()
-                        inst.center.world!!.playSound(inst.center, Sound.BLOCK_NOTE_BLOCK_HAT, 0.4f, 2f)
-                        previousIndices[inst] = currentJump
-                    }
+                    val prevNum = sequence[previousIndices[inst]!! % 37]
+                    inst.blocks[prevNum]?.block = getOriginalMaterial(prevNum).createBlockData()
+                    inst.blocks[winningNumber]?.block = Material.GOLD_BLOCK.createBlockData()
+
+                    inst.statusText.text(plugin.format(finishHologram))
+                    inst.center.world!!.playSound(inst.center, Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f)
                 }
-                ticks++
+                onFinish()
+                spinCanceller?.run()
+                return@runGlobalTimer
             }
-        }.runTaskTimer(plugin, 0L, 1L)
+
+            val t = ticks.toFloat() / durationTicks.toFloat()
+            val easeOut = 1.0 - (1.0 - t).pow(3)
+            val currentJump = (easeOut * totalJumps).toInt()
+
+            activeRoulettes.forEach { inst ->
+                if (inst.statusText.isDead) return@forEach
+                val prevJump = previousIndices[inst]!!
+                if (currentJump > prevJump) {
+                    val prevNum = sequence[prevJump % 37]
+                    val currentNum = sequence[currentJump % 37]
+                    inst.blocks[prevNum]?.block = getOriginalMaterial(prevNum).createBlockData()
+                    inst.blocks[currentNum]?.block = Material.GOLD_BLOCK.createBlockData()
+                    inst.center.world!!.playSound(inst.center, Sound.BLOCK_NOTE_BLOCK_HAT, 0.4f, 2f)
+                    previousIndices[inst] = currentJump
+                }
+            }
+            ticks++
+        }
     }
 
     private fun getOriginalMaterial(number: Int): Material {

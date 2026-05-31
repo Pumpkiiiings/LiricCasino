@@ -4,11 +4,11 @@ import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.guis.Gui
 import dev.triumphteam.gui.guis.GuiItem
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
-import org.bukkit.scheduler.BukkitRunnable
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.min
 import kotlin.text.toLong
@@ -140,7 +140,7 @@ class BetAmountMenu(
         val barrier = ItemBuilder.from(Material.BARRIER)
             .name(plugin.format(title)).lore(plugin.format(loreStr)).flags(*ItemFlag.values()).asGuiItem()
         gui.updateItem(slot, barrier)
-        object : BukkitRunnable() { override fun run() { gui.updateItem(slot, originalItem) } }.runTaskLater(plugin, 30L)
+        SchedulerUtil.runGlobalLater(plugin, 30L) { gui.updateItem(slot, originalItem) }
     }
 
     private fun updateConfirmButton() {

@@ -1,13 +1,13 @@
 package liric.casino.games.roulette
 
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import liric.casino.util.TaxUtil
 import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitRunnable
 import java.util.UUID
 import kotlin.collections.containsKey
 import kotlin.random.Random
@@ -33,7 +33,7 @@ class RouletteGame(private val plugin: CasinoPlugin) {
         private set
 
     private val bets = mutableMapOf<UUID, Pair<BetType, Double>>()
-    private var countdownTask: BukkitRunnable? = null
+    private var countdownCanceller: Runnable? = null
 
 
     private fun cfg() = plugin.config
@@ -105,30 +105,27 @@ class RouletteGame(private val plugin: CasinoPlugin) {
 
         plugin.server.broadcast(msg("roulette.spin-announce"))
 
-        countdownTask = object : BukkitRunnable() {
-            override fun run() {
-                if (seconds <= 0) { startSpin(); cancel(); return }
+        countdownCanceller = SchedulerUtil.runGlobalTimer(plugin, 0L, 20L) {
+            if (seconds <= 0) { startSpin(); countdownCanceller?.run(); return@runGlobalTimer }
 
-                when (seconds) {
-                    120 -> plugin.server.broadcast(msg("roulette.countdown-2min", "players" to bets.size.toString()))
-                    60  -> plugin.server.broadcast(msg("roulette.countdown-1min"))
-                    30  -> plugin.server.broadcast(msg("roulette.countdown-30s"))
-                    10  -> plugin.server.broadcast(msg("roulette.countdown-10s"))
-                }
-
-                val holo = "<#FF00FF><bold>🌀 ROULETTE 🌀</bold></#FF00FF><br>" +
-                        "<#E0E0E0>Max Bet: <#00FF7F>$${maxBet().toLong()}</#00FF7F></#E0E0E0><br>" +
-                        "<#FF5555>Spinning in $seconds seconds!</#FF5555>"
-                plugin.rouletteManager.updateHolograms(holo.replace("\n", "<br>"))
-                seconds--
+            when (seconds) {
+                120 -> plugin.server.broadcast(msg("roulette.countdown-2min", "players" to bets.size.toString()))
+                60  -> plugin.server.broadcast(msg("roulette.countdown-1min"))
+                30  -> plugin.server.broadcast(msg("roulette.countdown-30s"))
+                10  -> plugin.server.broadcast(msg("roulette.countdown-10s"))
             }
+
+            val holo = "<#FF00FF><bold>🌀 ROULETTE 🌀</bold></#FF00FF><br>" +
+                    "<#E0E0E0>Max Bet: <#00FF7F>$${maxBet().toLong()}</#00FF7F></#E0E0E0><br>" +
+                    "<#FF5555>Spinning in $seconds seconds!</#FF5555>"
+            plugin.rouletteManager.updateHolograms(holo.replace("\n", "<br>"))
+            seconds--
         }
-        countdownTask?.runTaskTimer(plugin, 0L, 20L)
     }
 
     fun forceStart(sender: CommandSender) {
         if (state == GameState.SPINNING) return
-        countdownTask?.cancel()
+        countdownCanceller?.run()
         startSpin()
     }
 
@@ -201,8 +198,8 @@ class RouletteGame(private val plugin: CasinoPlugin) {
         bets.clear()
         state = GameState.WAITING
 
-        object : BukkitRunnable() {
-            override fun run() { if (state == GameState.WAITING) plugin.rouletteManager.resetDisplays() }
-        }.runTaskLater(plugin, 100L)
+        SchedulerUtil.runGlobalLater(plugin, 100L) {
+            if (state == GameState.WAITING) plugin.rouletteManager.resetDisplays()
+        }
     }
 }

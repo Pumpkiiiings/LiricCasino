@@ -1,8 +1,7 @@
 package liric.casino.stats
 
 import liric.casino.CasinoPlugin
-import org.bukkit.Bukkit
-import org.bukkit.scheduler.BukkitRunnable
+import liric.casino.util.SchedulerUtil
 import java.sql.ResultSet
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -13,9 +12,7 @@ class StatsManager(private val plugin: CasinoPlugin) {
 
 
     fun startAutoSave() {
-        object : BukkitRunnable() {
-            override fun run() { saveAllAsync() }
-        }.runTaskTimerAsynchronously(plugin, 6000L, 6000L)
+        SchedulerUtil.runAsyncTimer(plugin, 6000L, 6000L) { saveAllAsync() }
     }
 
     fun shutdown() {
@@ -24,16 +21,16 @@ class StatsManager(private val plugin: CasinoPlugin) {
 
 
     fun loadAsync(uuid: UUID, name: String) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+        SchedulerUtil.runAsync(plugin) {
             val stats = loadFromDB(uuid, name)
             cache[uuid] = stats
-        })
+        }
     }
 
     fun unload(uuid: UUID) {
         val stats = cache.remove(uuid) ?: return
         if (stats.dirty) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable { saveToDB(stats) })
+            SchedulerUtil.runAsync(plugin) { saveToDB(stats) }
         }
     }
 
@@ -41,10 +38,10 @@ class StatsManager(private val plugin: CasinoPlugin) {
 
     fun getOrCreate(uuid: UUID, name: String): PlayerStats =
         cache.getOrPut(uuid) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+            SchedulerUtil.runAsync(plugin) {
                 val loaded = loadFromDB(uuid, name)
                 cache[uuid] = loaded
-            })
+            }
             PlayerStats(uuid, name)
         }
 
@@ -164,7 +161,7 @@ class StatsManager(private val plugin: CasinoPlugin) {
     }
 
     fun getTopAsync(mode: TopMode, limit: Int = 10, callback: (List<TopEntry>) -> Unit) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+        SchedulerUtil.runAsync(plugin) {
             val results = mutableListOf<TopEntry>()
             val sql = "SELECT player_name, ${mode.sqlColumn} AS val FROM casino_stats " +
                     "ORDER BY val DESC LIMIT $limit"
@@ -180,8 +177,8 @@ class StatsManager(private val plugin: CasinoPlugin) {
                 }
             }.onFailure { plugin.logger.warning("StatsManager.getTop() error: ${it.message}") }
 
-            Bukkit.getScheduler().runTask(plugin, Runnable { callback(results) })
-        })
+            SchedulerUtil.runGlobal(plugin) { callback(results) }
+        }
     }
 
 
@@ -192,9 +189,9 @@ class StatsManager(private val plugin: CasinoPlugin) {
     private fun saveAllAsync() {
         val dirty = cache.values.filter { it.dirty }.toList()
         if (dirty.isEmpty()) return
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+        SchedulerUtil.runAsync(plugin) {
             dirty.forEach { saveToDB(it) }
-        })
+        }
     }
 
     private fun saveToDB(stats: PlayerStats) {

@@ -1,6 +1,7 @@
 package liric.casino.games.rps
 
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import liric.casino.util.TaxUtil
 import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
@@ -81,10 +82,10 @@ class RPSManager(private val plugin: CasinoPlugin) {
         creator?.sendMessage(msg("rps.opponent-joined", "player" to joiner.name))
 
 
-        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+        SchedulerUtil.runGlobalLater(plugin, 5L) {
             RPSChoiceGUI(plugin, session, joiner, false).open()
             creator?.let { RPSChoiceGUI(plugin, session, it, true).open() }
-        }, 5L)
+        }
     }
 
 
@@ -105,7 +106,7 @@ class RPSManager(private val plugin: CasinoPlugin) {
 
 
         if (session.creatorChoice != null && session.joinerChoice != null) {
-            Bukkit.getScheduler().runTaskLater(plugin, Runnable { resolveGame(session) }, 20L)
+            SchedulerUtil.runGlobalLater(plugin, 20L) { resolveGame(session) }
         }
     }
 

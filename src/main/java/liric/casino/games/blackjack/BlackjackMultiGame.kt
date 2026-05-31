@@ -1,9 +1,9 @@
 package liric.casino.games.blackjack
 
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import org.bukkit.Sound
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitRunnable
 import java.util.UUID
 
 enum class MultiGameState { WAITING, STARTING, PLAYING }
@@ -17,7 +17,7 @@ class BlackjackMultiGame(private val plugin: CasinoPlugin) {
 
 
     val activePlayers = mutableMapOf<UUID, Double>()
-    private var countdownTask: BukkitRunnable? = null
+    private var countdownTask: Runnable? = null
 
     fun addPlayer(player: Player, betAmount: Double) {
         if (state == MultiGameState.PLAYING) {
@@ -74,7 +74,7 @@ class BlackjackMultiGame(private val plugin: CasinoPlugin) {
 
         if (activePlayers.isEmpty()) {
             state = MultiGameState.WAITING
-            countdownTask?.cancel()
+            countdownTask?.run()
             countdownTask = null
         }
     }
@@ -84,28 +84,26 @@ class BlackjackMultiGame(private val plugin: CasinoPlugin) {
         state = MultiGameState.STARTING
         countdownSeconds = 15
 
-        countdownTask = object : BukkitRunnable() {
-            override fun run() {
-                if (activePlayers.isEmpty()) {
-                    state = MultiGameState.WAITING
-                    cancel()
-                    return
-                }
-
-                plugin.blackjackManager.updateHolograms()
-
-                if (countdownSeconds <= 0) {
-                    startGame()
-                    cancel()
-                    return
-                }
-
-                if (countdownSeconds == 15 || countdownSeconds <= 5) {
-                    broadcast("<gray>La mesa empieza a repartir en <yellow>$countdownSeconds</yellow>s...")
-                }
-                countdownSeconds--
+        countdownTask = SchedulerUtil.runGlobalTimer(plugin, 0L, 20L) {
+            if (activePlayers.isEmpty()) {
+                state = MultiGameState.WAITING
+                countdownTask?.run()
+                return@runGlobalTimer
             }
-        }.apply { runTaskTimer(plugin, 0L, 20L) }
+
+            plugin.blackjackManager.updateHolograms()
+
+            if (countdownSeconds <= 0) {
+                startGame()
+                countdownTask?.run()
+                return@runGlobalTimer
+            }
+
+            if (countdownSeconds == 15 || countdownSeconds <= 5) {
+                broadcast("<gray>La mesa empieza a repartir en <yellow>$countdownSeconds</yellow>s...")
+            }
+            countdownSeconds--
+        }
     }
 
     private fun startGame() {

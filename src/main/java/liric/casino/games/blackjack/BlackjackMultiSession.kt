@@ -3,10 +3,10 @@ package liric.casino.games.blackjack
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.guis.Gui
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
-import org.bukkit.scheduler.BukkitRunnable
 import java.util.UUID
 
 enum class PlayerStatus { WAITING_TURN, PLAYING, STOOD, BUSTED, BLACKJACK }
@@ -24,6 +24,7 @@ class BlackjackMultiSession(
 
     private var currentTurnIndex = 0
     private var isDealerTurn = false
+    private var dealerCancel: Runnable? = null
 
 
     private val playerGuis = mutableMapOf<UUID, Gui>()
@@ -182,18 +183,16 @@ class BlackjackMultiSession(
     }
 
     private fun playDealerTurn() {
-        object : BukkitRunnable() {
-            override fun run() {
-                val dealerScore = BlackjackLogic.calculateScore(dealerHand)
-                if (dealerScore < 17) {
-                    dealerHand.add(deck.draw())
-                    renderAll()
-                } else {
-                    payoutTable()
-                    cancel()
-                }
+        SchedulerUtil.runGlobalTimer(plugin, 20L, 20L) {
+            val dealerScore = BlackjackLogic.calculateScore(dealerHand)
+            if (dealerScore < 17) {
+                dealerHand.add(deck.draw())
+                renderAll()
+            } else {
+                payoutTable()
+                dealerCancel?.run()
             }
-        }.runTaskTimer(plugin, 20L, 20L)
+        }.also { dealerCancel = it }
     }
 
     private fun payoutTable() {
@@ -245,10 +244,8 @@ class BlackjackMultiSession(
         }
 
 
-        object : BukkitRunnable() {
-            override fun run() {
-                gameManager.resetGame()
-            }
-        }.runTaskLater(plugin, 60L)
+        SchedulerUtil.runGlobalLater(plugin, 60L) {
+            gameManager.resetGame()
+        }
     }
 }

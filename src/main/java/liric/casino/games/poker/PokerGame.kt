@@ -1,12 +1,12 @@
 package liric.casino.games.poker
 
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
+import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitRunnable
 import java.util.UUID
-import liric.casino.util.ValidationUtil
 
 enum class PokerState { WAITING, STARTING, PRE_FLOP, FLOP, TURN, RIVER, SHOWDOWN }
 
@@ -29,7 +29,7 @@ class PokerGame(val plugin: CasinoPlugin) {
     var currentHighestBet = 0.0
     var turnIndex = 0
     var countdownSeconds = 0
-    private var task: BukkitRunnable? = null
+    private var task: Runnable? = null
 
     val maxPlayers = 6
     val minPlayers = 2
@@ -99,24 +99,21 @@ class PokerGame(val plugin: CasinoPlugin) {
     private fun startCountdown(seconds: Int) {
         state = PokerState.STARTING
         countdownSeconds = seconds
-        task = object : BukkitRunnable() {
-            override fun run() {
-                if (players.size < minPlayers) {
-                    state = PokerState.WAITING
-                    plugin.server.broadcast(plugin.format("$prefix <#FF5555>Faltan jugadores. Inicio cancelado.</#FF5555>"))
-                    cancel()
-                    return
-                }
-                if (countdownSeconds <= 0) {
-                    startRealGame()
-                    cancel()
-                    return
-                }
-                plugin.pokerManager.updateHolograms()
-                countdownSeconds--
+        task = SchedulerUtil.runGlobalTimer(plugin, 0L, 20L) {
+            if (players.size < minPlayers) {
+                state = PokerState.WAITING
+                plugin.server.broadcast(plugin.format("$prefix <#FF5555>Faltan jugadores. Inicio cancelado.</#FF5555>"))
+                task?.run()
+                return@runGlobalTimer
             }
+            if (countdownSeconds <= 0) {
+                startRealGame()
+                task?.run()
+                return@runGlobalTimer
+            }
+            plugin.pokerManager.updateHolograms()
+            countdownSeconds--
         }
-        task?.runTaskTimer(plugin, 0L, 20L)
     }
 
 
@@ -152,23 +149,19 @@ class PokerGame(val plugin: CasinoPlugin) {
 
 
     private fun startTurnTimer() {
-        task?.cancel()
+        task?.run()
         countdownSeconds = 15
-        task = object : BukkitRunnable() {
-            override fun run() {
+        task = SchedulerUtil.runGlobalTimer(plugin, 0L, 20L) {
+            updateMenus()
 
-                updateMenus()
-
-                if (countdownSeconds <= 0) {
-                    val currentPlayer = getCurrentPlayer()
-                    if (currentPlayer != null && !currentPlayer.hasFolded) {
-                        handleAction(currentPlayer.uuid, "FOLD", 0.0)
-                    }
+            if (countdownSeconds <= 0) {
+                val currentPlayer = getCurrentPlayer()
+                if (currentPlayer != null && !currentPlayer.hasFolded) {
+                    handleAction(currentPlayer.uuid, "FOLD", 0.0)
                 }
-                countdownSeconds--
             }
+            countdownSeconds--
         }
-        task?.runTaskTimer(plugin, 0L, 20L)
     }
 
     fun getCurrentPlayer(): PokerPlayer? {
@@ -269,7 +262,7 @@ class PokerGame(val plugin: CasinoPlugin) {
     }
 
     private fun evaluateWinner() {
-        task?.cancel()
+        task?.run()
         val activeParticipants = players.filter { !it.hasFolded }
 
         if (activeParticipants.isEmpty()) {
@@ -301,16 +294,14 @@ class PokerGame(val plugin: CasinoPlugin) {
             winner.playSound(winner.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
         }
 
-        object : BukkitRunnable() {
-            override fun run() {
-                players.forEach { p -> Bukkit.getPlayer(p.uuid)?.closeInventory() }
-                players.clear()
-                communityCards.clear()
-                pot = 0.0
-                state = PokerState.WAITING
-                plugin.pokerManager.updateHolograms()
-            }
-        }.runTaskLater(plugin, 100L)
+        SchedulerUtil.runGlobalLater(plugin, 100L) {
+            players.forEach { p -> Bukkit.getPlayer(p.uuid)?.closeInventory() }
+            players.clear()
+            communityCards.clear()
+            pot = 0.0
+            state = PokerState.WAITING
+            plugin.pokerManager.updateHolograms()
+        }
     }
 
     private fun updateMenus() {

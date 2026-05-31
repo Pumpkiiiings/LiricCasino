@@ -1,6 +1,7 @@
 package liric.casino.games.slots
 
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.Location
@@ -11,7 +12,6 @@ import org.bukkit.entity.Display
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.TextDisplay
 import org.bukkit.persistence.PersistentDataType
-import org.bukkit.scheduler.BukkitRunnable
 import java.io.File
 import java.util.UUID
 
@@ -88,38 +88,36 @@ class SlotManager(private val plugin: CasinoPlugin) {
     }
 
     private fun startHologramMonitor() {
-        object : BukkitRunnable() {
-            override fun run() {
-                activeSlots.values.forEach { machine ->
+        SchedulerUtil.runGlobalTimer(plugin, 200L, 200L) {
+            activeSlots.values.forEach { machine ->
 
-                    if (!isChunkLoaded(machine.location)) return@forEach
-
-
-                    if (machine.hologram == null || machine.hologram!!.isDead || !machine.hologram!!.isValid) {
-                        purgeExactBlock(machine.location)
-
-                        val holoLoc = machine.location.clone().apply { x += 0.5; y += 1.5; z += 0.5 }
-                        val textDisplay = machine.location.world.spawnEntity(holoLoc, EntityType.TEXT_DISPLAY) as TextDisplay
+                if (!isChunkLoaded(machine.location)) return@forEach
 
 
-                        textDisplay.isPersistent = false
-                        textDisplay.persistentDataContainer.set(slotKey, PersistentDataType.BYTE, 1.toByte())
+                if (machine.hologram == null || machine.hologram!!.isDead || !machine.hologram!!.isValid) {
+                    purgeExactBlock(machine.location)
 
-                        val maxMult = registry.items.maxOfOrNull { it.multiplier } ?: 100.0
-                        val holoText = plugin.menuConfig("slots.yml").getString("title", "<#FFB400><bold>🎰 MÁQUINA 777 🎰</bold>") +
-                                "<br><#E0E0E0>Haz Click para jugar</#E0E0E0>" +
-                                "<br><#00FF7F>¡Gana hasta x${maxMult.toInt()}!</#00FF7F>"
+                    val holoLoc = machine.location.clone().apply { x += 0.5; y += 1.5; z += 0.5 }
+                    val textDisplay = machine.location.world.spawnEntity(holoLoc, EntityType.TEXT_DISPLAY) as TextDisplay
 
-                        textDisplay.text(plugin.format(holoText))
-                        textDisplay.billboard = Display.Billboard.CENTER
-                        textDisplay.backgroundColor = Color.fromARGB(0, 0, 0, 0)
-                        textDisplay.isShadowed = true
 
-                        machine.hologram = textDisplay
-                    }
+                    textDisplay.isPersistent = false
+                    textDisplay.persistentDataContainer.set(slotKey, PersistentDataType.BYTE, 1.toByte())
+
+                    val maxMult = registry.items.maxOfOrNull { it.multiplier } ?: 100.0
+                    val holoText = plugin.menuConfig("slots.yml").getString("title", "<#FFB400><bold>🎰 MÁQUINA 777 🎰</bold>") +
+                            "<br><#E0E0E0>Haz Click para jugar</#E0E0E0>" +
+                            "<br><#00FF7F>¡Gana hasta x${maxMult.toInt()}!</#00FF7F>"
+
+                    textDisplay.text(plugin.format(holoText))
+                    textDisplay.billboard = Display.Billboard.CENTER
+                    textDisplay.backgroundColor = Color.fromARGB(0, 0, 0, 0)
+                    textDisplay.isShadowed = true
+
+                    machine.hologram = textDisplay
                 }
             }
-        }.runTaskTimer(plugin, 200L, 200L)
+        }
     }
 
 

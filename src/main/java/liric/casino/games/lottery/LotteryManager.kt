@@ -1,13 +1,13 @@
 package liric.casino.games.lottery
 
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import liric.casino.util.TaxUtil
 import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitRunnable
 import java.io.File
 import java.util.UUID
 import kotlin.random.Random
@@ -19,7 +19,7 @@ class LotteryManager(private val plugin: CasinoPlugin) {
     private val tickets = mutableListOf<LotteryTicket>()
     private var jackpot: Double = 0.0
     private var secondsUntilDraw: Int = 0
-    private var drawTask: BukkitRunnable? = null
+    private var drawTask: Runnable? = null
 
     private val dataFile = File(plugin.dataFolder, "lottery.yml")
     private var dataConfig = YamlConfiguration.loadConfiguration(dataFile)
@@ -41,7 +41,7 @@ class LotteryManager(private val plugin: CasinoPlugin) {
     }
 
     fun shutdown() {
-        drawTask?.cancel()
+        drawTask?.run()
         saveData()
     }
 
@@ -107,32 +107,28 @@ class LotteryManager(private val plugin: CasinoPlugin) {
 
 
     private fun startCountdown() {
-        drawTask?.cancel()
-        drawTask = object : BukkitRunnable() {
-            override fun run() {
-                secondsUntilDraw--
+        drawTask?.run()
+        drawTask = SchedulerUtil.runGlobalTimer(plugin, 0L, 20L) {
+            secondsUntilDraw--
 
+            when (secondsUntilDraw) {
+                3600 -> broadcast("lottery.announce-1h")
+                1800 -> broadcast("lottery.announce-30m")
+                600  -> broadcast("lottery.announce-10m")
+                60   -> broadcast("lottery.announce-1m")
+                30   -> broadcast("lottery.announce-30s")
+                10   -> broadcast("lottery.announce-10s")
+            }
 
-                when (secondsUntilDraw) {
-                    3600 -> broadcast("lottery.announce-1h")
-                    1800 -> broadcast("lottery.announce-30m")
-                    600  -> broadcast("lottery.announce-10m")
-                    60   -> broadcast("lottery.announce-1m")
-                    30   -> broadcast("lottery.announce-30s")
-                    10   -> broadcast("lottery.announce-10s")
-                }
-
-                if (secondsUntilDraw <= 0) {
-                    cancel()
-                    runDraw()
-                }
+            if (secondsUntilDraw <= 0) {
+                drawTask?.run()
+                runDraw()
             }
         }
-        drawTask!!.runTaskTimer(plugin, 0L, 20L)
     }
 
     fun forceStart() {
-        drawTask?.cancel()
+        drawTask?.run()
         runDraw()
     }
 

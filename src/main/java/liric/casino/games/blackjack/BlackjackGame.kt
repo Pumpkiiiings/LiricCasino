@@ -3,10 +3,10 @@ package liric.casino.games.blackjack
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.guis.Gui
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitRunnable
 
 enum class GameStatus { PLAYER_TURN, DEALER_TURN, FINISHED }
 
@@ -164,34 +164,33 @@ class BlackjackSession(val plugin: CasinoPlugin, val player: Player, var betAmou
     }
 
     private fun playDealerTurn() {
-        object : BukkitRunnable() {
-            override fun run() {
-                if (status == GameStatus.FINISHED) {
-                    cancel()
-                    return
-                }
-
-                val dealerScore = BlackjackLogic.calculateScore(dealerHand)
-
-                if (dealerScore < 17) {
-                    dealerHand.add(deck.draw())
-                    player.playSound(player.location, Sound.ITEM_BOOK_PAGE_TURN, 1f, 1f)
-                    render()
-                } else {
-
-                    val playerScore = BlackjackLogic.calculateScore(playerHand)
-                    status = GameStatus.FINISHED
-
-                    when {
-                        dealerScore > 21 -> endGame("¡El Dealer se pasó! Tú ganas.", betAmount * 2)
-                        playerScore > dealerScore -> endGame("¡Le ganaste al Dealer!", betAmount * 2)
-                        playerScore == dealerScore -> endGame("Empate (Push). Recuperas tu apuesta.", betAmount)
-                        else -> endGame("El Dealer ganó. Suerte para la próxima.", 0.0)
-                    }
-                    cancel()
-                }
+        var dealerCancel: Runnable? = null
+        dealerCancel = SchedulerUtil.runGlobalTimer(plugin, 20L, 20L) {
+            if (status == GameStatus.FINISHED) {
+                dealerCancel?.run()
+                return@runGlobalTimer
             }
-        }.runTaskTimer(plugin, 20L, 20L)
+
+            val dealerScore = BlackjackLogic.calculateScore(dealerHand)
+
+            if (dealerScore < 17) {
+                dealerHand.add(deck.draw())
+                player.playSound(player.location, Sound.ITEM_BOOK_PAGE_TURN, 1f, 1f)
+                render()
+            } else {
+
+                val playerScore = BlackjackLogic.calculateScore(playerHand)
+                status = GameStatus.FINISHED
+
+                when {
+                    dealerScore > 21 -> endGame("¡El Dealer se pasó! Tú ganas.", betAmount * 2)
+                    playerScore > dealerScore -> endGame("¡Le ganaste al Dealer!", betAmount * 2)
+                    playerScore == dealerScore -> endGame("Empate (Push). Recuperas tu apuesta.", betAmount)
+                    else -> endGame("El Dealer ganó. Suerte para la próxima.", 0.0)
+                }
+                dealerCancel?.run()
+            }
+        }
     }
 
     private fun endGame(reason: String, payout: Double) {

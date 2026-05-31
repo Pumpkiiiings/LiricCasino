@@ -4,6 +4,7 @@ import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.guis.Gui
 import liric.casino.CasinoPlugin
 import liric.casino.config.MenuConfig
+import liric.casino.util.SchedulerUtil
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -98,6 +99,6 @@ class TTTBoard(
 
     fun update() {
         player.closeInventory()
-        plugin.server.scheduler.runTaskLater(plugin, Runnable { open() }, 2L)
+        SchedulerUtil.runGlobalLater(plugin, 2L) { open() }
     }
 }

@@ -1,13 +1,13 @@
 package liric.casino.games.racing
 
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import liric.casino.util.TaxUtil
 import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitRunnable
 import java.util.UUID
 import kotlin.collections.remove
 import kotlin.random.Random
@@ -95,26 +95,25 @@ class RaceManager(private val plugin: CasinoPlugin) {
         session.state = RaceState.WAITING
         session.countdownSeconds = 30
 
-        object : BukkitRunnable() {
-            override fun run() {
-                if (session.state != RaceState.WAITING) {
-                    cancel()
-                    return
-                }
-
-                if (session.countdownSeconds <= 0) {
-                    startRace(session)
-                    cancel()
-                    return
-                }
-
-                if (session.countdownSeconds % 10 == 0 || session.countdownSeconds <= 5) {
-                    broadcastToBettors(session, "racing.countdown", "time" to session.countdownSeconds.toString())
-                }
-
-                session.countdownSeconds--
+        var countdownCancel: Runnable? = null
+        countdownCancel = SchedulerUtil.runGlobalTimer(plugin, 0L, 20L) {
+            if (session.state != RaceState.WAITING) {
+                countdownCancel?.run()
+                return@runGlobalTimer
             }
-        }.runTaskTimer(plugin, 0L, 20L)
+
+            if (session.countdownSeconds <= 0) {
+                startRace(session)
+                countdownCancel?.run()
+                return@runGlobalTimer
+            }
+
+            if (session.countdownSeconds % 10 == 0 || session.countdownSeconds <= 5) {
+                broadcastToBettors(session, "racing.countdown", "time" to session.countdownSeconds.toString())
+            }
+
+            session.countdownSeconds--
+        }
     }
 
     private fun startRace(session: RaceSession) {
@@ -122,20 +121,19 @@ class RaceManager(private val plugin: CasinoPlugin) {
         broadcastToBettors(session, "racing.started")
 
 
-        object : BukkitRunnable() {
-            var ticks = 0
-            override fun run() {
-                ticks++
-                if (ticks >= 5) {
-                    finishRace(session)
-                    cancel()
-                } else {
-                    session.bets.mapNotNull { Bukkit.getPlayer(it.playerId) }.forEach { p ->
-                        p.playSound(p.location, Sound.ENTITY_HORSE_GALLOP, 1f, 1f + (ticks * 0.1f))
-                    }
+        var ticks = 0
+        var raceCancel: Runnable? = null
+        raceCancel = SchedulerUtil.runGlobalTimer(plugin, 0L, 20L) {
+            ticks++
+            if (ticks >= 5) {
+                finishRace(session)
+                raceCancel?.run()
+            } else {
+                session.bets.mapNotNull { Bukkit.getPlayer(it.playerId) }.forEach { p ->
+                    p.playSound(p.location, Sound.ENTITY_HORSE_GALLOP, 1f, 1f + (ticks * 0.1f))
                 }
             }
-        }.runTaskTimer(plugin, 0L, 20L)
+        }
     }
 
     private fun finishRace(session: RaceSession) {

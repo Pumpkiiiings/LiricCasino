@@ -1,6 +1,7 @@
 package liric.casino.games.tictactoe
 
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import liric.casino.util.TaxUtil
 import liric.casino.util.ValidationUtil
 import org.bukkit.Bukkit
@@ -78,10 +79,10 @@ class TTTManager(private val plugin: CasinoPlugin) {
         creator?.sendMessage(msg("ttt.opponent-joined", "player" to joiner.name))
 
 
-        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+        SchedulerUtil.runGlobalLater(plugin, 5L) {
             TTTBoard(plugin, session, joiner).open()
             creator?.let { TTTBoard(plugin, session, it).open() }
-        }, 5L)
+        }
     }
 
 

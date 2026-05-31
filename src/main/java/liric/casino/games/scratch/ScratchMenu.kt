@@ -3,11 +3,11 @@ package liric.casino.games.scratch
 import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.guis.Gui
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
-import org.bukkit.scheduler.BukkitRunnable
 import java.util.concurrent.ConcurrentHashMap
 
 class ScratchMenu(private val plugin: CasinoPlugin, private val player: Player, private val tier: TicketTier) {
@@ -112,6 +112,6 @@ class ScratchMenu(private val plugin: CasinoPlugin, private val player: Player, 
                 gui.updateItem(slot, missedItem)
             }
         }
-        object : BukkitRunnable() { override fun run() { gui.close(player) } }.runTaskLater(plugin, closeDelay)
+        SchedulerUtil.runGlobalLater(plugin, closeDelay) { gui.close(player) }
     }
 }

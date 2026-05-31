@@ -4,13 +4,13 @@ import dev.triumphteam.gui.builder.item.ItemBuilder
 import dev.triumphteam.gui.guis.Gui
 import dev.triumphteam.gui.guis.GuiItem
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import liric.casino.util.ValidationUtil
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
-import org.bukkit.scheduler.BukkitRunnable
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.collections.get
 
@@ -152,28 +152,27 @@ class SlotMachineMenu(private val plugin: CasinoPlugin, private val player: Play
         var reel2 = registry.getRandomItem(player)
         var reel3 = registry.getRandomItem(player)
 
-        object : BukkitRunnable() {
-            var ticks = 0
-            override fun run() {
-                if (ticks < 20) { reel1 = registry.getRandomItem(player); updateReel(reelSlots[0], reel1) }
-                if (ticks < 40) { reel2 = registry.getRandomItem(player); updateReel(reelSlots[1], reel2) }
-                if (ticks < 60) {
-                    reel3 = registry.getRandomItem(player); updateReel(reelSlots[2], reel3)
-                    if (ticks % 2 == 0) player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_HAT, 1f, 2f)
-                }
-                if (ticks == 20) player.playSound(player.location, Sound.BLOCK_ANVIL_LAND, 0.5f, 1.5f)
-                if (ticks == 40) player.playSound(player.location, Sound.BLOCK_ANVIL_LAND, 0.5f, 1.5f)
-                if (ticks == 60) {
-                    player.playSound(player.location, Sound.BLOCK_ANVIL_LAND, 0.8f, 1f)
-                    checkWin(reel1, reel2, reel3)
-                    isSpinning.set(false)
-                    updateBottomRow()
-                    spawnRestartShard()
-                    cancel()
-                }
-                ticks++
+        var ticks = 0
+        var spinCancel: Runnable? = null
+        spinCancel = SchedulerUtil.runGlobalTimer(plugin, 0L, 1L) {
+            if (ticks < 20) { reel1 = registry.getRandomItem(player); updateReel(reelSlots[0], reel1) }
+            if (ticks < 40) { reel2 = registry.getRandomItem(player); updateReel(reelSlots[1], reel2) }
+            if (ticks < 60) {
+                reel3 = registry.getRandomItem(player); updateReel(reelSlots[2], reel3)
+                if (ticks % 2 == 0) player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_HAT, 1f, 2f)
             }
-        }.runTaskTimer(plugin, 0L, 1L)
+            if (ticks == 20) player.playSound(player.location, Sound.BLOCK_ANVIL_LAND, 0.5f, 1.5f)
+            if (ticks == 40) player.playSound(player.location, Sound.BLOCK_ANVIL_LAND, 0.5f, 1.5f)
+            if (ticks == 60) {
+                player.playSound(player.location, Sound.BLOCK_ANVIL_LAND, 0.8f, 1f)
+                checkWin(reel1, reel2, reel3)
+                isSpinning.set(false)
+                updateBottomRow()
+                spawnRestartShard()
+                spinCancel?.run()
+            }
+            ticks++
+        }
     }
 
     private fun updateReel(slot: Int, prize: SlotPrize) {

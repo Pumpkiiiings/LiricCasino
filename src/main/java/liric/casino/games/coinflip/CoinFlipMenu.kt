@@ -1,6 +1,7 @@
 package liric.casino.games.coinflip
 
 import liric.casino.CasinoPlugin
+import liric.casino.util.SchedulerUtil
 import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.FireworkEffect
@@ -12,7 +13,6 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.SkullMeta
-import org.bukkit.scheduler.BukkitRunnable
 import java.security.SecureRandom
 import java.text.NumberFormat
 import java.util.Locale
@@ -137,41 +137,39 @@ class CoinFlipMenu(
             }
         }
 
-        object : BukkitRunnable() {
-            var tick = 0
+        var tick = 0
+        var animCancel: Runnable? = null
+        animCancel = SchedulerUtil.runGlobalTimer(plugin, 0L, 1L) {
+            val progress = tick.toDouble() / animTicks
 
-            override fun run() {
-                val progress = tick.toDouble() / animTicks
 
-
-                val speed = when {
-                    progress < 0.40 -> 1
-                    progress < 0.60 -> 2
-                    progress < 0.72 -> 3
-                    progress < 0.82 -> 5
-                    progress < 0.90 -> 8
-                    progress < 0.95 -> 13
-                    else            -> 20
-                }
-
-                if (tick % speed == 0 && currentPos < endPos) {
-                    currentPos++
-                    updateStrip()
-
-                    val pitch = if (progress < 0.8) 1.5f else (1.5f - ((progress.toFloat() - 0.8f) * 3f).coerceAtMost(0.8f))
-                    creator?.playSound(creator.location, Sound.BLOCK_NOTE_BLOCK_HAT, 0.4f, pitch)
-                    joiner.playSound(joiner.location, Sound.BLOCK_NOTE_BLOCK_HAT, 0.4f, pitch)
-                }
-
-                tick++
-
-                if (currentPos >= endPos && tick % 20 == 0) {
-
-                    finishAnimation(inv, winnerId, winnerIsCreator, creatorHead, joinerHead, amountFmt)
-                    cancel()
-                }
+            val speed = when {
+                progress < 0.40 -> 1
+                progress < 0.60 -> 2
+                progress < 0.72 -> 3
+                progress < 0.82 -> 5
+                progress < 0.90 -> 8
+                progress < 0.95 -> 13
+                else            -> 20
             }
-        }.runTaskTimer(plugin, 0L, 1L)
+
+            if (tick % speed == 0 && currentPos < endPos) {
+                currentPos++
+                updateStrip()
+
+                val pitch = if (progress < 0.8) 1.5f else (1.5f - ((progress.toFloat() - 0.8f) * 3f).coerceAtMost(0.8f))
+                creator?.playSound(creator.location, Sound.BLOCK_NOTE_BLOCK_HAT, 0.4f, pitch)
+                joiner.playSound(joiner.location, Sound.BLOCK_NOTE_BLOCK_HAT, 0.4f, pitch)
+            }
+
+            tick++
+
+            if (currentPos >= endPos && tick % 20 == 0) {
+
+                finishAnimation(inv, winnerId, winnerIsCreator, creatorHead, joinerHead, amountFmt)
+                animCancel?.run()
+            }
+        }
     }
 
     private fun finishAnimation(
@@ -225,12 +223,10 @@ class CoinFlipMenu(
         }
 
 
-        object : BukkitRunnable() {
-            override fun run() {
-                creator?.closeInventory()
-                joiner.closeInventory()
-                plugin.coinFlipManager.resolveGame(session, winnerId)
-            }
-        }.runTaskLater(plugin, 60L)
+        SchedulerUtil.runGlobalLater(plugin, 60L) {
+            creator?.closeInventory()
+            joiner.closeInventory()
+            plugin.coinFlipManager.resolveGame(session, winnerId)
+        }
     }
 }

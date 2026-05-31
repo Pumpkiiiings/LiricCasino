@@ -1,7 +1,7 @@
 package liric.casino.webhook
 
 import liric.casino.CasinoPlugin
-import org.bukkit.Bukkit
+import liric.casino.util.SchedulerUtil
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
@@ -103,7 +103,7 @@ class WebhookManager(private val plugin: CasinoPlugin) {
         color: Int,
         footer: String
     ) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+        SchedulerUtil.runAsync(plugin) {
             try {
                 val json = buildJson(content, title, description, color, footer)
                 val conn = URL(webhookUrl).openConnection() as HttpURLConnection
@@ -124,7 +124,7 @@ class WebhookManager(private val plugin: CasinoPlugin) {
             } catch (e: Exception) {
                 plugin.logger.warning("[Webhook] Error enviando embed: ${e.message}")
             }
-        })
+        }
     }
 
     private fun buildJson(content: String, title: String, description: String, color: Int, footer: String): String {

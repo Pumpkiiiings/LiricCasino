@@ -96,8 +96,13 @@ class CasinoPlugin : JavaPlugin() {
     fun menuConfig(name: String): MenuConfig =
         menuConfigMap[name] ?: error("MenuConfig '$name' not loaded!")
 
-
     fun isGameEnabled(key: String): Boolean = config.getBoolean("$key.active", true)
+
+    /** Returns true when running on Folia (threaded-region server). */
+    fun isFolia(): Boolean = try {
+        Class.forName("io.papermc.paper.threadedregions.RegionizedServer")
+        true
+    } catch (_: ClassNotFoundException) { false }
 
 
     override fun onEnable() {
@@ -251,36 +256,55 @@ class CasinoPlugin : JavaPlugin() {
 
     private fun sendStartupMessage() {
         val v = description.version
-        val lines = listOf(
-            "<gray>",
-            "<gradient:#FFD700:#FF6B6B>  ██████╗ █████╗ ███████╗██╗███╗   ██╗ ██████╗ </gradient>",
-            "<gradient:#FFD700:#FF6B6B> ██╔════╝██╔══██╗██╔════╝██║████╗  ██║██╔═══██╗</gradient>",
-            "<gradient:#FFD700:#FF6B6B> ██║     ███████║███████╗██║██╔██╗ ██║██║   ██║</gradient>",
-            "<gradient:#FFD700:#FF6B6B> ██║     ██╔══██║╚════██║██║██║╚██╗██║██║   ██║</gradient>",
-            "<gradient:#FFD700:#FF6B6B> ╚██████╗██║  ██║███████║██║██║ ╚████║╚██████╔╝</gradient>",
-            "<gradient:#FFD700:#FF6B6B>  ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═══╝ ╚═════╝</gradient>",
-            "<gray>",
-            "<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "<white>  🎰 <gold><bold>Liric Casino</bold></gold>  <gray>•  <yellow>v$v  <gray>•  <aqua>Paper 1.21.4",
-            "<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "<green>  ✔ <gray>Economy (Vault)      <green><bold>CONNECTED",
-            "<green>  ✔ <gray>Roulette             <green><bold>ACTIVE",
-            "<green>  ✔ <gray>Blackjack Table      <green><bold>ACTIVE",
-            "<green>  ✔ <gray>Poker Table          <green><bold>ACTIVE",
-            "<green>  ✔ <gray>777 Slots Machine    <green><bold>ACTIVE",
-            "<green>  ✔ <gray>Scratch Card         <green><bold>ACTIVE",
-            "<green>  ✔ <gray>Lottery              <green><bold>ACTIVE",
-            "<green>  ✔ <gray>CoinFlip PvP         <green><bold>ACTIVE",
-            "<green>  ✔ <gray>Rock Paper Scissors  <green><bold>ACTIVE",
-            "<green>  ✔ <gray>Tic Tac Toe PvP      <green><bold>ACTIVE",
-            "<green>  ✔ <gray>Horse Racing         <green><bold>ACTIVE",
-            "<green>  ✔ <gray>Configurable Taxes   <green><bold>ACTIVE",
-            "<green>  ✔ <gray>Database & Stats     <green><bold>CONNECTED",
-            "<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "<gradient:#4facfe:#00f2fe>  THE ULTIMATE CASINO IS OPEN! 🎲</gradient>",
-            "<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "<gray>"
-        )
+        val folia = isFolia()
+        val platform = if (folia) "<light_purple><bold>Folia</bold></light_purple>" else "<aqua>Paper"
+        val foliaLine = if (folia)
+            "<light_purple>  ✦ <white>Folia detected — <yellow>running in threaded-region mode"
+        else null
+
+        // Helper: returns a coloured status tag based on config key
+        fun gameStatus(key: String): String = if (isGameEnabled(key))
+            "<green><bold>ACTIVE</bold></green>"
+        else
+            "<red><bold>DISABLED</bold></red>"
+
+        val taxStatus = if (config.getBoolean("taxes.enabled", false))
+            "<green><bold>ACTIVE</bold></green>" else "<red><bold>DISABLED</bold></red>"
+
+        val lines = buildList {
+            add("<gray>")
+            add("<gradient:#FFD700:#FF6B6B>  ██████╗ █████╗ ███████╗██╗███╗   ██╗ ██████╗ </gradient>")
+            add("<gradient:#FFD700:#FF6B6B> ██╔════╝██╔══██╗██╔════╝██║████╗  ██║██╔═══██╗</gradient>")
+            add("<gradient:#FFD700:#FF6B6B> ██║     ███████║███████╗██║██╔██╗ ██║██║   ██║</gradient>")
+            add("<gradient:#FFD700:#FF6B6B> ██║     ██╔══██║╚════██║██║██║╚██╗██║██║   ██║</gradient>")
+            add("<gradient:#FFD700:#FF6B6B> ╚██████╗██║  ██║███████║██║██║ ╚████║╚██████╔╝</gradient>")
+            add("<gradient:#FFD700:#FF6B6B>  ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═══╝ ╚═════╝</gradient>")
+            add("<gray>")
+            add("<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            add("<white>  🎰 <gold><bold>Liric Casino</bold></gold>  <gray>•  <yellow>v$v  <gray>•  $platform")
+            add("<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            if (foliaLine != null) {
+                add(foliaLine)
+                add("<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            }
+            add("<green>  ✔ <gray>Economy (Vault)      <green><bold>CONNECTED")
+            add("<gray>  ◈ <gray>Roulette             ${gameStatus("roulette")}")
+            add("<gray>  ◈ <gray>Blackjack Table      ${gameStatus("blackjack")}")
+            add("<gray>  ◈ <gray>Poker Table          ${gameStatus("poker")}")
+            add("<gray>  ◈ <gray>777 Slots Machine    ${gameStatus("slots")}")
+            add("<gray>  ◈ <gray>Scratch Card         ${gameStatus("scratch")}")
+            add("<gray>  ◈ <gray>Lottery              ${gameStatus("lottery")}")
+            add("<gray>  ◈ <gray>CoinFlip PvP         ${gameStatus("coinflip")}")
+            add("<gray>  ◈ <gray>Rock Paper Scissors  ${gameStatus("rps")}")
+            add("<gray>  ◈ <gray>Tic Tac Toe PvP      ${gameStatus("ttt")}")
+            add("<gray>  ◈ <gray>Horse Racing         ${gameStatus("racing")}")
+            add("<gray>  ◈ <gray>Configurable Taxes   $taxStatus")
+            add("<green>  ✔ <gray>Database & Stats     <green><bold>CONNECTED")
+            add("<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            add("<gradient:#4facfe:#00f2fe>  THE ULTIMATE CASINO IS OPEN! 🎲</gradient>")
+            add("<dark_gray>  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            add("<gray>")
+        }
         lines.forEach { server.consoleSender.sendMessage(format(it)) }
     }
 }

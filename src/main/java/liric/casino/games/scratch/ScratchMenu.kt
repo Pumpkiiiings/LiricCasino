@@ -1,0 +1,131 @@
+package liric.casino.games.scratch
+
+import dev.triumphteam.gui.builder.item.ItemBuilder
+import dev.triumphteam.gui.guis.Gui
+import liric.casino.CasinoPlugin
+import liric.casino.core.BaseMenu
+import liric.casino.util.SchedulerUtil
+import org.bukkit.Material
+import org.bukkit.Sound
+import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemFlag
+import java.util.concurrent.ConcurrentHashMap
+
+class ScratchMenu(
+    plugin: CasinoPlugin, 
+    private val player: Player, 
+    private val tier: TicketTier
+) : BaseMenu(plugin, "scratch.yml") {
+
+    private fun msg(key: String, vararg ph: Pair<String, String>) = plugin.messages.get(key, *ph)
+
+    private val prizeRegistry = PrizeRegistry.fromConfig(plugin.config)
+    private val scratchableSlots = tier.getScratchableSlots()
+    private val board = List(scratchableSlots.size) { prizeRegistry.getRandomPrize() }
+
+    private val scratchedSlots = ConcurrentHashMap.newKeySet<Int>()
+    private val revealedCounts = ConcurrentHashMap<ScratchPrize, Int>()
+    @Volatile private var locked = false
+
+    fun open() {
+        val titleRaw = config.getString("title", "<#FFD700><bold>🎟 SCRATCH CARD {tier} 🎟</bold>")
+            .replace("{tier}", tier.displayName)
+        val gui = Gui.gui()
+            .title(plugin.format(titleRaw))
+            .rows(tier.rows)
+            .disableAllInteractions().disableItemTake().disableItemSwap().disableItemDrop().disableItemPlace()
+            .create()
+
+        val fillerMat  = config.getMaterial("filler.material", Material.BLACK_STAINED_GLASS_PANE)
+        val filler = ItemBuilder.from(fillerMat).name(plugin.format(" ")).asGuiItem()
+        for (i in 0 until (tier.rows * 9)) {
+            if (i !in scratchableSlots) gui.setItem(i, filler)
+        }
+        
+        setupItems(gui)
+        gui.open(player)
+    }
+
+    override fun setupItems(gui: Gui) {
+        config.getMapList("decorations").forEach { dec ->
+            val matStr = dec["material"].toString()
+            val mat = runCatching { Material.valueOf(matStr) }.getOrDefault(Material.BLACK_STAINED_GLASS_PANE)
+            val name = plugin.format(dec["name"].toString())
+            val slots = dec["slots"] as? List<*> ?: emptyList<Any>()
+            val item = ItemBuilder.from(mat).name(name).asGuiItem()
+            slots.forEach { slot -> gui.setItem(slot.toString().toInt(), item) }
+        }
+
+        val scratchMat  = config.getMaterial("scratch-block.material", Material.BLACK_CONCRETE)
+        val scratchName = config.getComponent("scratch-block.name")
+        val scratchLore = config.getComponentList("scratch-block.lore")
+        val missedSuffix = config.getString("missed-suffix", " <dark_gray>(Hidden)")
+        val closeDelay   = config.getInt("close-delay-ticks", 50).toLong()
+
+        scratchableSlots.forEachIndexed { index, slot ->
+            val hiddenItem = ItemBuilder.from(scratchMat)
+                .name(scratchName).lore(scratchLore).flags(*ItemFlag.values())
+                .asGuiItem {
+                    if (locked || !scratchedSlots.add(slot)) return@asGuiItem
+
+                    val prize = board[index]
+                    revealedCounts.merge(prize, 1, Int::plus)
+
+                    val revealedItem = ItemBuilder.from(prize.material)
+                        .name(plugin.format(prize.displayName)).flags(*ItemFlag.values()).asGuiItem()
+                    gui.updateItem(slot, revealedItem)
+                    player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_CHIME, 1f, 1.5f)
+                    checkWinCondition(gui, prize, missedSuffix, closeDelay)
+                }
+            gui.setItem(slot, hiddenItem)
+        }
+    }
+
+    private fun checkWinCondition(gui: Gui, lastPrize: ScratchPrize, missedSuffix: String, closeDelay: Long) {
+        if ((revealedCounts[lastPrize] ?: 0) == tier.matchRequired) {
+            if (!locked) locked = true else return
+            val totalPayout = lastPrize.basePayout * tier.payoutMultiplier
+            if (totalPayout > 0) {
+                // Since this is a single player game, we don't have a manager to handle this, we can do it directly.
+                val (netWin, _) = liric.casino.util.TaxUtil.applyTax(plugin, totalPayout, "scratch")
+                plugin.economyManager.depositPlayer(player, netWin)
+                player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
+                player.sendMessage(msg("scratch.win",
+                    "count"  to tier.matchRequired.toString(),
+                    "prize"  to lastPrize.displayName,
+                    "amount" to netWin.toString()
+                ))
+                plugin.statsManager.recordScratch(player.uniqueId, tier.price, totalPayout, didWin = true)
+            } else {
+                player.playSound(player.location, Sound.ENTITY_VILLAGER_NO, 1f, 1f)
+                player.sendMessage(msg("scratch.win-trash",
+                    "count" to tier.matchRequired.toString(),
+                    "prize" to lastPrize.displayName
+                ))
+                plugin.statsManager.recordScratch(player.uniqueId, tier.price, 0.0, didWin = false)
+            }
+            closeDelayed(gui, missedSuffix, closeDelay)
+            return
+        }
+
+        if (scratchedSlots.size == scratchableSlots.size) {
+            if (!locked) locked = true else return
+            player.playSound(player.location, Sound.ENTITY_VILLAGER_NO, 1f, 1f)
+            player.sendMessage(msg("scratch.no-prize"))
+            plugin.statsManager.recordScratch(player.uniqueId, tier.price, 0.0, didWin = false)
+            closeDelayed(gui, missedSuffix, closeDelay)
+        }
+    }
+
+    private fun closeDelayed(gui: Gui, missedSuffix: String, closeDelay: Long) {
+        scratchableSlots.forEachIndexed { index, slot ->
+            if (!scratchedSlots.contains(slot)) {
+                val prize = board[index]
+                val missedItem = ItemBuilder.from(prize.material)
+                    .name(plugin.format("${prize.displayName}$missedSuffix")).flags(*ItemFlag.values()).asGuiItem()
+                gui.updateItem(slot, missedItem)
+            }
+        }
+        SchedulerUtil.runGlobalLater(plugin, closeDelay) { gui.close(player) }
+    }
+}

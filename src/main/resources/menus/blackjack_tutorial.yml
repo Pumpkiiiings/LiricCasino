@@ -1,0 +1,60 @@
+# ═══════════════════════════════════════════════════════
+#   menus/blackjack_tutorial.yml — Blackjack Guide
+# ═══════════════════════════════════════════════════════
+
+title: "<black><bold>📖 How to Play Blackjack"
+rows: 3
+
+decorations:
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 18, 19, 20, 21, 23, 24, 25, 26]
+  - material: GRAY_STAINED_GLASS_PANE
+    name: " "
+    slots: [9, 11, 13, 15, 17]
+
+back-button:
+  slot: 22
+  material: ARROW
+  name: "<red><bold>⬅ BACK</bold>"
+
+pages:
+  objetivo:
+    slot: 10
+    material: BOOK
+    name: "<#FFD700><bold>1. THE OBJECTIVE</bold>"
+    lore:
+      - "<gray>Your goal is to beat the <#FF5555>Dealer</#FF5555>."
+      - "<gray>To do so, the sum of your cards"
+      - "<gray>must be closer to <#00FF7F>21</#00FF7F> than the"
+      - "<gray>Dealer's, without going over (Bust)!"
+
+  valor-cartas:
+    slot: 12
+    material: PAPER
+    name: "<#00FF7F><bold>2. CARD VALUES</bold>"
+    lore:
+      - "<white>• Cards 2-10: <gray>Worth their face value."
+      - "<white>• J, Q, K: <gray>Worth 10 points."
+      - "<white>• Ace (A): <gray>Worth 1 or 11 points"
+      - "<gray>  (The game chooses whichever benefits you most)."
+
+  acciones:
+    slot: 14
+    material: COMPASS
+    name: "<#00FFFF><bold>3. YOUR ACTIONS</bold>"
+    lore:
+      - "<#00FF7F>✚ Hit: <gray>Request another card."
+      - "<#FF5555>✋ Stand: <gray>Keep your current hand."
+      - "<#FFD700>💰 Double: <gray>Double your bet,"
+      - "<gray>receive only ONE more card and stand automatically."
+
+  pagos:
+    slot: 16
+    material: GOLD_INGOT
+    name: "<#FFD700><bold>4. PAYOUTS</bold>"
+    lore:
+      - "<white>• Normal Win: <gray>Pays 1 to 1 (You win double)."
+      - "<white>• Blackjack (21 on first 2 cards): <gray>Pays 3 to 2 (You win x2.5)."
+      - "<white>• Tie (Push): <gray>Your bet is returned."
+      - "<white>• Loss or Bust: <gray>You lose your bet."

@@ -1,0 +1,38 @@
+# ═══════════════════════════════════════════════════════
+#   menus/blackjack_choice.yml — Blackjack mode choice menu
+# ═══════════════════════════════════════════════════════
+
+title: "<black><bold>Ready to play?"
+rows: 3
+
+decorations:
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+  - material: GRAY_STAINED_GLASS_PANE
+    name: " "
+    slots: [9, 10, 12, 14, 16, 17]
+
+items:
+  vs-house:
+    slot: 11
+    material: RED_DYE
+    name: "<#FF5555><bold>SOLO VS THE HOUSE</bold>"
+    lore:
+      - "<gray>Play by yourself against the Dealer quickly."
+
+  tutorial:
+    slot: 13
+    material: WRITTEN_BOOK
+    name: "<#FFB400><bold>📖 HOW TO PLAY (Guide)</bold>"
+    lore:
+      - "<gray>Learn the rules and payouts of Blackjack."
+
+  vs-players:
+    slot: 15
+    material: DIAMOND
+    name: "<#00FFFF><bold>MULTIPLAYER TABLE (Real)</bold>"
+    lore:
+      - "<gray>Join the table with other players."
+      - "<gray>Everyone plays their own hands"
+      - "<gray>against the same Dealer in turns."

@@ -1,0 +1,29 @@
+# ═══════════════════════════════════════════════════════
+#   menus/scratch.yml — Scratch and Win Menu
+# ═══════════════════════════════════════════════════════
+
+# The title uses {tier} as a placeholder
+title: "<#FFD700><bold>🎟 SCRATCH & WIN {tier} 🎟</bold>"
+
+filler:
+  material: BLACK_STAINED_GLASS_PANE
+
+decorations: []
+
+scratch-block:
+  material: BLACK_CONCRETE
+  name: "<#E0E0E0><bold>⬛ Scratch here!</bold>"
+  lore:
+    - "<#FFD700>Click to reveal"
+
+missed-suffix: " <dark_gray>(Hidden)"
+
+close-delay-ticks: 50
+
+ticket:
+  name: "<#FFD700><bold>🎟 BOLETO {tier} 🎟</bold>"
+  lore:
+    - "<#E0E0E0>Haz <#00FF7F><bold>Click Derecho</bold> <#E0E0E0>al aire"
+    - "<#E0E0E0>con este boleto para jugar.</#E0E0E0>"
+    - ""
+    - "<#FFB400>¡Encuentra {matches} iguales para ganar!</#FFB400>"

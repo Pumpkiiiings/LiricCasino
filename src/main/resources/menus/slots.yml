@@ -1,0 +1,72 @@
+# ═══════════════════════════════════════════════════════
+#   menus/slots.yml — 777 Slots Machine Menu
+# ═══════════════════════════════════════════════════════
+
+title: "<#FFB400><bold>🎰 777 SLOTS 🎰</bold></#FFB400>"
+rows: 3
+
+decorations:
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 18, 19, 25]
+  - material: GRAY_STAINED_GLASS_PANE
+    name: " "
+    slots: [9, 10, 11, 15, 16, 17]
+
+reel:
+  slots: [12, 13, 14]
+  empty-material: BLACK_CONCRETE
+  empty-name: "<#E0E0E0>?"
+
+spinning-indicator:
+  material: BARRIER
+  name: "<#FF5555>Spinning..."
+
+buttons:
+  minus-big:
+    slot: 20
+    material: RED_DYE
+    label: "-10k"
+    amount: -10000.0
+    color: "<#FF5555>"
+  minus-small:
+    slot: 21
+    material: RED_DYE
+    label: "-1k"
+    amount: -1000.0
+    color: "<#FF5555>"
+
+  plus-small:
+    slot: 23
+    material: LIME_DYE
+    label: "+1k"
+    amount: 1000.0
+    color: "<#00FF7F>"
+  plus-big:
+    slot: 24
+    material: LIME_DYE
+    label: "+10k"
+    amount: 10000.0
+    color: "<#00FF7F>"
+
+  custom-bet:
+    slot: 4
+    material: PAPER
+    name: "<#FFD700>Cantidad Custom"
+
+  spin:
+    slot: 22
+    material: TRIPWIRE_HOOK
+    name: "<#FFD700><bold>🎰 SPIN! 🎰</bold>"
+    lore-bet: "<gray>Current Bet: <#00FF7F>${amount}"
+    lore-empty: ""
+    lore-tip: "<#FFB400>Match 3 items to win!"
+
+  restart:
+    slot: 26
+    material: AMETHYST_SHARD
+    hide-material: BLACK_STAINED_GLASS_PANE
+    name: "<#9966CC><bold>Try again?</bold>"
+    lore:
+      - "<gray>Click to reset"
+      - "<gray>the reels."

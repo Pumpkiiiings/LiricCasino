@@ -1,0 +1,90 @@
+# ═══════════════════════════════════════════════════════
+#   menus/apuesta_ruleta.yml — Bet amount menu (Roulette)
+# ═══════════════════════════════════════════════════════
+
+title: "<black><bold>Bet ➔ {target}"
+rows: 3
+
+decorations:
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 19, 20, 21, 23, 24, 25, 26]
+  - material: GRAY_STAINED_GLASS_PANE
+    name: " "
+    slots: [9, 17]
+
+buttons:
+  # Minus buttons (slots 10, 11, 12)
+  minus-big:
+    slot: 10
+    material: RED_DYE
+    label: "-10k"
+    amount: -10000.0
+    color: "<#FF3333>"
+  minus-medium:
+    slot: 11
+    material: RED_DYE
+    label: "-1000"
+    amount: -1000.0
+    color: "<#FF3333>"
+  minus-small:
+    slot: 12
+    material: RED_DYE
+    label: "-100"
+    amount: -100.0
+    color: "<#FF3333>"
+
+  # Plus buttons (slots 14, 15, 16)
+  plus-small:
+    slot: 14
+    material: LIME_DYE
+    label: "+100"
+    amount: 100.0
+    color: "<#00FF7F>"
+  plus-medium:
+    slot: 15
+    material: LIME_DYE
+    label: "+1000"
+    amount: 1000.0
+    color: "<#00FF7F>"
+  plus-big:
+    slot: 16
+    material: LIME_DYE
+    label: "+10k"
+    amount: 10000.0
+    color: "<#00FF7F>"
+
+  custom-bet:
+    slot: 4
+    material: PAPER
+    name: "<#FFD700>Cantidad Custom"
+
+  # MAX BET (slot 22)
+  max-bet:
+    slot: 22
+    material: GOLD_BLOCK
+    name: "<#FFD700><bold>✦ MAX BET! ✦"
+    lore:
+      - "<gray>Bet the maximum: <#00FF7F>${max}"
+
+  # BACK (slot 18)
+  back:
+    slot: 18
+    material: ARROW
+    name: "<#FF3333><bold>Back"
+
+  # CONFIRM (slot 13 — dynamically updated)
+  confirm:
+    confirm-name: "<#00FF7F><bold>✔ CONFIRM BET"
+    lore-target: "<gray>Target: <white>{target}"
+    lore-total: "<gray>Total on table: <#00FF7F>${amount}"
+    lore-click: ""
+    lore-action: "<#FFD700>Click to place bet!"
+
+error:
+  limit-msg: "<#FF3333><bold>LIMIT REACHED ({max})!"
+  limit-lore: "<gray>You cannot bet more than {max}."
+  no-funds-msg: "<#FF3333><bold>NO FUNDS!"
+  no-funds-lore: "<gray>You do not have enough money."
+  min-msg: "<#FF3333><bold>MINIMUM REACHED!"
+  min-lore: "<gray>The bet cannot be less than 0."

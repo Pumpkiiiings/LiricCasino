@@ -1,0 +1,33 @@
+title: "<#FF0000><bold>♠ TEXAS HOLD'EM ♠</bold></#FF0000>"
+
+items:
+  filler:
+    material: GREEN_STAINED_GLASS_PANE
+    name: " "
+  player-head:
+    material: PLAYER_HEAD
+    name: "<#E0E0E0><bold>{name}</bold></#E0E0E0>"
+  empty-card:
+    material: MAP
+    name: "<gray>CARTA EN MESA</gray>"
+  pot:
+    material: GOLD_BLOCK
+    name: "<#FFD700><bold>POZO TOTAL: {pot}</bold></#FFD700>"
+  time:
+    material: CLOCK
+    name: "<#FFB400>Tiempo: {time}s</#FFB400>"
+  fold:
+    material: RED_DYE
+    name: "<#FF5555><bold>RETIRARSE (Fold)</bold>"
+  call:
+    material: YELLOW_DYE
+    name: "<#FFD700><bold>{text}</bold>"
+  raise:
+    material: LIME_DYE
+    name: "<#00FF7F><bold>SUBIR (Raise +$5,000)</bold>"
+  wait:
+    material: BARRIER
+    name: "<#555555>Espera tu turno...</#555555>"
+  hidden-card:
+    material: PAPER
+    name: "<#FFB400><bold>🂠 CARTA OCULTA</bold>"

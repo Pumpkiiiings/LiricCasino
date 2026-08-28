@@ -1,0 +1,45 @@
+// UI Translations
+window.WikiTranslations = {
+    es: {
+        menu_title: "Navegación",
+        nav_intro: "Introducción",
+        nav_install: "Instalación",
+        nav_how_it_works: "Cómo Funciona",
+        nav_config: "Config. y Límites",
+        nav_examples: "Ejemplos",
+        nav_community: "Comunidad",
+        nav_games: "Juegos",
+        nav_poker: "Poker",
+        nav_blackjack: "Blackjack",
+        nav_roulette: "Ruleta",
+        nav_slots: "Tragamonedas",
+        nav_lottery: "Lotería",
+        nav_scratch: "Raspaditas",
+        nav_racing: "Carreras",
+        nav_coinflip: "CoinFlip",
+        nav_rps: "Piedra Papel Tijera",
+        nav_ttt: "Tic Tac Toe",
+        footer_text: "Wiki de CasinoLiric - Creado con ♥"
+    },
+    en: {
+        menu_title: "Navigation",
+        nav_intro: "Introduction",
+        nav_install: "Installation",
+        nav_how_it_works: "How it Works",
+        nav_config: "Config & Limits",
+        nav_examples: "Examples",
+        nav_community: "Community",
+        nav_games: "Games",
+        nav_poker: "Poker",
+        nav_blackjack: "Blackjack",
+        nav_roulette: "Roulette",
+        nav_slots: "Slots",
+        nav_lottery: "Lottery",
+        nav_scratch: "Scratch Cards",
+        nav_racing: "Racing",
+        nav_coinflip: "CoinFlip",
+        nav_rps: "Rock Paper Scissors",
+        nav_ttt: "Tic Tac Toe",
+        footer_text: "CasinoLiric Wiki - Made with ♥"
+    }
+};

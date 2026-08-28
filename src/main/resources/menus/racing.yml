@@ -1,0 +1,67 @@
+# Horse Racing Menu
+title: "<#FFD700>🏇 <gold><bold>RACING — Choose your horse</bold>"
+rows: 5
+
+# ── Slots where horses appear ──
+horse-slots: [10, 12, 14, 16, 19, 21, 23, 25]
+
+# ── Horse Item (NOT Selected) ──
+horse-item:
+  material: HAY_BLOCK
+  name: "<white>%horse_emoji% %horse_name%"
+  lore:
+    - "<gray>Multiplier: <#00FF7F>x%horse_odds%"
+    - "<gray>Probability: <white>%win_chance%%"
+    - " "
+    - "<gray>Click to select"
+
+# ── Horse Item (SELECTED) ──
+horse-item-selected:
+  material: GOLD_BLOCK
+  name: "<#FFD700><bold>%horse_emoji% %horse_name% ✔</bold>"
+  lore:
+    - "<gray>Multiplier: <#00FF7F>x%horse_odds%"
+    - "<gray>Probability: <white>%win_chance%%"
+    - " "
+    - "<#FFD700>▶ Selected"
+
+# ── Bet Buttons (fixed slots: 36, 37, 38, 39, 40) ──
+bet-amounts: [500, 1000, 5000, 10000, 50000]
+
+bet-item:
+  material: EMERALD
+  name: "<gray>$%amount%"
+
+bet-item-selected:
+  material: EMERALD_BLOCK
+  name: "<#00FF7F><bold>$%amount% ✔</bold>"
+
+# ── Bet Button ──
+bet-action-btn:
+  slot: 41
+  material: TRIPWIRE_HOOK
+  name: "<#FFD700><bold>🏇 BET NOW!</bold>"
+  lore:
+    - "<gray>Horse: <white>%horse_emoji% %horse_name%"
+    - "<gray>Bet: <#FFD700>$%amount%"
+    - "<gray>Payout if win: <#00FF7F>$%win_pot%"
+
+# ── Bet Button (No selection) ──
+bet-no-selection:
+  slot: 41
+  material: BARRIER
+  name: "<red>Select a horse first</red>"
+  lore: []
+
+# ── Close ──
+cancel-btn:
+  slot: 44
+  material: BARRIER
+  name: "<red>✖ Close</red>"
+  lore: []
+
+# ── Decorations ──
+decorations:
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 15, 17, 18, 20, 22, 24, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 42, 43]

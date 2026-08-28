@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CasinoLiric Wiki</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="cursor-trail" id="cursorTrail"></div>
+
+    <nav class="navbar">
+        <div class="logo">Casino<span>Liric</span></div>
+        <div class="nav-controls">
+            <button id="themeToggle" class="btn-icon" title="Toggle Theme">
+                <svg id="themeIconDark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg id="themeIconLight" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+            <button id="langToggle" class="btn-nav">EN / ES</button>
+        </div>
+    </nav>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h3 class="sidebar-title" data-i18n="menu_title">Navegación</h3>
+            <ul id="navMenu">
+                <li><a href="#" data-section="introduccion" class="nav-item active" data-i18n="nav_intro">Introducción</a></li>
+                <li><a href="#" data-section="instalacion" class="nav-item" data-i18n="nav_install">Instalación</a></li>
+                <li><a href="#" data-section="como-funciona" class="nav-item" data-i18n="nav_how_it_works">Cómo Funciona</a></li>
+                <li><a href="#" data-section="configuracion" class="nav-item" data-i18n="nav_config">Configuración y Límites</a></li>
+                <li><a href="#" data-section="ejemplos" class="nav-item" data-i18n="nav_examples">Ejemplos de Archivos</a></li>
+                <li><a href="#" data-section="comunidad" class="nav-item" data-i18n="nav_community">Comunidad y Soporte</a></li>
+                <li class="nav-group" data-i18n="nav_games">Juegos</li>
+                <li><a href="#" data-section="poker" class="nav-item nav-sub" data-i18n="nav_poker">Poker</a></li>
+                <li><a href="#" data-section="blackjack" class="nav-item nav-sub" data-i18n="nav_blackjack">Blackjack</a></li>
+                <li><a href="#" data-section="ruleta" class="nav-item nav-sub" data-i18n="nav_roulette">Ruleta</a></li>
+                <li><a href="#" data-section="tragamonedas" class="nav-item nav-sub" data-i18n="nav_slots">Tragamonedas</a></li>
+                <li><a href="#" data-section="loteria" class="nav-item nav-sub" data-i18n="nav_lottery">Lotería</a></li>
+                <li><a href="#" data-section="scratch" class="nav-item nav-sub" data-i18n="nav_scratch">Raspaditas</a></li>
+                <li><a href="#" data-section="carreras" class="nav-item nav-sub" data-i18n="nav_racing">Carreras</a></li>
+                <li><a href="#" data-section="coinflip" class="nav-item nav-sub" data-i18n="nav_coinflip">CoinFlip</a></li>
+                <li><a href="#" data-section="rps" class="nav-item nav-sub" data-i18n="nav_rps">Piedra Papel Tijera</a></li>
+                <li><a href="#" data-section="tictactoe" class="nav-item nav-sub" data-i18n="nav_ttt">Tic Tac Toe</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <div id="content-area" class="reveal active">
+                <!-- El contenido dinámico se inserta aquí -->
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <div data-i18n="footer_text">Wiki de CasinoLiric - Creado con ♥</div>
+    </footer>
+
+    <!-- Dependencias (Sin servidor web) -->
+    <div class="file-modal-overlay" id="fileModalOverlay">
+        <div class="file-modal">
+            <div class="file-modal-header">
+                <div class="file-modal-title" id="fileModalTitle">config.yml</div>
+                <button class="file-modal-close" id="fileModalClose">&times;</button>
+            </div>
+            <div class="file-modal-content">
+                <pre><code id="fileModalCode"></code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="functions/i18n.js"></script>
+    <script src="functions/fileData.js"></script>
+    
+    <!-- Secciones (Carga Estática para uso local) -->
+    <script src="secciones/introduccion.js"></script>
+    <script src="secciones/como-funciona.js"></script>
+    <script src="secciones/configuracion.js"></script>
+    <script src="secciones/ejemplos.js"></script>
+    <script src="secciones/comunidad.js"></script>
+    <script src="secciones/poker.js"></script>
+    <script src="secciones/instalacion.js"></script>
+    <script src="secciones/blackjack.js"></script>
+    <script src="secciones/ruleta.js"></script>
+    <script src="secciones/tragamonedas.js"></script>
+    <script src="secciones/loteria.js"></script>
+    <script src="secciones/scratch.js"></script>
+    <script src="secciones/carreras.js"></script>
+    <script src="secciones/coinflip.js"></script>
+    <script src="secciones/rps.js"></script>
+    <script src="secciones/tictactoe.js"></script>
+    <script src="functions/main.js"></script>
+</body>
+</html>

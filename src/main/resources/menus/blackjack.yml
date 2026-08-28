@@ -1,0 +1,45 @@
+title: "<#FF0000><bold>♠ BLACKJACK 21 ♠</bold></#FF0000>"
+multi-title: "<#FF0000><bold>♠ MESA VIP BLACKJACK ♠</bold></#FF0000>"
+
+items:
+  filler:
+    material: GREEN_STAINED_GLASS_PANE
+    name: " "
+  multi-filler:
+    material: BLACK_STAINED_GLASS_PANE
+    name: " "
+  dealer-head:
+    material: SKELETON_SKULL
+    name: "<#FF5555><bold>DEALER</bold>"
+    lore:
+      - "<gray>Puntaje: <white>{score}"
+  player-head:
+    material: PLAYER_HEAD
+    name: "<#00FF7F><bold>TU MANO</bold>"
+    lore:
+      - "<gray>Puntaje: <white>{score}"
+      - "<gray>Apuesta: <#FFD700>${bet}"
+  multi-player-head:
+    material: PLAYER_HEAD
+    name: "{color}<bold>{name}"
+    lore:
+      - "<gray>Apuesta: <#FFD700>${bet}"
+      - "<gray>Puntos: <white>{score}"
+      - "{state}"
+  your-cards:
+    material: DIAMOND
+    name: "<#00FFFF><bold>TUS CARTAS</bold>"
+    lore:
+      - "<gray>Total: <white>{score}"
+  hit:
+    material: LIME_DYE
+    name: "<#00FF7F><bold>✚ PEDIR CARTA (Hit)</bold>"
+  stand:
+    material: RED_DYE
+    name: "<#FF5555><bold>✋ PLANTARSE (Stand)</bold>"
+  double:
+    material: GOLD_BLOCK
+    name: "<#FFD700><bold>💰 DOBLAR (Double Down)</bold>"
+    lore:
+      - "<gray>Duplica tu apuesta (<#FFD700>${bet}</#FFD700>), recibes"
+      - "<gray>EXACTAMENTE 1 carta y te plantas."

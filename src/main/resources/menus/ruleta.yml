@@ -1,0 +1,64 @@
+# ═══════════════════════════════════════════════════════
+#   menus/ruleta.yml — Main Roulette Menu
+# ═══════════════════════════════════════════════════════
+
+title: "<#FF00FF><bold>🌀</bold></#FF00FF> <black><bold>Roulette</bold></black> <#FF00FF><bold>🌀</bold></#FF00FF>"
+rows: 6
+
+decorations:
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [0, 1, 2, 3, 5, 6, 7, 8, 45, 46, 47, 51, 52, 53]
+
+# Slot for number 0
+zero-slot: 4
+# Numbers 1-36 start from this offset (slot = base + number)
+number-start-slot: 8
+
+wheel:
+  pointer-material: GOLD_BLOCK
+  colors:
+    zero: LIME_CONCRETE
+    red: RED_CONCRETE
+    black: BLACK_CONCRETE
+
+# Color betting slots (bottom row)
+color-slots:
+  red: 48
+  green: 49
+  black: 50
+
+items:
+  zero:
+    material: LIME_DYE
+    name: "<#00FF7F><bold>NUMBER 0 <#A8FFC1>(Pays x36)"
+    lore:
+      - "<#FFD700>Click to place bet!"
+
+  red-number:
+    name-template: "<#FF2A2A><bold>NUMBER {num} <gray>(Pays x36)"
+    lore:
+      - "<#FFD700>Click to place bet!"
+
+  black-number:
+    name-template: "<#666666><bold>NUMBER {num} <gray>(Pays x36)"
+    lore:
+      - "<#FFD700>Click to place bet!"
+
+  color-red:
+    material: RED_WOOL
+    name: "<#FF2A2A><bold>BET ON RED <#FF8888>(Pays x2)"
+    lore:
+      - "<#FFD700>Click to bet on color!"
+
+  color-green:
+    material: LIME_WOOL
+    name: "<#00FF7F><bold>BET ON GREEN <#A8FFC1>(Pays x14)"
+    lore:
+      - "<#FFD700>Click to bet on color!"
+
+  color-black:
+    material: BLACK_WOOL
+    name: "<#666666><bold>BET ON BLACK <#AAAAAA>(Pays x2)"
+    lore:
+      - "<#FFD700>Click to bet on color!"

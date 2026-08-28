@@ -1,0 +1,70 @@
+# CoinFlip Menu
+title: "<dark_gray><bold>CoinFlip</bold></dark_gray> <dark_gray>▸</dark_gray> <white>Games"
+rows: 6
+
+# Create Button
+create-btn:
+  slot: 4
+  material: NETHER_STAR
+  name: "<#00FF7F><bold>✚ Create Game</bold>"
+  lore:
+    - "<gray>Click to place a bet in CoinFlip."
+    - ""
+    - "<#FFD700>❱ Type the amount in chat."
+    - "<gray>Supports: <white>1k <gray>· <white>5m <gray>· <white>2b <gray>· <white>1t"
+
+# Refresh Button
+refresh-btn:
+  slot: 49
+  material: COMPASS
+  name: "<white><bold>↺ Refresh</bold>"
+  lore:
+    - "<gray>Click to refresh the list."
+
+# When no games are available
+no-games:
+  slot: 22
+  material: BELL
+  name: "<#FF5555>| Games <dark_gray>→ <red><bold>None Available</bold>"
+  lore:
+    - "<gray>Item | Description"
+    - ""
+    - "<#5555FF>ⓘ <gray>Information:"
+    - "<gray>There are no predictions"
+    - "<gray>available at the moment, come back"
+    - "<gray>later or create one yourself."
+    - ""
+    - "<red>✦ <white>Command: <#FF5555>/cf create <amount>"
+
+# Slots list where games appear
+games-slots: [10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43]
+
+# Game item format
+game-item:
+  name: "<light_purple>Game <dark_gray>→ <white>%creator%"
+  lore:
+    - "<gray>Button | Prediction"
+    - ""
+    - "<gray> Description:"
+    - "<gray>· Amount: <#FFD700>%amount%"
+    - ""
+    - "%click_action%"
+  click-join: "<#00FF7F>✔ Click to join!"
+  click-cancel: "<red>✗ Click to cancel!"
+
+# ─────────────────────────────────────────────────────────────
+#  DECORATIONS
+# ─────────────────────────────────────────────────────────────
+decorations:
+  # Black top strip
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [0, 1, 2, 3, 5, 6, 7, 8] # Slot 4 is create-btn
+  # Gray side borders
+  - material: GRAY_STAINED_GLASS_PANE
+    name: " "
+    slots: [9, 17, 18, 26, 27, 35, 36, 44]
+  # Black bottom strip
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [45, 46, 47, 48, 50, 51, 52, 53] # Slot 49 is refresh-btn

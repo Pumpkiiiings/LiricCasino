@@ -23,7 +23,7 @@ class RPSCommand(plugin: CasinoPlugin) : AbstractMatchmakingCommand(plugin, "rps
     }
 
     override fun getOpenGameLines(): List<String> {
-        val format = plugin.messagesConfig.getString("rps-extra.list-format", "  <white>{creator} <dark_gray>• <#FFD700>${amount}")!!
+        val format = plugin.messagesConfig.getString("rps-extra.list-format", "  <white>{creator} <dark_gray>• <#FFD700>${'$'}{amount}")!!
         return plugin.rpsManager.getOpenGames().map { s ->
             format.replace("{creator}", s.creatorName).replace("{amount}", s.betAmount.toLong().toString())
         }

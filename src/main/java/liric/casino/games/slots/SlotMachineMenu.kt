@@ -99,7 +99,7 @@ class SlotMachineMenu(
                 if (!ValidationUtil.validateBet(plugin, player, "slots", currentBet)) return@asGuiItem
 
                 if (!isSpinning.compareAndSet(false, true)) return@asGuiItem
-                if (plugin.economyManager.withdrawPlayer(player, currentBet).transactionSuccess()) {
+                if (plugin.economyManager.withdrawPlayer(player, currentBet)?.transactionSuccess() == true) {
                     plugin.statsManager.recordGameUse(player.uniqueId, "slots")
                     plugin.statsManager.recordSlotSpin(player.uniqueId, currentBet)
                     startSpin(gui)

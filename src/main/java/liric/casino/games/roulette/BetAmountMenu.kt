@@ -107,7 +107,7 @@ class BetAmountMenu(
         val backName = cfg.getComponent("buttons.back.name")
         gui.setItem(backSlot, ItemBuilder.from(backMat).name(backName).flags(*ItemFlag.values()).asGuiItem {
             player.playSound(player.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-            RouletteMenu(plugin, game).openBetMenu(player)
+            RouletteMenu(plugin, game, player).open()
         })
 
         updateConfirmButton()

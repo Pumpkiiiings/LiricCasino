@@ -75,7 +75,7 @@ class RouletteGame(private val plugin: CasinoPlugin) {
             player.sendMessage(msg("roulette.already-bet"))
             return
         }
-        if (plugin.economyManager.withdrawPlayer(player, amount).transactionSuccess()) {
+        if (plugin.economyManager.withdrawPlayer(player, amount)?.transactionSuccess() == true) {
             bets[player.uniqueId] = Pair(betType, amount)
             plugin.statsManager.recordRouletteBet(player.uniqueId, amount)
             plugin.statsManager.recordGameUse(player.uniqueId, "roulette")

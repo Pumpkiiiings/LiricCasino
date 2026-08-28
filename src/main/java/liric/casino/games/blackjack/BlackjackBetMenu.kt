@@ -83,7 +83,7 @@ class BlackjackBetMenu(
                     gui.close(player)
                     return@asGuiItem
                 }
-                if (plugin.economyManager.withdrawPlayer(player, currentBet).transactionSuccess()) {
+                if (plugin.economyManager.withdrawPlayer(player, currentBet)?.transactionSuccess() == true) {
                     plugin.statsManager.recordGameUse(player.uniqueId, "blackjack")
                     if (isMultiplayer) {
                         gui.close(player)

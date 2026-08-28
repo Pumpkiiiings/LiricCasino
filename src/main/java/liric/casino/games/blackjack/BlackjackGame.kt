@@ -138,7 +138,7 @@ class BlackjackSession(
                         if (status != GameStatus.PLAYER_TURN || !isFirstAction) return@asGuiItem
 
                         isFirstAction = false
-                        if (plugin.economyManager.withdrawPlayer(player, betAmount).transactionSuccess()) {
+                        if (plugin.economyManager.withdrawPlayer(player, betAmount)?.transactionSuccess() == true) {
                             betAmount *= 2
                             playerHand.add(deck.draw())
                             player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)

@@ -60,7 +60,7 @@ class LotteryManager(private val plugin: CasinoPlugin) {
         }
 
         val totalCost = price * amount
-        if (!plugin.economyManager.withdrawPlayer(player, totalCost).transactionSuccess()) {
+        if (plugin.economyManager.withdrawPlayer(player, totalCost)?.transactionSuccess() != true) {
             player.sendMessage(plugin.messages.get("lottery.no-funds", "cost" to String.format("%.0f", totalCost)))
             return
         }

@@ -23,7 +23,7 @@ class TTTCommand(plugin: CasinoPlugin) : AbstractMatchmakingCommand(plugin, "ttt
     }
 
     override fun getOpenGameLines(): List<String> {
-        val format = plugin.messagesConfig.getString("ttt-extra.list-format", "  <white>{creator} <dark_gray>• <#FFD700>${amount}")!!
+        val format = plugin.messagesConfig.getString("ttt-extra.list-format", "  <white>{creator} <dark_gray>• <#FFD700>${'$'}{amount}")!!
         return plugin.tttManager.getOpenGames().map { s ->
             format.replace("{creator}", s.creatorName).replace("{amount}", s.betAmount.toLong().toString())
         }

@@ -57,7 +57,7 @@ class CasinoCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComp
             return
         }
         if (sub == null || sub == "play") {
-            plugin.rouletteMenu.openBetMenu(sender); return
+            liric.casino.games.roulette.RouletteMenu(plugin, plugin.rouletteGame, sender).open(); return
         }
         when (sub) {
             "help" -> sendRouletteHelp(sender)

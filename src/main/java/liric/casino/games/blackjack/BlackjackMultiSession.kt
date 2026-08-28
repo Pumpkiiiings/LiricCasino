@@ -184,7 +184,7 @@ class BlackjackMultiSession(
                     
                     val doubleBtn = ItemBuilder.from(doubleMat).name(plugin.format(doubleName)).lore(doubleLore).asGuiItem {
                         if (data.status != PlayerStatus.PLAYING) return@asGuiItem
-                        if (plugin.economyManager.withdrawPlayer(player, data.bet).transactionSuccess()) {
+                        if (plugin.economyManager.withdrawPlayer(player, data.bet)?.transactionSuccess() == true) {
                             data.bet *= 2
                             data.hand.add(deck.draw())
                             player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)

@@ -54,7 +54,7 @@ class ScratchCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabCom
         if (amount <= 0) { sender.sendMessage(msg("scratch.invalid-amount")); return }
 
         val totalCost = tier.price * amount
-        if (plugin.economyManager.withdrawPlayer(sender, totalCost).transactionSuccess()) {
+        if (plugin.economyManager.withdrawPlayer(sender, totalCost)?.transactionSuccess() == true) {
             val ticket = ScratchTicket.create(plugin, tier, amount)
             sender.inventory.addItem(ticket)
             sender.sendMessage(msg("scratch.bought", "amount" to amount.toString(), "tier" to tier.displayName, "cost" to totalCost.toString()))

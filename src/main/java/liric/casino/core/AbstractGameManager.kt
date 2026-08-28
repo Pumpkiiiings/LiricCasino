@@ -58,7 +58,7 @@ abstract class AbstractGameManager<S>(val plugin: CasinoPlugin, val gameId: Stri
      */
     fun processWin(player: Player, betAmount: Double, multiplier: Double = 2.0) {
         val rawWinnings = betAmount * multiplier
-        val (finalWinnings, tax) = TaxUtil.calculateTax(plugin, gameId, rawWinnings)
+        val (finalWinnings, tax) = TaxUtil.applyTax(plugin, rawWinnings, gameId)
         
         plugin.economyManager.deposit(player, finalWinnings)
         

@@ -49,7 +49,7 @@ class PokerGame(val plugin: CasinoPlugin) {
         if (!ValidationUtil.canPlayDaily(plugin, player, "poker")) return
         if (!ValidationUtil.validateBet(plugin, player, "poker", entryFee)) return
 
-        if (plugin.economyManager.withdrawPlayer(player, entryFee).transactionSuccess()) {
+        if (plugin.economyManager.withdrawPlayer(player, entryFee)?.transactionSuccess() == true) {
             plugin.statsManager.recordGameUse(player.uniqueId, "poker")
             players.add(PokerPlayer(player.uniqueId, player.name))
             plugin.server.broadcast(plugin.format("$prefix <#00FF7F><#FFB400>${player.name}</#FFB400> joined Poker! (${players.size}/$maxPlayers)</#00FF7F>"))
@@ -184,14 +184,14 @@ class PokerGame(val plugin: CasinoPlugin) {
             }
             "CALL" -> {
                 val callAmount = currentHighestBet - player.currentBet
-                if (plugin.economyManager.withdrawPlayer(Bukkit.getPlayer(playerUuid)!!, callAmount).transactionSuccess()) {
+                if (plugin.economyManager.withdrawPlayer(Bukkit.getPlayer(playerUuid)!!, callAmount)?.transactionSuccess() == true) {
                     player.currentBet += callAmount
                     pot += callAmount
                 }
             }
             "RAISE" -> {
                 val raiseAmount = (currentHighestBet - player.currentBet) + amount
-                if (plugin.economyManager.withdrawPlayer(Bukkit.getPlayer(playerUuid)!!, raiseAmount).transactionSuccess()) {
+                if (plugin.economyManager.withdrawPlayer(Bukkit.getPlayer(playerUuid)!!, raiseAmount)?.transactionSuccess() == true) {
                     player.currentBet += raiseAmount
                     pot += raiseAmount
                     currentHighestBet = player.currentBet

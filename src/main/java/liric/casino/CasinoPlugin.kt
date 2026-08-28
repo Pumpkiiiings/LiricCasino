@@ -63,7 +63,6 @@ class CasinoPlugin : JavaPlugin() {
 
     lateinit var rouletteManager: RouletteManager
     lateinit var rouletteGame: RouletteGame
-    lateinit var rouletteMenu: RouletteMenu
 
 
     lateinit var pokerManager: PokerManager
@@ -160,7 +159,6 @@ class CasinoPlugin : JavaPlugin() {
         if (isGameEnabled("roulette")) {
             rouletteManager = RouletteManager(this)
             rouletteGame    = RouletteGame(this)
-            rouletteMenu    = RouletteMenu(this, rouletteGame)
             rouletteManager.loadRoulettes()
         }
 
@@ -202,7 +200,7 @@ class CasinoPlugin : JavaPlugin() {
 
 
         if (isGameEnabled("roulette")) {
-            val rouletteCmd = RouletteCommand(this, rouletteMenu, rouletteGame)
+            val rouletteCmd = RouletteCommand(this, rouletteGame)
             getCommand("ruleta")?.apply { setExecutor(rouletteCmd); tabCompleter = rouletteCmd }
             server.pluginManager.registerEvents(RouletteInteractListener(this), this)
         }

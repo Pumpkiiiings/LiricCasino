@@ -28,10 +28,12 @@ abstract class AbstractMatchmakingCommand(
         }
 
         when (args.getOrNull(0)?.lowercase()) {
-            null, "help" -> sendHelp(sender)
+            null -> openLobby(sender)
+            "menu", "play" -> openLobby(sender)
+            "help" -> sendHelp(sender)
             "create" -> {
                 val raw = args.getOrNull(1)
-                val amount = raw?.replace("k", "000")?.replace("m", "000000")?.toDoubleOrNull()
+                val amount = parseAmount(raw)
                     ?: run { sender.sendMessage(msg("$gameId.usage")); return true }
                 if (amount <= 0 || amount.isNaN()) {
                     sender.sendMessage(msg("$gameId.usage"))
@@ -54,6 +56,21 @@ abstract class AbstractMatchmakingCommand(
     abstract fun onCancel(player: Player)
     abstract fun getOpenGameCreators(): List<String>
     abstract fun getOpenGameLines(): List<String>
+    protected open fun openLobby(player: Player) = sendHelp(player)
+
+    private fun parseAmount(raw: String?): Double? {
+        if (raw == null) return null
+        val value = raw.trim().lowercase()
+        val multiplier = when (value.lastOrNull()) {
+            'k' -> 1_000.0
+            'm' -> 1_000_000.0
+            'b' -> 1_000_000_000.0
+            't' -> 1_000_000_000_000.0
+            else -> 1.0
+        }
+        val number = if (multiplier == 1.0) value else value.dropLast(1)
+        return number.toDoubleOrNull()?.times(multiplier)?.takeIf { it.isFinite() }
+    }
 
     protected open fun sendHelp(player: Player) {
         player.sendMessage(plugin.messages.get("general.command-separator"))
@@ -74,7 +91,7 @@ abstract class AbstractMatchmakingCommand(
 
     override fun onTabComplete(sender: CommandSender, cmd: Command, alias: String, args: Array<out String>): List<String> {
         return when (args.size) {
-            1 -> listOf("create", "join", "cancel", "help").filter { it.startsWith(args[0], true) }
+            1 -> listOf("menu", "create", "join", "cancel", "help").filter { it.startsWith(args[0], true) }
             2 -> when (args[0].lowercase()) {
                 "create" -> listOf("100", "500", "1000", "5k", "10k").filter { it.startsWith(args[1]) }
                 "join" -> getOpenGameCreators().filter { it.startsWith(args[1], true) }

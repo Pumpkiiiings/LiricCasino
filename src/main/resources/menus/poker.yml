@@ -9,25 +9,27 @@ items:
     name: "<#E0E0E0><bold>{name}</bold></#E0E0E0>"
   empty-card:
     material: MAP
-    name: "<gray>CARTA EN MESA</gray>"
+    name: "<gray>COMMUNITY CARD</gray>"
   pot:
     material: GOLD_BLOCK
-    name: "<#FFD700><bold>POZO TOTAL: {pot}</bold></#FFD700>"
+    name: "<#FFD700><bold>TOTAL POT: {pot}</bold></#FFD700>"
   time:
     material: CLOCK
-    name: "<#FFB400>Tiempo: {time}s</#FFB400>"
+    name: "<#FFB400>Time: {time}s</#FFB400>"
   fold:
     material: RED_DYE
-    name: "<#FF5555><bold>RETIRARSE (Fold)</bold>"
+    name: "<#FF5555><bold>FOLD</bold>"
   call:
     material: YELLOW_DYE
     name: "<#FFD700><bold>{text}</bold>"
   raise:
     material: LIME_DYE
-    name: "<#00FF7F><bold>SUBIR (Raise +$5,000)</bold>"
+    name: "<#00FF7F><bold>RAISE +${amount}</bold>"
+    lore:
+      - "<gray>Increase the current bet by ${amount}."
   wait:
     material: BARRIER
-    name: "<#555555>Espera tu turno...</#555555>"
+    name: "<#555555>Wait for your turn...</#555555>"
   hidden-card:
     material: PAPER
-    name: "<#FFB400><bold>🂠 CARTA OCULTA</bold>"
+    name: "<#FFB400><bold>🂠 HIDDEN CARD</bold>"

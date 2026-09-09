@@ -100,9 +100,13 @@ class CoinFlipManager(plugin: CasinoPlugin) : AbstractMatchmakingManager<CoinFli
         }
         loser?.sendMessage(msg("coinflip.lose", "amount" to CoinFlipMenu.formatAmount(session.betAmount)))
 
+        val grossPot = session.betAmount * 2
         plugin.statsManager.recordCoinFlip(session.creatorId, session.betAmount,
-            if (winnerId == session.creatorId) session.betAmount * 2 else 0.0, winnerId == session.creatorId)
-        plugin.statsManager.recordCoinFlip(loserId, session.betAmount, 0.0, false)
+            if (winnerId == session.creatorId) grossPot else 0.0, winnerId == session.creatorId)
+        session.joinerId?.let { joinerId ->
+            plugin.statsManager.recordCoinFlip(joinerId, session.betAmount,
+                if (winnerId == joinerId) grossPot else 0.0, winnerId == joinerId)
+        }
 
         val winnerName = winner?.name ?: Bukkit.getOfflinePlayer(winnerId).name ?: "?"
         val loserName  = loser?.name  ?: Bukkit.getOfflinePlayer(loserId).name  ?: "?"

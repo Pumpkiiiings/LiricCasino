@@ -6,11 +6,20 @@ import liric.casino.util.SchedulerUtil
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Sound
+import org.bukkit.attribute.Attribute
+import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.entity.Horse as BukkitHorse
 import org.bukkit.entity.Player
+import java.io.File
+import java.util.UUID
+import kotlin.math.cos
+import kotlin.math.sin
 
 class RaceManager(plugin: CasinoPlugin) : AbstractGameManager<RaceSession>(plugin, "racing") {
 
     private val tracks = mutableListOf<RaceTrack>()
+    private val raceHorses = mutableMapOf<UUID, MutableList<BukkitHorse>>()
+    private val dataFile = File(plugin.dataFolder, "data.yml")
     private var defaultHorses = listOf(
         Horse(1, "Lightning", "⚡", 2.0, 40),
         Horse(2, "Shadow", "🌑", 3.0, 30),
@@ -20,17 +29,29 @@ class RaceManager(plugin: CasinoPlugin) : AbstractGameManager<RaceSession>(plugi
 
     private fun msg(key: String, vararg ph: Pair<String, String>) = plugin.messages.get(key, *ph)
 
+    init {
+        loadTracks()
+    }
+
     fun getHorses() = defaultHorses
 
     fun createTrack(loc: Location): RaceTrack {
-        val track = RaceTrack(world = loc.world.name, x = loc.x, y = loc.y, z = loc.z)
+        val track = RaceTrack(world = loc.world.name, x = loc.blockX + 0.5, y = loc.blockY.toDouble(), z = loc.blockZ + 0.5, yaw = loc.yaw)
         tracks.add(track)
         addSession(track.id, RaceSession(track.id))
+        saveTracks()
         return track
     }
 
     fun getNearestTrack(loc: Location): RaceTrack? {
+        val radius = plugin.config.getDouble("racing.track-access-radius", 24.0).coerceAtLeast(4.0)
         return tracks.filter { it.world == loc.world.name }
+            .filter {
+                val dx = it.x - loc.x
+                val dy = it.y - loc.y
+                val dz = it.z - loc.z
+                dx * dx + dy * dy + dz * dz <= radius * radius
+            }
             .minByOrNull {
                 val dx = it.x - loc.x
                 val dy = it.y - loc.y
@@ -42,6 +63,8 @@ class RaceManager(plugin: CasinoPlugin) : AbstractGameManager<RaceSession>(plugi
     fun deleteTrack(track: RaceTrack) {
         tracks.remove(track)
         removeSession(track.id)
+        removeRaceHorses(track.id)
+        saveTracks()
     }
 
     fun getSession(trackId: java.util.UUID): RaceSession? = activeSessions[trackId]
@@ -61,9 +84,8 @@ class RaceManager(plugin: CasinoPlugin) : AbstractGameManager<RaceSession>(plugi
             return
         }
 
-        if (!takeBet(player, amount)) return
-
         val horse = defaultHorses.firstOrNull { it.id == horseId } ?: return
+        if (!takeBet(player, amount)) return
 
         plugin.statsManager.recordGameUse(player.uniqueId, "racing")
         session.bets.add(RacePlayerBet(player.uniqueId, player.name, horseId, amount))
@@ -81,7 +103,7 @@ class RaceManager(plugin: CasinoPlugin) : AbstractGameManager<RaceSession>(plugi
 
     private fun startCountdown(session: RaceSession) {
         session.state = RaceState.WAITING
-        session.countdownSeconds = 30
+        session.countdownSeconds = plugin.config.getInt("racing.countdown-seconds", 15).coerceAtLeast(3)
 
         var countdownCancel: Runnable? = null
         countdownCancel = SchedulerUtil.runGlobalTimer(plugin, 0L, 20L) {
@@ -108,12 +130,25 @@ class RaceManager(plugin: CasinoPlugin) : AbstractGameManager<RaceSession>(plugi
         session.state = RaceState.RACING
         broadcastToBettors(session, "racing.started")
 
+        val track = tracks.firstOrNull { it.id == session.trackId } ?: run {
+            refundSession(session)
+            return
+        }
+        val winnerHorse = chooseWinner()
+        val spawned = spawnRaceHorses(track)
+        if (spawned.isEmpty()) {
+            refundSession(session)
+            return
+        }
+
         var ticks = 0
+        val duration = plugin.config.getInt("racing.duration-seconds", 8).coerceAtLeast(3)
         var raceCancel: Runnable? = null
         raceCancel = SchedulerUtil.runGlobalTimer(plugin, 0L, 20L) {
             ticks++
-            if (ticks >= 5) {
-                finishRace(session)
+            moveRaceHorses(track, spawned, winnerHorse.id, ticks, duration)
+            if (ticks >= duration) {
+                finishRace(session, winnerHorse)
                 raceCancel?.run()
             } else {
                 session.bets.mapNotNull { Bukkit.getPlayer(it.playerId) }.forEach { p ->
@@ -123,20 +158,8 @@ class RaceManager(plugin: CasinoPlugin) : AbstractGameManager<RaceSession>(plugi
         }
     }
 
-    private fun finishRace(session: RaceSession) {
+    private fun finishRace(session: RaceSession, winnerHorse: Horse) {
         session.state = RaceState.FINISHED
-
-        val totalWeight = defaultHorses.sumOf { it.winChance }
-        var randomVal = kotlin.random.Random.nextInt(totalWeight)
-        var winnerHorse = defaultHorses.first()
-
-        for (horse in defaultHorses) {
-            randomVal -= horse.winChance
-            if (randomVal < 0) {
-                winnerHorse = horse
-                break
-            }
-        }
 
         session.winnerHorseId = winnerHorse.id
         broadcastToBettors(session, "racing.winner", "horse" to "${winnerHorse.emoji} ${winnerHorse.name}")
@@ -169,6 +192,84 @@ class RaceManager(plugin: CasinoPlugin) : AbstractGameManager<RaceSession>(plugi
         session.bets.clear()
         session.winnerHorseId = -1
         session.state = RaceState.WAITING
+        SchedulerUtil.runGlobalLater(plugin, 60L) { removeRaceHorses(session.trackId) }
+    }
+
+    private fun chooseWinner(): Horse {
+        val totalWeight = defaultHorses.sumOf { it.winChance }.coerceAtLeast(1)
+        var value = kotlin.random.Random.nextInt(totalWeight)
+        return defaultHorses.first { horse ->
+            value -= horse.winChance
+            value < 0
+        }
+    }
+
+    private fun spawnRaceHorses(track: RaceTrack): MutableList<BukkitHorse> {
+        removeRaceHorses(track.id)
+        val world = Bukkit.getWorld(track.world) ?: return mutableListOf()
+        val yawRadians = Math.toRadians(track.yaw.toDouble())
+        val sideX = cos(yawRadians)
+        val sideZ = sin(yawRadians)
+        val horses = defaultHorses.mapIndexed { index, horseData ->
+            val laneOffset = (index - (defaultHorses.size - 1) / 2.0) * 2.0
+            val location = Location(world, track.x + sideX * laneOffset, track.y, track.z + sideZ * laneOffset, track.yaw, 0f)
+            world.spawn(location, BukkitHorse::class.java).apply {
+                customName(plugin.format("${horseData.emoji} <white>${horseData.name}</white>"))
+                isCustomNameVisible = true
+                isInvulnerable = true
+                isSilent = true
+                isPersistent = false
+                setAI(false)
+                getAttribute(Attribute.MOVEMENT_SPEED)?.baseValue = 0.3
+            }
+        }.toMutableList()
+        raceHorses[track.id] = horses
+        return horses
+    }
+
+    private fun moveRaceHorses(track: RaceTrack, horses: List<BukkitHorse>, winnerId: Int, tick: Int, duration: Int) {
+        val yawRadians = Math.toRadians(track.yaw.toDouble())
+        val forwardX = -sin(yawRadians)
+        val forwardZ = cos(yawRadians)
+        val progress = tick.toDouble() / duration
+        val distance = plugin.config.getDouble("racing.track-length", 24.0).coerceAtLeast(8.0)
+        horses.forEachIndexed { index, entity ->
+            if (!entity.isValid) return@forEachIndexed
+            val horseId = defaultHorses.getOrNull(index)?.id ?: return@forEachIndexed
+            val finishBias = if (horseId == winnerId) 1.0 else (0.82 + horseId * 0.025).coerceAtMost(0.94)
+            val side = (index - (horses.size - 1) / 2.0) * 2.0
+            val x = track.x + cos(yawRadians) * side + forwardX * distance * progress * finishBias
+            val z = track.z + sin(yawRadians) * side + forwardZ * distance * progress * finishBias
+            entity.teleport(Location(entity.world, x, track.y, z, track.yaw, 0f))
+        }
+    }
+
+    private fun removeRaceHorses(trackId: UUID) {
+        raceHorses.remove(trackId)?.forEach { if (it.isValid) it.remove() }
+    }
+
+    private fun refundSession(session: RaceSession) {
+        broadcastToBettors(session, "racing.cancelled")
+        session.bets.forEach { plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(it.playerId), it.amount) }
+        session.bets.clear()
+        session.state = RaceState.WAITING
+    }
+
+    private fun loadTracks() {
+        val data = YamlConfiguration.loadConfiguration(dataFile)
+        data.getMapList("racing.tracks").forEach { raw ->
+            val world = raw["world"]?.toString() ?: return@forEach
+            val id = runCatching { UUID.fromString(raw["id"]?.toString()) }.getOrNull() ?: UUID.randomUUID()
+            val track = RaceTrack(id, world, raw["x"].toString().toDouble(), raw["y"].toString().toDouble(), raw["z"].toString().toDouble(), raw["yaw"]?.toString()?.toFloatOrNull() ?: 0f)
+            tracks.add(track)
+            addSession(track.id, RaceSession(track.id))
+        }
+    }
+
+    private fun saveTracks() {
+        val data = YamlConfiguration.loadConfiguration(dataFile)
+        data.set("racing.tracks", tracks.map { mapOf("id" to it.id.toString(), "world" to it.world, "x" to it.x, "y" to it.y, "z" to it.z, "yaw" to it.yaw) })
+        data.save(dataFile)
     }
 
     private fun broadcastToBettors(session: RaceSession, msgKey: String, vararg ph: Pair<String, String>) {
@@ -179,7 +280,13 @@ class RaceManager(plugin: CasinoPlugin) : AbstractGameManager<RaceSession>(plugi
     }
 
     fun cleanupAll() {
+        activeSessions.values.forEach { session ->
+            session.bets.forEach { bet ->
+                plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(bet.playerId), bet.amount)
+            }
+            session.bets.clear()
+        }
         activeSessions.clear()
-        tracks.clear()
+        raceHorses.keys.toList().forEach(::removeRaceHorses)
     }
 }

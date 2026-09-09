@@ -129,6 +129,16 @@ class RouletteGame(private val plugin: CasinoPlugin) {
         startSpin()
     }
 
+    fun cleanupAll() {
+        countdownCanceller?.run()
+        countdownCanceller = null
+        bets.forEach { (uuid, betData) ->
+            plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(uuid), betData.second)
+        }
+        bets.clear()
+        state = GameState.WAITING
+    }
+
 
     private fun startSpin() {
         state = GameState.SPINNING
@@ -161,7 +171,10 @@ class RouletteGame(private val plugin: CasinoPlugin) {
             var multiplier = 0.0
 
             when (betType) {
-                is BetType.Number -> if (betType.num == resultNumber) { won = true; multiplier = 36.0 }
+                is BetType.Number -> if (betType.num == resultNumber) {
+                    won = true
+                    multiplier = cfg().getDouble("roulette.number-payout", 36.0)
+                }
                 is BetType.Color  -> if (betType.color == winningColor) { won = true; multiplier = colorMultiplier(betType.color) }
             }
 

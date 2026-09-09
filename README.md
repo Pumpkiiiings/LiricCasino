@@ -17,6 +17,12 @@ Perfect for keeping your players engaged, spending money, and having fun!
 *   **Leaderboards & Stats**: Built-in leaderboards to see who has won or wagered the most in each game.
 *   **PlaceholderAPI Support**: Ready-to-use variables for your Scoreboards, menus, or chat.
 
+### Configuration Files
+* `config.yml` — database, enabled games, and gameplay timing.
+* `economy.yml` — bets, daily limits, taxes, boosters, and payouts.
+* `prizes.yml` — Slots and Scratch Card prize tables.
+* `webhooks.yml`, `messages.yml`, and `menus/*.yml` — integrations and presentation.
+
 ---
 
 ## 🛠️ Main Commands
@@ -28,7 +34,7 @@ You can use the main command `/casino` or direct shortcuts for each game.
 *   `/casino stats` - View personal statistics.
 *   `/casino top [game]` - View the top players.
 
-### Admin Commands (Permission: `casinoliric.admin`)
+### Admin Commands (Permission: `casino.admin`)
 *   `/casino <game> setup` - Spawns a physical game (like the Roulette or Slot Machine) right where you are standing.
 *   `/casino <game> delete` - Removes the closest physical game to you.
 *   `/roulette scale <0.1 to 2.0> [radius]` - Change the roulette size live.
@@ -41,6 +47,7 @@ You can use the main command `/casino` or direct shortcuts for each game.
 **Required Dependencies:**
 1.  [Vault](https://www.spigotmc.org/resources/vault.34315/)
 2.  A Vault-compatible economy plugin (e.g., EssentialsX, CMI, etc).
+3.  [PacketEvents](https://github.com/retrooper/packetevents)
 
 **Quick Installation:**
 1.  Download the `CasinoLiric.jar` file.
@@ -48,3 +55,5 @@ You can use the main command `/casino` or direct shortcuts for each game.
 3.  Make sure **Vault** and your economy plugin are installed and running.
 4.  Start or restart your server (versions 1.20.x - 1.21.x).
 5.  Done! Use `/casino <game> setup` to place the physical games in your world and configure everything to your liking inside the `plugins/CasinoLiric/` folder.
+
+> CasinoLiric currently targets Paper/Spigot. Folia startup is rejected until all game operations are region-thread safe.

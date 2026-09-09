@@ -7,7 +7,7 @@ import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import java.io.OutputStream
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -27,6 +27,10 @@ class WebhookManager(private val plugin: CasinoPlugin) {
     private fun cfg() = config
     private fun enabled() = cfg().getBoolean("webhooks.enabled", false)
     private fun fmt(n: Double) = "$" + NumberFormat.getNumberInstance(Locale.US).format(n)
+
+    fun reload() {
+        config = YamlConfiguration.loadConfiguration(configFile)
+    }
 
 
     fun sendJackpot(game: String, playerName: String, amount: Double) {
@@ -106,7 +110,7 @@ class WebhookManager(private val plugin: CasinoPlugin) {
         SchedulerUtil.runAsync(plugin) {
             try {
                 val json = buildJson(content, title, description, color, footer)
-                val conn = URL(webhookUrl).openConnection() as HttpURLConnection
+                val conn = URI.create(webhookUrl).toURL().openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.setRequestProperty("Content-Type", "application/json")
                 conn.setRequestProperty("User-Agent", "CasinoLiric-Plugin")
@@ -118,7 +122,7 @@ class WebhookManager(private val plugin: CasinoPlugin) {
 
                 val code = conn.responseCode
                 if (code !in 200..299) {
-                    plugin.logger.warning("[Webhook] Unexpected HTTP code: $code for $webhookUrl")
+                    plugin.logger.warning("[Webhook] Unexpected HTTP code: $code")
                 }
                 conn.disconnect()
             } catch (e: Exception) {
@@ -128,11 +132,26 @@ class WebhookManager(private val plugin: CasinoPlugin) {
     }
 
     private fun buildJson(content: String, title: String, description: String, color: Int, footer: String): String {
-        val escapedTitle       = title.replace("\"", "\\\"").replace("\n", "\\n")
-        val escapedDescription = description.replace("\"", "\\\"").replace("\n", "\\n")
-        val escapedFooter      = footer.replace("\"", "\\\"")
-        val escapedContent     = content.replace("\"", "\\\"")
+        val escapedTitle       = escapeJson(title)
+        val escapedDescription = escapeJson(description)
+        val escapedFooter      = escapeJson(footer)
+        val escapedContent     = escapeJson(content)
 
         return """{"content":"$escapedContent","embeds":[{"title":"$escapedTitle","description":"$escapedDescription","color":$color,"footer":{"text":"$escapedFooter"}}]}"""
+    }
+
+    private fun escapeJson(value: String): String = buildString(value.length) {
+        value.forEach { char ->
+            when (char) {
+                '\\' -> append("\\\\")
+                '"' -> append("\\\"")
+                '\b' -> append("\\b")
+                '\u000C' -> append("\\f")
+                '\n' -> append("\\n")
+                '\r' -> append("\\r")
+                '\t' -> append("\\t")
+                else -> if (char.code < 0x20) append("\\u%04x".format(char.code)) else append(char)
+            }
+        }
     }
 }

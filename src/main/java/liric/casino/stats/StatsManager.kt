@@ -9,6 +9,10 @@ import java.util.concurrent.ConcurrentHashMap
 class StatsManager(private val plugin: CasinoPlugin) {
 
     private val cache = ConcurrentHashMap<UUID, PlayerStats>()
+    private val loading = ConcurrentHashMap.newKeySet<UUID>()
+    private val unloadRequested = ConcurrentHashMap.newKeySet<UUID>()
+    private val pendingUpdates = mutableMapOf<UUID, MutableList<PlayerStats.() -> Unit>>()
+    private val stateLock = Any()
 
 
     fun startAutoSave() {
@@ -21,14 +25,30 @@ class StatsManager(private val plugin: CasinoPlugin) {
 
 
     fun loadAsync(uuid: UUID, name: String) {
+        unloadRequested.remove(uuid)
+        if (cache.containsKey(uuid) || !loading.add(uuid)) return
         SchedulerUtil.runAsync(plugin) {
             val stats = loadFromDB(uuid, name)
-            cache[uuid] = stats
+            var saveAfterLoad = false
+            synchronized(stateLock) {
+                pendingUpdates.remove(uuid)?.forEach { update ->
+                    stats.update()
+                    stats.dirty = true
+                }
+                if (unloadRequested.remove(uuid)) saveAfterLoad = stats.dirty
+                else cache[uuid] = stats
+            }
+            loading.remove(uuid)
+            if (saveAfterLoad) saveToDB(stats)
         }
     }
 
     fun unload(uuid: UUID) {
-        val stats = cache.remove(uuid) ?: return
+        val stats = synchronized(stateLock) {
+            cache.remove(uuid).also {
+                if (it == null && loading.contains(uuid)) unloadRequested.add(uuid)
+            }
+        } ?: return
         if (stats.dirty) {
             SchedulerUtil.runAsync(plugin) { saveToDB(stats) }
         }
@@ -36,14 +56,11 @@ class StatsManager(private val plugin: CasinoPlugin) {
 
     fun getCached(uuid: UUID): PlayerStats? = cache[uuid]
 
-    fun getOrCreate(uuid: UUID, name: String): PlayerStats =
-        cache.getOrPut(uuid) {
-            SchedulerUtil.runAsync(plugin) {
-                val loaded = loadFromDB(uuid, name)
-                cache[uuid] = loaded
-            }
-            PlayerStats(uuid, name)
-        }
+    fun getOrCreate(uuid: UUID, name: String): PlayerStats {
+        cache[uuid]?.let { return it }
+        loadAsync(uuid, name)
+        return PlayerStats(uuid, name)
+    }
 
 
 
@@ -183,19 +200,27 @@ class StatsManager(private val plugin: CasinoPlugin) {
 
 
     private fun update(uuid: UUID, block: PlayerStats.() -> Unit) {
-        cache[uuid]?.apply { block(); dirty = true }
+        val stats = synchronized(stateLock) {
+            cache[uuid] ?: run {
+                pendingUpdates.getOrPut(uuid) { mutableListOf() }.add(block)
+                null
+            }
+        }
+        if (stats != null) synchronized(stats) {
+            stats.block()
+            stats.dirty = true
+        }
     }
 
     private fun saveAllAsync() {
         val dirty = cache.values.filter { it.dirty }.toList()
         if (dirty.isEmpty()) return
-        SchedulerUtil.runAsync(plugin) {
-            dirty.forEach { saveToDB(it) }
-        }
+        dirty.forEach { saveToDB(it) }
     }
 
     private fun saveToDB(stats: PlayerStats) {
-        val columns = listOf(
+        synchronized(stats) {
+            val columns = listOf(
             "uuid", "player_name",
             "roulette_bets", "roulette_wagered", "roulette_won", "roulette_wins", "roulette_losses", "roulette_daily_uses",
             "slots_spins", "slots_wagered", "slots_won", "slots_jackpots", "slots_daily_uses",
@@ -207,8 +232,8 @@ class StatsManager(private val plugin: CasinoPlugin) {
             "rps_daily_uses", "ttt_daily_uses", "poker_daily_uses", "last_daily_reset",
             "last_seen"
         )
-        val sql = plugin.db.buildUpsertSql(columns)
-        val params = listOf(
+            val sql = plugin.db.buildUpsertSql(columns)
+            val params = listOf(
             stats.uuid.toString(), stats.name,
             stats.rouletteBets, stats.rouletteWagered, stats.rouletteWon, stats.rouletteWins, stats.rouletteLosses, stats.rouletteDailyUses,
             stats.slotsSpins, stats.slotsWagered, stats.slotsWon, stats.slotsJackpots, stats.slotsDailyUses,
@@ -220,8 +245,9 @@ class StatsManager(private val plugin: CasinoPlugin) {
             stats.rpsDailyUses, stats.tttDailyUses, stats.pokerDailyUses, stats.lastDailyReset,
             System.currentTimeMillis()
         )
-        runCatching { plugin.db.upsert(sql, params); stats.dirty = false }
-            .onFailure { plugin.logger.warning("Stats save error for ${stats.name}: ${it.message}") }
+            runCatching { plugin.db.upsert(sql, params); stats.dirty = false }
+                .onFailure { plugin.logger.warning("Stats save error for ${stats.name}: ${it.message}") }
+        }
     }
 
     private fun loadFromDB(uuid: UUID, name: String): PlayerStats {

@@ -48,7 +48,12 @@ abstract class AbstractGameManager<S>(val plugin: CasinoPlugin, val gameId: Stri
             player.sendMessage(plugin.messages.get("general.no-money", "amount" to amount.toString()))
             return false
         }
-        plugin.economyManager.withdraw(player, amount)
+        val response = plugin.economyManager.withdraw(player, amount)
+        if (response?.transactionSuccess() != true) {
+            player.sendMessage(plugin.messages.get("general.no-money", "amount" to amount.toString()))
+            plugin.logger.warning("Could not withdraw $amount from ${player.name}: ${response?.errorMessage ?: "no economy response"}")
+            return false
+        }
         return true
     }
 

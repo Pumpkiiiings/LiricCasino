@@ -1,0 +1,47 @@
+name: CasinoLiric
+version: '${version}'
+main: liric.casino.CasinoPlugin
+api-version: '1.20'
+description: Casino minigames with Vault economy integration
+authors: [Pumpkings]
+depend: [Vault, packetevents]
+softdepend: [PlaceholderAPI]
+
+commands:
+  casino:
+    description: Main CasinoLiric command
+    usage: /casino [game|stats|top|reload]
+  roulette:
+    description: Roulette command
+    aliases: [ruleta]
+  scratch:
+    description: Scratch-card command
+    aliases: [boleto]
+  slots:
+    description: Slots command
+    aliases: [tragamonedas, '777']
+  poker:
+    description: Poker command
+  blackjack:
+    description: Blackjack command
+    aliases: [bj, '21']
+  lottery:
+    description: Lottery command
+    aliases: [loteria]
+  coinflip:
+    description: CoinFlip command
+  cf:
+    description: CoinFlip short command
+  rps:
+    description: Rock-paper-scissors command
+  ttt:
+    description: Tic-tac-toe command
+    aliases: [tictactoe]
+  racing:
+    description: Horse-racing command
+    aliases: [carreras]
+
+permissions:
+  casino.admin:
+    description: Access to CasinoLiric administration commands
+    default: op

@@ -6,6 +6,10 @@ import org.bukkit.entity.Player
 
 class RPSCommand(plugin: CasinoPlugin) : AbstractMatchmakingCommand(plugin, "rps", "ROCK PAPER SCISSORS") {
 
+    override fun openLobby(player: Player) {
+        MatchmakingLobbyGUI(plugin, player, "rps").open()
+    }
+
     override fun onCreate(player: Player, amount: Double) {
         plugin.rpsManager.createGame(player, amount)
     }

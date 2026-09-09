@@ -54,8 +54,7 @@ class RouletteCommand(
                         sender.sendMessage(plugin.format("<red>Invalid scale value."))
                         return true
                     }
-                    plugin.config.set("roulette.block-scale", newScale.toDouble())
-                    plugin.saveConfig()
+                    plugin.setMainConfigValue("roulette.block-scale", newScale.toDouble())
                     val radius = plugin.config.getDouble("roulette.radius", 5.5).toFloat()
                     plugin.rouletteManager.rescaleAll(newScale, radius)
                     sender.sendMessage(plugin.format("<green>Roulette scale updated to $newScale. All active roulettes were updated."))

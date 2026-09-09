@@ -186,6 +186,7 @@ class BlackjackMultiSession(
                         if (data.status != PlayerStatus.PLAYING) return@asGuiItem
                         if (plugin.economyManager.withdrawPlayer(player, data.bet)?.transactionSuccess() == true) {
                             data.bet *= 2
+                            gameManager.updateBet(data.uuid, data.bet)
                             data.hand.add(deck.draw())
                             player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
 

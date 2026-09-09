@@ -20,8 +20,7 @@ class CoinFlipCommand(plugin: CasinoPlugin) : AbstractMatchmakingCommand(plugin,
             if (!sender.hasPermission("casino.admin")) {
                 sender.sendMessage(msg("general.no-permission")); return true
             }
-            plugin.reloadConfig()
-            plugin.messages.load()
+            plugin.reloadAllConfigurations()
             sender.sendMessage(plugin.format("<#00FF7F>CoinFlip — configuration reloaded."))
             return true
         }

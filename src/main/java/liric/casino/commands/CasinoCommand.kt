@@ -88,9 +88,8 @@ class CasinoCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComp
                         val radius = radiusArg?.coerceIn(2f, 15f)
                             ?: plugin.config.getDouble("roulette.radius", 5.5).toFloat()
 
-                        plugin.config.set("roulette.block-scale", scaleArg)
-                        plugin.config.set("roulette.radius", radius)
-                        plugin.saveConfig()
+                        plugin.setMainConfigValue("roulette.block-scale", scaleArg)
+                        plugin.setMainConfigValue("roulette.radius", radius)
                         plugin.rouletteManager.rescaleAll(scaleArg, radius)
                         sender.sendMessage(msg("roulette.escala-set",
                              "scale"  to scaleArg.toString(),
@@ -256,8 +255,7 @@ class CasinoCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComp
         if (!isAdmin(sender)) { sender.sendMessage(msg("general.no-permission")); return }
         val reloadingMsg = plugin.messagesConfig.getString("stats-menu.reloading", "<#FFB400>Reloading configuration...")!!
         sender.sendMessage(plugin.format(reloadingMsg.replace("{prefix}", plugin.messagesConfig.getString("prefix", "")!!)))
-        plugin.reloadConfig()
-        plugin.messages.load()
+        plugin.reloadAllConfigurations()
         val reloadedMsg = plugin.messagesConfig.getString("stats-menu.reloaded", "<#00FF7F>Configuration reloaded.")!!
         sender.sendMessage(plugin.format(reloadedMsg.replace("{prefix}", plugin.messagesConfig.getString("prefix", "")!!)))
     }
@@ -435,7 +433,10 @@ class CasinoCommand(private val plugin: CasinoPlugin) : CommandExecutor, TabComp
                 "coinflip", "cf" -> listOf("menu", "create", "join", "cancel").filter { it.startsWith(args[1], true) }
                 "rps" -> listOf("create", "join", "cancel", "help").filter { it.startsWith(args[1], true) }
                 "ttt", "tictactoe" -> listOf("create", "join", "cancel", "help").filter { it.startsWith(args[1], true) }
-                "racing" -> listOf("play", "help").filter { it.startsWith(args[1], true) }
+                "racing" -> buildList {
+                    addAll(listOf("play", "help"))
+                    if (sender.hasPermission("casino.admin")) addAll(listOf("setup", "delete"))
+                }.filter { it.startsWith(args[1], true) }
                 "stats", "top" -> statsModes.filter { it.startsWith(args[1], true) }
                 else -> emptyList()
             }

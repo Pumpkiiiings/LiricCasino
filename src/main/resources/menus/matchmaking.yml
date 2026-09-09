@@ -1,0 +1,46 @@
+title: "<gold><bold>Game Lobby</bold>"
+rows: 6
+
+rps:
+  title: "<#FF5555><bold>Rock Paper Scissors</bold> <dark_gray>— <white>Lobby"
+ttt:
+  title: "<#00FFFF><bold>Tic Tac Toe</bold> <dark_gray>— <white>Lobby"
+
+bet-amounts: [100, 500, 1000, 5000, 10000]
+bet-slots: [2, 3, 4, 5, 6]
+create-item:
+  material: EMERALD
+  name: "<#00FF7F><bold>Create: %amount%</bold>"
+  lore:
+    - "<gray>Start a new match at this stake."
+    - ""
+    - "<yellow>Click to create."
+
+game-slots: [10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 32, 33, 34]
+game-item:
+  name: "<white><bold>%creator%'s match</bold>"
+  lore:
+    - "<gray>Stake: <#FFD700>%amount%"
+    - ""
+    - "%action%"
+  join: "<#00FF7F>✔ Click to join"
+  cancel: "<#FF5555>✖ Click to cancel your match"
+
+no-games:
+  slot: 31
+  material: BELL
+  name: "<#FF5555><bold>No open matches</bold>"
+  lore:
+    - "<gray>Create one using a button above."
+
+refresh:
+  slot: 49
+  material: COMPASS
+  name: "<white><bold>↻ Refresh</bold>"
+  lore:
+    - "<gray>Reload the match list."
+
+decorations:
+  - material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    slots: [0, 1, 7, 8, 9, 17, 18, 26, 27, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 53]

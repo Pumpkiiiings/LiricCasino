@@ -22,8 +22,10 @@ class BlackjackSession(
     private val dealerHand = mutableListOf<BjCard>()
     private var status = GameStatus.PLAYER_TURN
     private var isFirstAction = true
+    private var settled = false
 
     fun start() {
+        plugin.blackjackManager.registerSession(this)
         playerHand.add(deck.draw())
         dealerHand.add(deck.draw())
         playerHand.add(deck.draw())
@@ -144,7 +146,7 @@ class BlackjackSession(
                             player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
 
                             status = if (BlackjackLogic.calculateScore(playerHand) > 21) {
-                                endGame(gui, plugin.messages.get("blackjack.double-busted").let { if (it is String) it else "Busted on double down! You lost." } as String, 0.0)
+                                endGame(gui, plugin.messages.getRaw("blackjack.double-busted"), 0.0)
                                 GameStatus.FINISHED
                             } else {
                                 GameStatus.DEALER_TURN
@@ -202,6 +204,9 @@ class BlackjackSession(
     }
 
     private fun endGame(gui: Gui, reason: String, payout: Double) {
+        if (settled) return
+        settled = true
+        plugin.blackjackManager.unregisterSession(player.uniqueId)
         val resultItem = ItemBuilder.from(if (payout > betAmount) Material.DIAMOND else if (payout == betAmount) Material.GOLD_INGOT else Material.COAL)
             .name(plugin.format(if (payout > betAmount) "<#00FF7F><bold>VICTORY!</bold>" else if (payout == betAmount) "<#FFD700><bold>TIE</bold>" else "<#FF5555><bold>DEFEAT</bold>"))
             .lore(plugin.format("<white>$reason"), plugin.format("<gray>Final payout: <#FFD700>$$payout"))
@@ -226,5 +231,15 @@ class BlackjackSession(
             player.sendMessage(plugin.messages.get("blackjack.lose"))
             plugin.statsManager.recordBjGame(player.uniqueId, betAmount, 0.0, isWin = false, isLoss = true, isBlackjack = false)
         }
+    }
+
+    fun refundOnShutdown() {
+        if (settled) return
+        settled = true
+        plugin.economyManager.depositPlayer(player, betAmount)
+    }
+
+    fun markAbandoned() {
+        settled = true
     }
 }

@@ -115,8 +115,14 @@ class PokerMenu(private val plugin: CasinoPlugin, private val game: PokerGame, p
             gui.setItem(49, callBtn)
 
 
-            val raiseBtn = config.getItemBuilder("items.raise").asGuiItem {
-                game.handleAction(player.uniqueId, "RAISE", 5000.0)
+            val raiseName = config.getString("items.raise.name", "<#00FF7F><bold>RAISE +{amount}</bold>")
+                .replace("{amount}", game.raiseAmount.toLong().toString())
+            val raiseLore = config.getStringList("items.raise.lore").map {
+                plugin.format(it.replace("{amount}", game.raiseAmount.toLong().toString()))
+            }
+            val raiseBtn = ItemBuilder.from(config.getMaterial("items.raise.material", Material.LIME_DYE))
+                .name(plugin.format(raiseName)).lore(raiseLore).asGuiItem {
+                game.handleAction(player.uniqueId, "RAISE", game.raiseAmount)
                 player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
             }
             gui.setItem(53, raiseBtn)

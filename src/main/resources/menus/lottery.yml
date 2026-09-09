@@ -24,7 +24,8 @@ buy-1:
   name: "<#00FF7F>✚ Buy 1 Ticket"
   lore:
     - "<gray>Add one ticket to your entry."
-    - "<gray>Price: <#FFD700>$5,000"
+    - "<gray>Price: <#FFD700>%price%"
+    - "<gray>Tickets available to you: <white>%remaining%"
     - ""
     - "<yellow>Click to buy!"
 
@@ -32,10 +33,11 @@ buy-1:
 buy-5:
   slot: 33
   material: MAP
-  name: "<#00FF7F>✚ Buy 5 Tickets"
+  name: "<#00FF7F>✚ Buy %amount% Tickets"
   lore:
-    - "<gray>Buy the maximum allowed per player."
-    - "<gray>Price: <#FFD700>$25,000"
+    - "<gray>Buy up to five available tickets."
+    - "<gray>Price: <#FFD700>%price%"
+    - "<gray>Tickets available to you: <white>%remaining%"
     - ""
     - "<yellow>Click to buy!"
 

@@ -92,7 +92,6 @@ class TTTBoard(
     }
 
     fun update() {
-        player.closeInventory()
-        SchedulerUtil.runGlobalLater(plugin, 2L) { open() }
+        SchedulerUtil.runGlobalLater(plugin, 1L) { open() }
     }
 }

@@ -3,7 +3,7 @@ package liric.casino.games.roulette
 import liric.casino.CasinoPlugin
 import liric.casino.packet.FakeInteraction
 import liric.casino.packet.PlayerInteractFakeEntityEvent
-import org.bukkit.Bukkit
+import liric.casino.util.SchedulerUtil
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 
@@ -18,7 +18,7 @@ class RouletteInteractListener(private val plugin: CasinoPlugin) : Listener {
             if (!isRoulette) return
 
             // Since PacketEvents listeners fire asynchronously, we must sync to main thread for Bukkit API calls
-            Bukkit.getScheduler().runTask(plugin, Runnable {
+            SchedulerUtil.runGlobal(plugin, Runnable {
                 if (!plugin.isGameEnabled("roulette")) {
                     return@Runnable
                 }

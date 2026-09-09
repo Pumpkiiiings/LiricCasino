@@ -3,8 +3,13 @@ package liric.casino.games.tictactoe
 import liric.casino.CasinoPlugin
 import liric.casino.core.AbstractMatchmakingCommand
 import org.bukkit.entity.Player
+import liric.casino.games.rps.MatchmakingLobbyGUI
 
 class TTTCommand(plugin: CasinoPlugin) : AbstractMatchmakingCommand(plugin, "ttt", "TIC TAC TOE") {
+
+    override fun openLobby(player: Player) {
+        MatchmakingLobbyGUI(plugin, player, "ttt").open()
+    }
 
     override fun onCreate(player: Player, amount: Double) {
         plugin.tttManager.createGame(player, amount)

@@ -10,7 +10,7 @@ class CasinoPlaceholders(private val plugin: CasinoPlugin) : PlaceholderExpansio
 
     override fun getIdentifier() = "casino"
     override fun getAuthor()     = "Liric Casino"
-    override fun getVersion()    = plugin.description.version
+    override fun getVersion()    = plugin.pluginMeta.version
     override fun persist()       = true
     override fun canRegister()   = true
 

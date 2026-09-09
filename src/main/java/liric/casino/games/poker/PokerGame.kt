@@ -10,7 +10,7 @@ import java.util.UUID
 
 enum class PokerState { WAITING, STARTING, PRE_FLOP, FLOP, TURN, RIVER, SHOWDOWN }
 
-class PokerPlayer(val uuid: UUID, val name: String) {
+class PokerPlayer(val uuid: UUID, val name: String, var totalContributed: Double = 0.0) {
     var holeCards = mutableListOf<Card>()
     var currentBet = 0.0
     var hasFolded = false
@@ -31,9 +31,10 @@ class PokerGame(val plugin: CasinoPlugin) {
     var countdownSeconds = 0
     private var task: Runnable? = null
 
-    val maxPlayers = 6
-    val minPlayers = 2
-    val entryFee = 5000.0
+    val maxPlayers get() = plugin.config.getInt("poker.maximum-players", 6).coerceIn(2, 9)
+    val minPlayers get() = plugin.config.getInt("poker.minimum-players", 2).coerceIn(2, maxPlayers)
+    val entryFee get() = plugin.config.getDouble("poker.entry-fee", 5000.0).coerceAtLeast(1.0)
+    val raiseAmount get() = plugin.config.getDouble("poker.raise-amount", 5000.0).coerceAtLeast(1.0)
 
 
 
@@ -51,7 +52,7 @@ class PokerGame(val plugin: CasinoPlugin) {
 
         if (plugin.economyManager.withdrawPlayer(player, entryFee)?.transactionSuccess() == true) {
             plugin.statsManager.recordGameUse(player.uniqueId, "poker")
-            players.add(PokerPlayer(player.uniqueId, player.name))
+            players.add(PokerPlayer(player.uniqueId, player.name, entryFee))
             plugin.server.broadcast(plugin.format("$prefix <#00FF7F><#FFB400>${player.name}</#FFB400> joined Poker! (${players.size}/$maxPlayers)</#00FF7F>"))
             plugin.pokerManager.updateHolograms()
             checkLobby()
@@ -70,12 +71,13 @@ class PokerGame(val plugin: CasinoPlugin) {
 
         if (state == PokerState.WAITING || state == PokerState.STARTING) {
 
-            plugin.economyManager.depositPlayer(player, entryFee)
+            plugin.economyManager.depositPlayer(player, pokerPlayer.totalContributed)
+            pokerPlayer.totalContributed = 0.0
             players.remove(pokerPlayer)
 
             plugin.server.broadcast(plugin.format("$prefix <#FF5555><#FFB400>${player.name}</#FFB400> left the Poker table! (${players.size}/$maxPlayers)</#FF5555>"))
             plugin.pokerManager.updateHolograms()
-            player.sendMessage(plugin.format("$prefix <#00FF7F>You left the table. Your $$entryFee entry was refunded.</#00FF7F>"))
+            player.sendMessage(plugin.format("$prefix <#00FF7F>You left the table. Your contribution was refunded.</#00FF7F>"))
         } else {
 
             if (!pokerPlayer.hasFolded) {
@@ -90,7 +92,7 @@ class PokerGame(val plugin: CasinoPlugin) {
 
     private fun checkLobby() {
         if (state == PokerState.WAITING && players.size >= minPlayers) {
-            startCountdown(60)
+            startCountdown(plugin.config.getInt("poker.start-countdown-seconds", 30).coerceAtLeast(5))
         } else if (state == PokerState.STARTING && players.size == maxPlayers) {
             countdownSeconds = 5
         }
@@ -122,7 +124,7 @@ class PokerGame(val plugin: CasinoPlugin) {
     private fun startRealGame() {
         deck = Deck()
         communityCards.clear()
-        pot = players.size * entryFee
+        pot = players.sumOf { it.totalContributed }
         currentHighestBet = 0.0
 
         players.forEach {
@@ -150,7 +152,7 @@ class PokerGame(val plugin: CasinoPlugin) {
 
     private fun startTurnTimer() {
         task?.run()
-        countdownSeconds = 15
+        countdownSeconds = plugin.config.getInt("poker.turn-seconds", 15).coerceAtLeast(5)
         task = SchedulerUtil.runGlobalTimer(plugin, 0L, 20L) {
             updateMenus()
 
@@ -184,18 +186,23 @@ class PokerGame(val plugin: CasinoPlugin) {
             }
             "CALL" -> {
                 val callAmount = currentHighestBet - player.currentBet
-                if (plugin.economyManager.withdrawPlayer(Bukkit.getPlayer(playerUuid)!!, callAmount)?.transactionSuccess() == true) {
+                val bukkitPlayer = Bukkit.getPlayer(playerUuid) ?: return
+                if (callAmount <= 0.0 || plugin.economyManager.withdrawPlayer(bukkitPlayer, callAmount)?.transactionSuccess() == true) {
                     player.currentBet += callAmount
+                    player.totalContributed += callAmount
                     pot += callAmount
-                }
+                } else return
             }
             "RAISE" -> {
+                if (!amount.isFinite() || amount <= 0.0) return
                 val raiseAmount = (currentHighestBet - player.currentBet) + amount
-                if (plugin.economyManager.withdrawPlayer(Bukkit.getPlayer(playerUuid)!!, raiseAmount)?.transactionSuccess() == true) {
+                val bukkitPlayer = Bukkit.getPlayer(playerUuid) ?: return
+                if (plugin.economyManager.withdrawPlayer(bukkitPlayer, raiseAmount)?.transactionSuccess() == true) {
                     player.currentBet += raiseAmount
+                    player.totalContributed += raiseAmount
                     pot += raiseAmount
                     currentHighestBet = player.currentBet
-                }
+                } else return
             }
         }
         advanceTurn()
@@ -271,29 +278,32 @@ class PokerGame(val plugin: CasinoPlugin) {
             return
         }
 
-        var bestPlayer = activeParticipants.first()
-        var bestScore = 0L
-
-        activeParticipants.forEach { p ->
-            val score = HandEvaluator.evaluate(p.holeCards, communityCards)
-            if (score > bestScore) {
-                bestScore = score
-                bestPlayer = p
-            }
-        }
+        val scores = activeParticipants.associateWith { HandEvaluator.evaluate(it.holeCards, communityCards) }
+        val bestScore = scores.values.maxOrNull() ?: 0L
+        val winners = scores.filterValues { it == bestScore }.keys.toList()
 
         updateMenus()
-        endGame(bestPlayer, HandEvaluator.getHandName(bestScore))
+        endGame(winners, HandEvaluator.getHandName(bestScore))
     }
 
     private fun endGame(winnerInfo: PokerPlayer, handName: String = "Everyone folded") {
-        val winner = Bukkit.getPlayer(winnerInfo.uuid)
-        if (winner != null) {
-            val (netWin, _) = liric.casino.util.TaxUtil.applyTax(plugin, pot, "poker")
-            plugin.economyManager.depositPlayer(winner, netWin)
-            plugin.server.broadcast(plugin.format("$prefix <#00FF7F><bold>${winner.name} won Poker ($$netWin) with $handName!</bold></#00FF7F>"))
-            winner.playSound(winner.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
+        endGame(listOf(winnerInfo), handName)
+    }
+
+    private fun endGame(winners: List<PokerPlayer>, handName: String) {
+        val eligible = winners.filter { winner -> players.any { it.uuid == winner.uuid } }
+        if (eligible.isNotEmpty()) {
+            val share = pot / eligible.size
+            eligible.forEach { winnerInfo ->
+                val (netWin, _) = liric.casino.util.TaxUtil.applyTax(plugin, share, "poker")
+                plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(winnerInfo.uuid), netWin)
+                Bukkit.getPlayer(winnerInfo.uuid)?.playSound(Bukkit.getPlayer(winnerInfo.uuid)!!.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
+            }
+            val names = eligible.joinToString(", ") { it.name }
+            val result = if (eligible.size == 1) "$names won Poker with $handName" else "$names split the Poker pot with $handName"
+            plugin.server.broadcast(plugin.format("$prefix <#00FF7F><bold>$result ($${pot.toLong()})!</bold></#00FF7F>"))
         }
+        players.forEach { it.totalContributed = 0.0 }
 
         SchedulerUtil.runGlobalLater(plugin, 100L) {
             players.forEach { p -> Bukkit.getPlayer(p.uuid)?.closeInventory() }
@@ -313,5 +323,34 @@ class PokerGame(val plugin: CasinoPlugin) {
                 PokerMenu(plugin, this, bp).updateExisting(bp)
             }
         }
+    }
+
+    fun cleanupAll() {
+        task?.run()
+        task = null
+        players.filter { it.totalContributed > 0.0 }.forEach { player ->
+            plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(player.uuid), player.totalContributed)
+            player.totalContributed = 0.0
+        }
+        players.clear()
+        communityCards.clear()
+        pot = 0.0
+        currentHighestBet = 0.0
+        state = PokerState.WAITING
+    }
+
+    fun handleDisconnect(uuid: UUID) {
+        val player = players.firstOrNull { it.uuid == uuid } ?: return
+        if (state == PokerState.WAITING || state == PokerState.STARTING) {
+            plugin.economyManager.depositPlayer(Bukkit.getOfflinePlayer(uuid), player.totalContributed)
+            player.totalContributed = 0.0
+            players.remove(player)
+            plugin.pokerManager.updateHolograms()
+            return
+        }
+
+        player.hasFolded = true
+        val remaining = players.filter { !it.hasFolded }
+        if (remaining.size == 1) endGame(remaining.first())
     }
 }

@@ -1,0 +1,154 @@
+# CasinoLiric — Economy Configuration
+# Set max-uses-per-day to -1 for unlimited access.
+
+taxes:
+  enabled: false
+  default-rate: 0.05
+  roulette: 0.05
+  slots: 0.05
+  blackjack: 0.05
+  scratch: 0.05
+  lottery: 0.10
+  coinflip: 0.05
+  rps: 0.05
+  ttt: 0.05
+  racing: 0.05
+  poker: 0.05
+
+boosters:
+  vip:
+    booster: 2.0
+    permission: "vip.boost"
+  mvp:
+    booster: 3.0
+    permission: "mvp.boost"
+
+roulette:
+  max-bet: 200000.0
+  number-payout: 36.0
+  color-multipliers:
+    RED: 2.0
+    BLACK: 2.0
+    GREEN: 14.0
+  uses:
+    default:
+      max-uses-per-day: 2
+    ranks:
+      vip:
+        permission: "casinoliric.roulette.vip"
+        max-uses-per-day: 10
+      admin:
+        permission: "casinoliric.roulette.admin"
+        max-uses-per-day: -1
+
+blackjack:
+  bet:
+    default: { min: 100.0, max: 100000.0 }
+    ranks:
+      vip: { permission: "casinoliric.bet.vip", max: 500000.0 }
+      admin: { permission: "casinoliric.bet.admin", max: 10000000.0 }
+  uses:
+    default: { max-uses-per-day: 10 }
+    ranks:
+      vip: { permission: "casinoliric.uses.vip", max-uses-per-day: 50 }
+      admin: { permission: "casinoliric.uses.admin", max-uses-per-day: -1 }
+
+slots:
+  bet:
+    default: { min: 100.0, max: 100000.0 }
+    ranks:
+      vip: { permission: "casinoliric.bet.vip", max: 500000.0 }
+      admin: { permission: "casinoliric.bet.admin", max: 10000000.0 }
+  uses:
+    default: { max-uses-per-day: 20 }
+    ranks:
+      vip: { permission: "casinoliric.uses.vip", max-uses-per-day: 100 }
+      admin: { permission: "casinoliric.uses.admin", max-uses-per-day: -1 }
+
+scratch:
+  bet:
+    default: { min: 100.0, max: 100000.0 }
+    ranks:
+      vip: { permission: "casinoliric.bet.vip", max: 500000.0 }
+      admin: { permission: "casinoliric.bet.admin", max: 10000000.0 }
+  uses:
+    default: { max-uses-per-day: 5 }
+    ranks:
+      vip: { permission: "casinoliric.uses.vip", max-uses-per-day: 25 }
+      admin: { permission: "casinoliric.uses.admin", max-uses-per-day: -1 }
+
+lottery:
+  ticket-price: 5000.0
+  max-tickets-per-player: 5
+  jackpot-start: 50000.0
+  jackpot-contribution: 0.5
+  bet:
+    default: { min: 100.0, max: 100000.0 }
+    ranks:
+      vip: { permission: "casinoliric.bet.vip", max: 500000.0 }
+      admin: { permission: "casinoliric.bet.admin", max: 10000000.0 }
+  uses:
+    default: { max-uses-per-day: 5 }
+    ranks:
+      vip: { permission: "casinoliric.uses.vip", max-uses-per-day: 10 }
+      admin: { permission: "casinoliric.uses.admin", max-uses-per-day: -1 }
+
+coinflip:
+  bet:
+    default: { min: 100.0, max: 500000.0 }
+    ranks:
+      vip: { permission: "casinoliric.bet.vip", max: 1000000.0 }
+      admin: { permission: "casinoliric.bet.admin", max: 10000000.0 }
+  uses:
+    default: { max-uses-per-day: 15 }
+    ranks:
+      vip: { permission: "casinoliric.uses.vip", max-uses-per-day: 50 }
+      admin: { permission: "casinoliric.uses.admin", max-uses-per-day: -1 }
+
+rps:
+  bet:
+    default: { min: 100.0, max: 500000.0 }
+    ranks:
+      vip: { permission: "casinoliric.bet.vip", max: 1000000.0 }
+      admin: { permission: "casinoliric.bet.admin", max: 10000000.0 }
+  uses:
+    default: { max-uses-per-day: 15 }
+    ranks:
+      vip: { permission: "casinoliric.uses.vip", max-uses-per-day: 50 }
+      admin: { permission: "casinoliric.uses.admin", max-uses-per-day: -1 }
+
+ttt:
+  bet:
+    default: { min: 100.0, max: 500000.0 }
+    ranks:
+      vip: { permission: "casinoliric.bet.vip", max: 1000000.0 }
+      admin: { permission: "casinoliric.bet.admin", max: 10000000.0 }
+  uses:
+    default: { max-uses-per-day: 10 }
+    ranks:
+      vip: { permission: "casinoliric.uses.vip", max-uses-per-day: 30 }
+      admin: { permission: "casinoliric.uses.admin", max-uses-per-day: -1 }
+
+racing:
+  bet:
+    default: { min: 100.0, max: 100000.0 }
+    ranks:
+      vip: { permission: "casinoliric.bet.vip", max: 500000.0 }
+      admin: { permission: "casinoliric.bet.admin", max: 10000000.0 }
+  uses:
+    default: { max-uses-per-day: 5 }
+    ranks:
+      vip: { permission: "casinoliric.uses.vip", max-uses-per-day: 20 }
+      admin: { permission: "casinoliric.uses.admin", max-uses-per-day: -1 }
+
+poker:
+  bet:
+    default: { min: 100.0, max: 100000.0 }
+    ranks:
+      vip: { permission: "casinoliric.bet.vip", max: 500000.0 }
+      admin: { permission: "casinoliric.bet.admin", max: 10000000.0 }
+  uses:
+    default: { max-uses-per-day: 5 }
+    ranks:
+      vip: { permission: "casinoliric.uses.vip", max-uses-per-day: 20 }
+      admin: { permission: "casinoliric.uses.admin", max-uses-per-day: -1 }

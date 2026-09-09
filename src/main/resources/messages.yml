@@ -28,7 +28,7 @@ stats:
 # ─── Roulette ──────────────────────────────────────────────
 roulette:
   already-spinning: "{prefix} <#FF3333>The roulette is already spinning. Please wait!"
-  already-spinning-interact: "{prefix} <#FF5555>¡La ruleta está girando, espera a que termine!</#FF5555>"
+  already-spinning-interact: "{prefix} <#FF5555>The roulette wheel is spinning. Wait for it to finish!</#FF5555>"
   cannot-climb: "<#FF5555><bold>You cannot climb onto the table!</bold></#FF5555>"
   already-bet: "{prefix} <#FF5555>You have already bet in this round. Only 1 bet is allowed."
   bet-range: "{prefix} <#FF5555>The bet must be between $1 and ${max}."
@@ -58,20 +58,20 @@ blackjack:
   table-deleted: "{prefix} <#00FF7F>Table deleted."
   table-not-found: "{prefix} <#FF5555>No tables nearby."
   usage: "{prefix} <#FF5555>Usage: /bj <play|leave|setup|delete>"
-  multi-turn: "{prefix} <#00FF7F>¡ES TU TURNO! Elige tu jugada en el menú.</#00FF7F>"
-  multi-busted: "{prefix} <#FF5555>¡Te pasaste de 21! Has volado.</#FF5555>"
+  multi-turn: "{prefix} <#00FF7F>IT IS YOUR TURN! Choose an action in the menu.</#00FF7F>"
+  multi-busted: "{prefix} <#FF5555>You went over 21 and busted.</#FF5555>"
   state-waiting: "<gray>Esperando..."
   state-playing: "<#FFB400>Pensando..."
-  state-stood: "<#00FF7F>Se Plantó"
-  state-busted: "<#FF5555>Voló (Se pasó)"
-  state-blackjack: "<#FFD700>¡BLACKJACK!"
-  multi-win-blackjack: "<#00FF7F>¡BLACKJACK! Ganaste ${amount}.</#00FF7F>"
+  state-stood: "<#00FF7F>Stood"
+  state-busted: "<#FF5555>Busted"
+  state-blackjack: "<#FFD700>BLACKJACK!"
+  multi-win-blackjack: "<#00FF7F>BLACKJACK! You won ${amount}.</#00FF7F>"
   multi-push-blackjack: "<#FFD700>Empate de Blackjacks (Push). Recuperas ${amount}.</#FFD700>"
-  multi-win-dealer-busted: "<#00FF7F>El Dealer se pasó. ¡Ganaste ${amount}!</#00FF7F>"
-  multi-win-normal: "<#00FF7F>¡Le ganaste al Dealer! Recibes ${amount}.</#00FF7F>"
+  multi-win-dealer-busted: "<#00FF7F>The dealer busted. You won ${amount}!</#00FF7F>"
+  multi-win-normal: "<#00FF7F>You beat the dealer and receive ${amount}.</#00FF7F>"
   multi-push: "<#FFD700>Empate (Push). Recuperas ${amount}.</#FFD700>"
-  multi-lose-busted: "<#FF5555>Volaste. Perdiste ${amount}.</#FF5555>"
-  multi-lose-normal: "<#FF5555>El Dealer gana. Perdiste ${amount}.</#FF5555>"
+  multi-lose-busted: "<#FF5555>You busted and lost ${amount}.</#FF5555>"
+  multi-lose-normal: "<#FF5555>The dealer wins. You lost ${amount}.</#FF5555>"
 
 # ─── Slots ───────────────────────────────
 slots:
@@ -80,8 +80,8 @@ slots:
   jackpot: "{prefix} <#FF00FF><bold>JACKPOT!</bold> <#FFD700>{player} just hit 777 and won <#00FF7F>${amount}!"
   win: "{prefix} <#00FF7F><bold>YOU WON!</bold> <#E0E0E0>Multiplier x{mult}. You got <#FFB400>${amount}</#FFB400>!"
   trash: "{prefix} <#FF5555>You matched 3 trash items... You win nothing."
-  machine-in-use: "<#FF5555><bold>¡Esta máquina ya está siendo usada!</bold></#FF5555>"
-  write-bet-chat: "<#FFD700><b>✍ Escribe la cantidad exacta que deseas apostar:</b>"
+  machine-in-use: "<#FF5555><bold>This machine is already in use!</bold></#FF5555>"
+  write-bet-chat: "<#FFD700><b>✍ Type the exact amount you want to bet:</b>"
   no-luck: "{prefix} <gray>No luck this time..."
   machine-created: "{prefix} <#00FF7F>Slots machine created successfully."
   machine-deleted: "{prefix} <#00FF7F>Machine deleted and removed from data!"
@@ -103,7 +103,7 @@ scratch:
   invalid-tier: "{prefix} <#FF5555>Invalid tier. Use basic, advanced, master, or giant."
   invalid-amount: "{prefix} <#FF5555>Invalid amount."
   player-offline: "{prefix} <#FF5555>The player is offline or does not exist."
-  usage: "{prefix} <#FF5555>Usage: /scratch <comprar|get|give> ..."
+  usage: "{prefix} <#FF5555>Usage: /scratch <buy|get|give> ..."
 
 # ─── Poker ───────────────────────────────────────────────
 poker:
@@ -153,7 +153,7 @@ coinflip:
   lose: "{prefix} <#FF5555>🪙 You lost the CoinFlip. You lost <#FFD700>${amount}</#FFD700>."
   broadcast-result: "{prefix} <gradient:#FFD700:#00FF7F>🪙 CoinFlip</gradient>: <white>{winner}</white> <#00FF7F>won <#FFD700>${amount}</#FFD700> against <white>{loser}</white>!"
 
-# ─── Piedra Papel Tijera ─────────────────────────────────
+# ─── Rock Paper Scissors ─────────────────────────────────
 rps:
   already-in-game: "{prefix} <#FF5555>You are already in a game."
   invalid-amount: "{prefix} <#FF5555>The bet must be between <#FFD700>${min}</#FFD700> and <#FFD700>${max}</#FFD700>."
@@ -192,8 +192,12 @@ ttt:
   cancelled: "{prefix} <#FFB400>⬛ Match cancelled. Bet returned."
   usage: "{prefix} <#FF5555>Usage: /ttt <create <amount>|join <player>|cancel>"
 
-# ─── Carreras de Caballos ────────────────────────────────
+# ─── Horse Racing ────────────────────────────────────────
 racing:
+  no-track: "{prefix} <#FF5555>No racing track is configured nearby. Ask an administrator to create one."
+  track-created: "{prefix} <#00FF7F>Racing track created and saved. The direction you faced is the finish direction."
+  track-deleted: "{prefix} <#00FF7F>The nearest racing track was deleted."
+  cancelled: "{prefix} <#FF5555>The race could not start. All bets were refunded."
   already-started: "{prefix} <#FF5555>The race has already started!"
   already-bet: "{prefix} <#FF5555>You have already placed a bet for this race."
   no-funds: "{prefix} <#FF5555>You do not have enough funds."

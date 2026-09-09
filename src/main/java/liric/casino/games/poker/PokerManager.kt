@@ -9,21 +9,32 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.Interaction
 import org.bukkit.entity.TextDisplay
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.Bukkit
+import org.bukkit.configuration.file.YamlConfiguration
+import java.io.File
 
 class PokerManager(private val plugin: CasinoPlugin) {
     val pokerKey = NamespacedKey(plugin, "casino_poker_id")
     private val activeTables = mutableListOf<TextDisplay>()
+    private val dataFile = File(plugin.dataFolder, "data.yml")
 
     init {
         cleanupAll()
     }
 
-    fun spawnTable(location: Location) {
-        val center = location.clone().apply {
+    fun loadTables() {
+        val data = YamlConfiguration.loadConfiguration(dataFile)
+        data.getStringList("poker.tables").forEach { serialized ->
+            parseLocation(serialized)?.let { spawnTable(it, false) }
+        }
+    }
+
+    fun spawnTable(location: Location, save: Boolean = true) {
+        val center = if (save) location.clone().apply {
             x = blockX + 0.5
             y = blockY.toDouble() + 1.2
             z = blockZ + 0.5
-        }
+        } else location.clone()
 
         val textDisplay = center.world.spawnEntity(center, EntityType.TEXT_DISPLAY) as TextDisplay
         textDisplay.persistentDataContainer.set(pokerKey, PersistentDataType.BYTE, 1.toByte())
@@ -39,6 +50,7 @@ class PokerManager(private val plugin: CasinoPlugin) {
         interaction.interactionHeight = 2.0f
 
         updateHolograms()
+        if (save) saveTables()
     }
 
     fun updateHolograms() {
@@ -82,6 +94,7 @@ class PokerManager(private val plugin: CasinoPlugin) {
                 }
             }
             activeTables.remove(nearest)
+            saveTables()
             return true
         }
         return false
@@ -92,5 +105,24 @@ class PokerManager(private val plugin: CasinoPlugin) {
             world.entities.filter { it.persistentDataContainer.has(pokerKey, PersistentDataType.BYTE) }.forEach { it.remove() }
         }
         activeTables.clear()
+    }
+
+    private fun saveTables() {
+        val data = YamlConfiguration.loadConfiguration(dataFile)
+        data.set("poker.tables", activeTables.filter { it.isValid }.map { serializeLocation(it.location) })
+        data.save(dataFile)
+    }
+
+    private fun serializeLocation(location: Location): String =
+        "${location.world.name},${location.x},${location.y},${location.z}"
+
+    private fun parseLocation(value: String): Location? {
+        val parts = value.split(',')
+        if (parts.size != 4) return null
+        val world = Bukkit.getWorld(parts[0]) ?: return null
+        val x = parts[1].toDoubleOrNull() ?: return null
+        val y = parts[2].toDoubleOrNull() ?: return null
+        val z = parts[3].toDoubleOrNull() ?: return null
+        return Location(world, x, y, z)
     }
 }

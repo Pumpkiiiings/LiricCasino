@@ -31,17 +31,17 @@ color-slots:
 items:
   zero:
     material: LIME_DYE
-    name: "<#00FF7F><bold>NUMBER 0 <#A8FFC1>(Pays x36)"
+    name: "<#00FF7F><bold>NUMBER 0 <#A8FFC1>(Pays x{payout})"
     lore:
       - "<#FFD700>Click to place bet!"
 
   red-number:
-    name-template: "<#FF2A2A><bold>NUMBER {num} <gray>(Pays x36)"
+    name-template: "<#FF2A2A><bold>NUMBER {num} <gray>(Pays x{payout})"
     lore:
       - "<#FFD700>Click to place bet!"
 
   black-number:
-    name-template: "<#666666><bold>NUMBER {num} <gray>(Pays x36)"
+    name-template: "<#666666><bold>NUMBER {num} <gray>(Pays x{payout})"
     lore:
       - "<#FFD700>Click to place bet!"
 

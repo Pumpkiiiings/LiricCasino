@@ -24,7 +24,7 @@ data class BjCard(val rank: BjRank, val suit: BjSuit) {
         if (hidden) {
             return ItemBuilder.from(Material.MAP)
                 .name(plugin.format("<#FFB400><bold>🂠 CARTA OCULTA</bold>"))
-                .lore(plugin.format("<gray>El Dealer revelará esta carta"), plugin.format("<gray>cuando sea su turno."))
+                .lore(plugin.format("<gray>The dealer will reveal this card"), plugin.format("<gray>when their turn begins."))
                 .flags(*ItemFlag.values()).build()
         }
         return ItemBuilder.from(Material.PAPER)

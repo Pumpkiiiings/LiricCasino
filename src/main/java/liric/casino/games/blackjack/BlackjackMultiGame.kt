@@ -122,6 +122,20 @@ class BlackjackMultiGame(private val plugin: CasinoPlugin) {
         plugin.blackjackManager.updateHolograms()
     }
 
+    fun updateBet(uuid: UUID, amount: Double) {
+        if (uuid in activePlayers) activePlayers[uuid] = amount
+    }
+
+    fun cleanupAll() {
+        countdownTask?.run()
+        countdownTask = null
+        activePlayers.forEach { (uuid, amount) ->
+            plugin.economyManager.depositPlayer(org.bukkit.Bukkit.getOfflinePlayer(uuid), amount)
+        }
+        activePlayers.clear()
+        state = MultiGameState.WAITING
+    }
+
     private fun broadcast(msg: String) {
         val formatted = plugin.format("<#FF0000><bold>♠ BLACKJACK TABLE</bold></#FF0000> <gray>»</gray> $msg")
         activePlayers.keys.forEach { uuid ->

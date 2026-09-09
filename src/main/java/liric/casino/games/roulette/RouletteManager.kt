@@ -324,8 +324,7 @@ class RouletteManager(private val plugin: CasinoPlugin) {
                 val world = inst.center.world ?: continue
                 if (!world.isChunkLoaded(inst.center.blockX shr 4, inst.center.blockZ shr 4)) continue
 
-                // Con packet entities no mueren, pero podemos regenerarlas si falló algo
-                // En este caso, ya no es tan necesario, pero lo mantendremos para consistencia.
+                // Packet entities normally persist; keep this monitor as a recovery hook.
             }
 
             toRespawn.forEach { loc ->

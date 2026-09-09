@@ -47,46 +47,59 @@ class Deck {
 
 object HandEvaluator {
 
+    private const val CATEGORY_BASE = 10_000_000_000L
+
     fun evaluate(holeCards: List<Card>, communityCards: List<Card>): Long {
         val all = holeCards + communityCards
         if (all.size < 5) return 0L
+        var best = 0L
+        for (a in 0 until all.size - 4)
+            for (b in a + 1 until all.size - 3)
+                for (c in b + 1 until all.size - 2)
+                    for (d in c + 1 until all.size - 1)
+                        for (e in d + 1 until all.size) {
+                            best = maxOf(best, evaluateFive(listOf(all[a], all[b], all[c], all[d], all[e])))
+                        }
+        return best
+    }
 
-        val ranks = all.groupBy { it.rank.value }.mapValues { it.value.size }
-        val suits = all.groupBy { it.suit }.mapValues { it.value.size }
+    private fun evaluateFive(cards: List<Card>): Long {
+        val groups = cards.groupBy { it.rank.value }
+        val orderedGroups = groups.entries.sortedWith(compareByDescending<Map.Entry<Int, List<Card>>> { it.value.size }.thenByDescending { it.key })
+        val ranksDesc = cards.map { it.rank.value }.sortedDescending()
+        val flush = cards.map { it.suit }.distinct().size == 1
+        val distinct = ranksDesc.distinct()
+        val straightHigh = when {
+            distinct == listOf(14, 5, 4, 3, 2) -> 5
+            distinct.size == 5 && distinct.first() - distinct.last() == 4 -> distinct.first()
+            else -> null
+        }
 
-        val isFlush = suits.values.any { it >= 5 }
-        val sortedRanks = all.map { it.rank.value }.distinct().sortedDescending()
-        var isStraight = false
-
-        for (i in 0..sortedRanks.size - 5) {
-            if (sortedRanks[i] - sortedRanks[i + 4] == 4) {
-                isStraight = true; break
+        return when {
+            flush && straightHigh != null -> encode(8, listOf(straightHigh))
+            orderedGroups[0].value.size == 4 -> encode(7, listOf(orderedGroups[0].key, orderedGroups[1].key))
+            orderedGroups[0].value.size == 3 && orderedGroups[1].value.size == 2 -> encode(6, listOf(orderedGroups[0].key, orderedGroups[1].key))
+            flush -> encode(5, ranksDesc)
+            straightHigh != null -> encode(4, listOf(straightHigh))
+            orderedGroups[0].value.size == 3 -> encode(3, listOf(orderedGroups[0].key) + orderedGroups.drop(1).map { it.key }.sortedDescending())
+            orderedGroups[0].value.size == 2 && orderedGroups[1].value.size == 2 -> {
+                val pairs = orderedGroups.take(2).map { it.key }.sortedDescending()
+                encode(2, pairs + orderedGroups[2].key)
             }
+            orderedGroups[0].value.size == 2 -> encode(1, listOf(orderedGroups[0].key) + orderedGroups.drop(1).map { it.key }.sortedDescending())
+            else -> encode(0, ranksDesc)
         }
+    }
 
-        val pairs = ranks.filter { it.value == 2 }.keys.sortedDescending()
-        val trips = ranks.filter { it.value == 3 }.keys.sortedDescending()
-        val quads = ranks.filter { it.value == 4 }.keys.firstOrNull()
-
-        var score = 0L
-        val highCard = sortedRanks.firstOrNull() ?: 0
-
-        when {
-            isFlush && isStraight -> score = 8000000L + highCard
-            quads != null -> score = 7000000L + quads
-            trips.isNotEmpty() && pairs.isNotEmpty() -> score = 6000000L + trips.first()
-            isFlush -> score = 5000000L + highCard
-            isStraight -> score = 4000000L + highCard
-            trips.isNotEmpty() -> score = 3000000L + trips.first()
-            pairs.size >= 2 -> score = 2000000L + (pairs[0] * 100) + pairs[1]
-            pairs.size == 1 -> score = 1000000L + pairs.first()
-            else -> score = highCard.toLong()
-        }
-        return score
+    private fun encode(category: Int, ranks: List<Int>): Long {
+        var detail = 0L
+        ranks.take(5).forEach { detail = detail * 15L + it }
+        repeat(5 - ranks.take(5).size) { detail *= 15L }
+        return category * CATEGORY_BASE + detail
     }
 
     fun getHandName(score: Long): String {
-        return when (score / 1000000L) {
+        return when (score / CATEGORY_BASE) {
             8L -> "Straight Flush"
             7L -> "Four of a Kind"
             6L -> "Full House"

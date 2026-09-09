@@ -24,6 +24,6 @@ ticket:
   name: "<#FFD700><bold>🎟 BOLETO {tier} 🎟</bold>"
   lore:
     - "<#E0E0E0>Haz <#00FF7F><bold>Click Derecho</bold> <#E0E0E0>al aire"
-    - "<#E0E0E0>con este boleto para jugar.</#E0E0E0>"
+    - "<#E0E0E0>Use this ticket to play.</#E0E0E0>"
     - ""
-    - "<#FFB400>¡Encuentra {matches} iguales para ganar!</#FFB400>"
+    - "<#FFB400>Match {matches} identical prizes to win!</#FFB400>"

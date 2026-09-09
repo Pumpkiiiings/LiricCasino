@@ -12,7 +12,7 @@ class RouletteMenu(
     plugin: CasinoPlugin, 
     private val game: RouletteGame,
     private val player: Player
-) : BaseMenu(plugin, "roulette.yml") {
+) : BaseMenu(plugin, "ruleta.yml") {
 
     private fun msg(key: String, vararg ph: Pair<String, String>) = plugin.messages.get(key, *ph)
 
@@ -30,7 +30,9 @@ class RouletteMenu(
     override fun setupItems(gui: Gui) {
         val zeroSlot = config.getInt("zero-slot", 4)
         val zeroMat  = config.getMaterial("items.zero.material", Material.LIME_DYE)
-        val zeroName = config.getComponent("items.zero.name")
+        val numberPayout = plugin.config.getDouble("roulette.number-payout", 36.0)
+        val payoutText = if (numberPayout % 1.0 == 0.0) numberPayout.toInt().toString() else numberPayout.toString()
+        val zeroName = plugin.format(config.getString("items.zero.name").replace("{payout}", payoutText))
         val zeroLore = config.getComponentList("items.zero.lore")
 
         val zeroBet = ItemBuilder.from(zeroMat).amount(1)
@@ -39,15 +41,15 @@ class RouletteMenu(
         gui.setItem(zeroSlot, zeroBet)
 
         val numberBase  = config.getInt("number-start-slot", 8)
-        val redTemplate = config.getString("items.red-number.name-template", "<#FF2A2A><bold>NUMBER {num} <gray>(Pays x36)")
-        val blkTemplate = config.getString("items.black-number.name-template", "<#666666><bold>NUMBER {num} <gray>(Pays x36)")
+        val redTemplate = config.getString("items.red-number.name-template", "<#FF2A2A><bold>NUMBER {num} <gray>(Pays x{payout})")
+        val blkTemplate = config.getString("items.black-number.name-template", "<#666666><bold>NUMBER {num} <gray>(Pays x{payout})")
         val numLore      = config.getComponentList("items.red-number.lore")
 
         for (i in 1..36) {
             val color    = game.getNumberColor(i)
             val material = if (color == BetColor.RED) Material.RED_DYE else Material.INK_SAC
             val template = if (color == BetColor.RED) redTemplate else blkTemplate
-            val name     = plugin.format(template.replace("{num}", i.toString()))
+            val name     = plugin.format(template.replace("{num}", i.toString()).replace("{payout}", payoutText))
 
             val item = ItemBuilder.from(material).amount(i)
                 .name(name).lore(numLore).flags(*ItemFlag.values())

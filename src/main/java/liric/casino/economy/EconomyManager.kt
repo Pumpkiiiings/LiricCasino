@@ -39,11 +39,27 @@ class EconomyManager(private val plugin: CasinoPlugin) : Listener {
     fun deposit(player: OfflinePlayer, amount: Double) = depositPlayer(player, amount)
     
     fun getPlayerBooster(player: Player): Double {
-        return 1.0
+        val section = plugin.config.getConfigurationSection("boosters") ?: return 1.0
+        return section.getKeys(false).mapNotNull { key ->
+            val permission = section.getString("$key.permission")
+                ?: section.getString("$key.permiso")
+                ?: return@mapNotNull null
+            if (player.hasPermission(permission)) section.getDouble("$key.booster", 1.0) else null
+        }.filter { it.isFinite() && it > 0.0 }.maxOrNull() ?: 1.0
     }
     
     fun getMaxBet(player: Player?, gameKey: String = ""): Double {
-        return plugin.config.getDouble("max-bet", 10000.0)
+        if (gameKey.isBlank()) return plugin.config.getDouble("max-bet", 10000.0)
+        val direct = "$gameKey.max-bet"
+        if (plugin.config.contains(direct)) return plugin.config.getDouble(direct, 10000.0)
+
+        val defaultMax = plugin.config.getDouble("$gameKey.bet.default.max", 10000.0)
+        if (player == null) return defaultMax
+        val ranks = plugin.config.getConfigurationSection("$gameKey.bet.ranks") ?: return defaultMax
+        return ranks.getKeys(false).mapNotNull { rank ->
+            val permission = ranks.getString("$rank.permission") ?: return@mapNotNull null
+            if (player.hasPermission(permission)) ranks.getDouble("$rank.max", defaultMax) else null
+        }.maxOrNull()?.coerceAtLeast(defaultMax) ?: defaultMax
     }
 
     private val betCallbacks = mutableMapOf<java.util.UUID, (Double) -> Unit>()
@@ -57,7 +73,7 @@ class EconomyManager(private val plugin: CasinoPlugin) : Listener {
         val callback = betCallbacks.remove(event.player.uniqueId) ?: return
         event.isCancelled = true
         val amount = event.message.toDoubleOrNull() ?: -1.0
-        plugin.server.scheduler.runTask(plugin, Runnable {
+        liric.casino.util.SchedulerUtil.runGlobal(plugin, Runnable {
             callback(amount)
         })
     }

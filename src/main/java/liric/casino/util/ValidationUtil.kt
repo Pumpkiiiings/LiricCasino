@@ -50,10 +50,15 @@ object ValidationUtil {
     fun validateBet(plugin: CasinoPlugin, player: Player, gameName: String, amount: Double): Boolean {
         val pathPrefix = "${gameName.lowercase()}.bet"
 
+        if (!amount.isFinite() || amount <= 0) {
+            player.sendMessage(plugin.messages.get("general.invalid-bet"))
+            return false
+        }
 
         if (!plugin.config.contains(pathPrefix)) {
-            if (amount <= 0 || amount.isNaN()) {
-                player.sendMessage(plugin.messages.get("general.invalid-bet"))
+            val directMaxPath = "${gameName.lowercase()}.max-bet"
+            if (plugin.config.contains(directMaxPath) && amount > plugin.config.getDouble(directMaxPath)) {
+                player.sendMessage(plugin.messages.get("general.max-bet", "max" to plugin.config.getLong(directMaxPath).toString()))
                 return false
             }
             return true
@@ -75,11 +80,6 @@ object ValidationUtil {
                     }
                 }
             }
-        }
-
-        if (amount <= 0 || amount.isNaN()) {
-            player.sendMessage(plugin.messages.get("general.invalid-bet"))
-            return false
         }
 
         if (amount < defaultMin) {

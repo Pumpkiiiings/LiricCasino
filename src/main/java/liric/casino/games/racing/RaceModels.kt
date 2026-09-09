@@ -16,7 +16,8 @@ data class RaceTrack(
     val world: String,
     val x: Double,
     val y: Double,
-    val z: Double
+    val z: Double,
+    val yaw: Float = 0f
 ) {
     fun toKey() = "$world,$x,$y,$z"
 }

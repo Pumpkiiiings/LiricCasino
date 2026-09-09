@@ -9,10 +9,13 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.Interaction
 import org.bukkit.entity.TextDisplay
 import org.bukkit.persistence.PersistentDataType
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 class BlackjackManager(private val plugin: CasinoPlugin) {
     val bjKey = NamespacedKey(plugin, "casino_blackjack_id")
     private val activeTables = mutableListOf<TextDisplay>()
+    private val activeSoloSessions = ConcurrentHashMap<UUID, BlackjackSession>()
 
     init { cleanupAll() }
 
@@ -71,9 +74,23 @@ class BlackjackManager(private val plugin: CasinoPlugin) {
     }
 
     fun cleanupAll() {
+        activeSoloSessions.values.toList().forEach { it.refundOnShutdown() }
+        activeSoloSessions.clear()
         plugin.server.worlds.forEach { world ->
             world.entities.filter { it.persistentDataContainer.has(bjKey, PersistentDataType.BYTE) }.forEach { it.remove() }
         }
         activeTables.clear()
+    }
+
+    fun registerSession(session: BlackjackSession) {
+        activeSoloSessions[session.player.uniqueId] = session
+    }
+
+    fun unregisterSession(uuid: UUID) {
+        activeSoloSessions.remove(uuid)
+    }
+
+    fun abandonSession(uuid: UUID) {
+        activeSoloSessions.remove(uuid)?.markAbandoned()
     }
 }

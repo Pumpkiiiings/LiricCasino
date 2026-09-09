@@ -1,4 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.yaml.snakeyaml.Yaml
 
 buildscript {
     repositories {
@@ -7,6 +8,7 @@ buildscript {
     dependencies {
         classpath("org.ow2.asm:asm:9.6")
         classpath("org.ow2.asm:asm-commons:9.6")
+        classpath("org.yaml:snakeyaml:2.2")
     }
 }
 
@@ -23,6 +25,12 @@ version = "2.0.4"
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
     }
 }
 
@@ -51,6 +59,8 @@ dependencies {
 
     // Database
     implementation("com.zaxxer:HikariCP:5.1.0")
+    implementation("org.xerial:sqlite-jdbc:3.46.1.0")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.4.1")
 
     // Paper ya incluye Adventure y MiniMessage nativamente
     compileOnly("net.kyori:adventure-text-minimessage:4.17.0")
@@ -74,20 +84,42 @@ tasks {
         targetCompatibility = "21"
     }
 
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "21"
-    }
-
     processResources {
         val props = mapOf("version" to version)
         inputs.properties(props)
         filteringCharset = "UTF-8"
-        filesMatching("paper-plugin.yml") {
+        filesMatching("plugin.yml") {
             expand(props)
         }
     }
 
     build {
-        dependsOn(shadowJar)
+        dependsOn("verifyPluginJar", "verifyYamlResources")
+    }
+}
+
+tasks.register("verifyYamlResources") {
+    val yamlFiles = fileTree("src/main/resources") { include("**/*.yml") }
+    inputs.files(yamlFiles)
+    doLast {
+        yamlFiles.forEach { file ->
+            file.inputStream().use { Yaml().load<Any?>(it) }
+        }
+    }
+}
+
+tasks.register("verifyPluginJar") {
+    dependsOn(tasks.shadowJar)
+    doLast {
+        val jarFile = tasks.shadowJar.get().archiveFile.get().asFile
+        val entries = zipTree(jarFile)
+        val descriptor = entries.matching { include("plugin.yml") }.singleFile
+        check(descriptor.readText().isNotBlank()) { "plugin.yml is missing or empty in ${jarFile.name}" }
+        check(!entries.matching { include("org/sqlite/JDBC.class") }.isEmpty) {
+            "SQLite JDBC driver is missing from ${jarFile.name}"
+        }
+        check(!entries.matching { include("org/mariadb/jdbc/Driver.class") }.isEmpty) {
+            "MariaDB JDBC driver is missing from ${jarFile.name}"
+        }
     }
 }

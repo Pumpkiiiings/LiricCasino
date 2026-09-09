@@ -12,5 +12,6 @@ class PlayerQuitListener(private val plugin: CasinoPlugin) : Listener {
         val uuid = event.player.uniqueId
 
         plugin.handleDisconnect(uuid)
+        plugin.statsManager.unload(uuid)
     }
 }

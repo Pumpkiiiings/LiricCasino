@@ -52,7 +52,7 @@ buttons:
   custom-bet:
     slot: 4
     material: PAPER
-    name: "<#FFD700>Cantidad Custom"
+    name: "<#FFD700>Custom Bet"
 
   spin:
     slot: 22

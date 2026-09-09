@@ -27,7 +27,12 @@ class SlotManager(private val plugin: CasinoPlugin) {
     val slotKey = NamespacedKey(plugin, "casino_slot_id")
 
 
-    val registry: SlotRegistry = SlotRegistry.fromConfig(plugin.config)
+    var registry: SlotRegistry = SlotRegistry.fromConfig(plugin.config)
+        private set
+
+    fun reloadConfig() {
+        registry = SlotRegistry.fromConfig(plugin.config)
+    }
 
     private val dataFile = File(plugin.dataFolder, "data.yml")
     private val dataConfig = YamlConfiguration.loadConfiguration(dataFile)
